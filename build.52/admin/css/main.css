@@ -1,0 +1,1225 @@
+/**
+ *  стили админки
+ * ------------------------------------------------------------------------------------------
+ * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com)
+ *  Rev: 1408, Modified: 
+ *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
+ * ------------------------------------------------------------------------------------------
+ * License MIT - Serge Koriakin - Jule 2012
+ * ------------------------------------------------------------------------------------------
+ */
+/*  --- point::css_prefix --- */
+/*! normalize.css 2011-11-04T15:38 UTC - http://github.com/necolas/normalize.css */
+
+/* =============================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/*
+ * Corrects block display not defined in IE6/7/8/9 & FF3
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section {
+    display: block;
+}
+
+/*
+ * Corrects inline-block display not defined in IE6/7/8/9 & FF3
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/*
+ * Prevents modern browsers from displaying 'audio' without controls
+ */
+
+audio:not([controls]) {
+    display: none;
+}
+
+/*
+ * Addresses styling for 'hidden' attribute not present in IE7/8/9, FF3, S4
+ * Known issue: no IE6 support
+ */
+
+[hidden] {
+    display: none;
+}
+
+
+/* =============================================================================
+   Base
+   ========================================================================== */
+
+/*
+ * 1. Corrects text resizing oddly in IE6/7 when body font-size is set using em units
+ *    http://clagnut.com/blog/348/#c790
+ * 2. Keeps page centred in all browsers regardless of content height
+ * 3. Prevents iOS text size adjust after orientation change, without disabling user zoom
+ *    www.456bereastreet.com/archive/201012/controlling_text_size_in_safari_for_ios_without_disabling_user_zoom/
+ */
+
+html {
+    font-size: 100%; /* 1 */
+/*    overflow-y: scroll; /* 2 */
+    -webkit-text-size-adjust: 100%; /* 3 */
+    -ms-text-size-adjust: 100%; /* 3 */
+}
+
+/*
+ * Addresses margins handled incorrectly in IE6/7
+ */
+
+body {
+    margin: 0;
+}
+
+/* 
+ * Addresses font-family inconsistency between 'textarea' and other form elements.
+ */
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+
+/* =============================================================================
+   Links
+   ========================================================================== */
+
+/*
+ * Addresses outline displayed oddly in Chrome
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/*
+ * Improves readability when focused and also mouse hovered in all browsers
+ * people.opera.com/patrickl/experiments/keyboard/test
+ */
+
+a:hover,
+a:active {
+    outline: 0;
+}
+
+
+/* =============================================================================
+   Typography
+   ========================================================================== */
+
+/*
+ * Neutralise smaller font-size in 'section' and 'article' in FF4+, Chrome, S5
+ */
+
+h1 {
+    font-size: 2em;
+}
+
+/*
+ * Addresses styling not present in IE7/8/9, S5, Chrome
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/*
+ * Addresses style set to 'bolder' in FF3+, S4/5, Chrome
+*/
+
+b, 
+strong { 
+    font-weight: bold; 
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/*
+ * Addresses styling not present in S5, Chrome
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/*
+ * Addresses styling not present in IE6/7/8/9
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/*
+ * Corrects font family set oddly in IE6, S4/5, Chrome
+ * en.wikipedia.org/wiki/User:Davidgothberg/Test59
+ */
+
+pre,
+code,
+kbd,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/*
+ * Improves readability of pre-formatted text in all browsers
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/*
+ * 1. Addresses CSS quotes not supported in IE6/7
+ * 2. Addresses quote property not supported in S4
+ */
+
+/* 1 */
+
+q {
+    quotes: none;
+}
+
+/* 2 */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+small {
+    font-size: 75%;
+}
+
+/*
+ * Prevents sub and sup affecting line-height in all browsers
+ * gist.github.com/413930
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+
+/* =============================================================================
+   Lists
+   ========================================================================== */
+
+ul,
+ol {
+    margin-left: 0;
+    padding: 0 0 0 40px;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+
+/* =============================================================================
+   Embedded content
+   ========================================================================== */
+
+/*
+ * 1. Removes border when inside 'a' element in IE6/7/8/9, FF3
+ * 2. Improves image quality when scaled in IE7
+ *    code.flickr.com/blog/2008/11/12/on-ui-quality-the-little-things-client-side-image-resizing/
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/*
+ * Corrects overflow displayed oddly in IE9 
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+
+/* =============================================================================
+   Figures
+   ========================================================================== */
+
+/*
+ * Addresses margin not present in IE6/7/8/9, S5, O11
+ */
+
+figure {
+    margin: 0;
+}
+
+
+/* =============================================================================
+   Forms
+   ========================================================================== */
+
+/*
+ * Corrects margin displayed oddly in IE6/7
+ */
+
+form {
+    margin: 0;
+}
+
+/*
+ * Define consistent border, margin, and padding
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/*
+ * 1. Corrects color not being inherited in IE6/7/8/9
+ * 2. Corrects alignment displayed oddly in IE6/7
+ */
+
+legend {
+    border: 0; /* 1 */
+    *margin-left: -7px; /* 2 */
+}
+
+/*
+ * 1. Corrects font size not being inherited in all browsers
+ * 2. Addresses margins set differently in IE6/7, FF3+, S5, Chrome
+ * 3. Improves appearance and consistency in all browsers
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/*
+ * Addresses FF3/4 setting line-height on 'input' using !important in the UA stylesheet
+ */
+
+button,
+input {
+    line-height: normal; /* 1 */
+}
+
+/*
+ * 1. Improves usability and consistency of cursor style between image-type 'input' and others
+ * 2. Corrects inability to style clickable 'input' types in iOS
+ * 3. Removes inner spacing in IE7 without affecting normal text inputs
+ *    Known issue: inner spacing remains in IE6
+ */
+
+button,
+input[type="button"], 
+input[type="reset"], 
+input[type="submit"] {
+    cursor: pointer; /* 1 */
+    -webkit-appearance: button; /* 2 */
+    *overflow: visible;  /* 3 */
+}
+
+/*
+ * 1. Addresses box sizing set to content-box in IE8/9
+ * 2. Removes excess padding in IE8/9
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+}
+
+/*
+ * 1. Addresses appearance set to searchfield in S5, Chrome
+ * 2. Addresses box-sizing set to border-box in S5, Chrome (include -moz to future-proof)
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/*
+ * Removes inner padding that is displayed in S5, Chrome on OS X
+ */
+
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/*
+ * Removes inner padding and border in FF3+
+ * www.sitepen.com/blog/2008/05/14/the-devils-in-the-details-fixing-dojos-toolbar-buttons/
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/*
+ * 1. Removes default vertical scrollbar in IE6/7/8/9
+ * 2. Improves readability and alignment in all browsers
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+
+/* =============================================================================
+   Tables
+   ========================================================================== */
+
+/* 
+ * Remove most spacing between table cells
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+}
+
+/**    стиль для устранения текста из графического элемента  */
+.notext {
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.floatright {
+    float:right;
+}
+
+/**    не показывать ненужный элемент, если нельзя его скрыть  */
+.flyaway {
+    position: absolute;
+    top: -1000px;
+    left: -30000px;
+}
+
+.hidden {
+    display:none;
+}
+
+table.fixed {
+    table-layout:fixed;
+}
+
+.long {
+    width:98%;
+}
+
+.valign-middle, .valign-middle span, .valign-middle input {
+    vertical-align:middle;
+}
+
+table.xsite-adm {
+    border: 0; /* border="0" */
+    table-layout: fixed;
+    width: 100%;
+}
+
+table.xsite-adm th {
+    background: #1B1B1B url(../img/gray_bg.png) repeat;
+    height: 24px;
+    padding: 0;
+}
+
+table.xsite-adm td {
+    vertical-align: top;
+    /* height:16px;*/
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 10pt;
+}
+
+.wrapper table td {
+    white-space: normal;
+}
+
+.tahoma10 {
+    font-family: Tahoma, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+}
+
+.tahoma10 .blackbg, .tahoma10 .blackbg a {
+    color: #7e9298;
+}
+
+.tahoma10, .tahoma10  a {
+    color: #252525;
+}
+
+.tahoma10  a {
+    text-decoration: none;
+    font-weight: normal;
+    border-bottom: 1px dotted #808080;
+}
+
+.tahoma10  a:hover, .tahoma10  a.hover {
+    color: #c0f08e;
+}
+
+.tahoma10 .blackbg a {
+    text-decoration: none;
+    font-weight: normal;
+    border-bottom: none;
+}
+
+.tahoma10 .blackbg a:hover {
+    color: #c0f08e;
+}
+
+.hidden div {
+    display: none;
+}
+
+#searchform ._states.arrowrt {
+    position: absolute;
+    right: 2px;
+    top: 5px;
+}
+
+.input11  {
+    border:0;
+    height:18px;
+    width:114px;
+    font-size:11px;
+    padding:1px 10px;
+}
+
+/** модальности */
+.shaddow {
+    -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+.roundborder {
+    border: 1px solid #999;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.rowheader{
+    background: url(../img/gray_bg.png) 0 -20px repeat-x;
+}
+
+.rowheader>div {
+    display:inline-block;
+    padding:5px 0 0 10px;
+    color :white;
+    font-size:15px;
+    vertical-align: top;
+}
+
+.page_title {
+    padding:25px 0 25px 60px;
+}
+.page_title span {
+    margin: 10px 5px;
+}
+/*  --- point::css_body --- */
+.nodeDescriptionTip {
+        padding: 4px 10px;
+        margin: -16px 0 1em 10px;
+        line-height: 1.5;
+        width: 350px;
+        height: 40px;
+    }
+
+    .xenTooltip {
+        font-size: 11px;
+        color: white;
+        cursor: default;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 5px 10px;
+        border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        -khtml-border-radius: 5px;
+        display: none;
+        z-index: 15000;
+    }
+
+    .xenTooltip .arrow {
+        border-top: 6px solid black;
+        border-top: 6px solid rgba(0, 0, 0, 0.6);
+        _border-top: 6px solid rgb(0, 0, 0);
+        border-right: 6px solid transparent;
+        border-bottom: 1px none black;
+        border-left: 6px solid transparent;
+        position: absolute;
+        bottom: -6px;
+        line-height: 0px;
+        width: 0px;
+        height: 0px;
+        left: 9px;
+        _display: none;
+    }
+
+    .nodeDescriptionTip .arrow {
+        border: 6px solid transparent;
+        border-right-color: black;
+        border-right-color: rgba(0, 0, 0, 0.6);
+        _border-right-color: rgb(0, 0, 0);
+        border-left: 1px none black;
+        top: 50%;
+        margin-top: -7px;
+        left: -6px;
+        bottom: auto;
+    }
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: black;
+}
+
+.fade_in {
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+
+/** диалог */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1050;
+    max-height: 500px;
+    overflow: auto;
+    width: 560px;
+    margin: -250px 0 0 -280px;
+}
+.dialog .header {
+    background: #4f9936;
+}
+
+.dialog table td {
+    vertical-align:top;
+}
+.header span.xexit {
+    float:right;
+    margin:14px 10px 0 0;
+}
+.dialog .footer {
+    vertical-align: middle;
+    background: url(../img/gray_bg.png);
+}
+.dialog .inner {
+    width:100%;
+}
+.dialogline {
+    background:url(../img/dialogbar_bg.png) repeat-x;
+    margin:3px 0;
+    line-height:50px;
+}
+.titleline {
+    background: #4f9936;
+    display:inline-block;
+    padding: 5px 10px;
+    margin:5px 0 5px 31px;
+    color : white;
+}
+.dialogline .title {
+    display:inline-block;
+    margin:0 5px 0 15px;
+}
+.dialogline span{
+    color:gray;
+    font-size:11px;
+    vertical-align:middle;
+}
+.dialogline input[type="text"]{
+    width:40px;
+    border:1px solid gray;
+}
+.dialogline input.long{
+    width:300px;
+    border:1px solid gray;
+}
+.dialogline .first {
+    width:278px;
+    display:inline-block;
+}
+.modal.dialog {
+    border: 6px solid white ;
+
+    position:fixed;
+    top:40px; bottom:40px;
+    margin:0;
+    left:10%; width:80%;
+    min-height:400px;
+    min-width:600px;
+    background: white;
+}
+.modal.alert{
+    height: 170px;
+    width: 280px;
+    margin: -85px 0 0 -140px;
+    border: 10px solid white ;
+    text-align:center;
+    border-right-width: 12px;
+    border-left-width: 12px;
+    background: url(../img/green_bg.png);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding-box;
+    background-clip: padding-box;
+    color:white;
+    font-weight: bold;
+    font-size:12px;
+}
+.modal.alert .message{
+    margin: 50px 20px 30px 20px;
+}
+.modal.alert button{
+    color:white;
+    margin: 10px 0 0 0;
+    font-weight: bold;
+}
+.modal.alert .text {
+    width:200px;
+}
+
+.modal .header .title {
+    display:inline-block;
+    font-size:20px;
+    color:white ;
+    margin:5px 70px 5px 20px;
+}
+.modal .header .title1 {
+    display:inline-block;
+    color:white ;
+}
+.modal .header .title1 input{
+    width:200px; margin-left:10px;
+}
+
+
+    .page_subtitle {
+        position: relative;
+    }
+    .page_subtitle .checkbox  {
+        padding: 2px 5px;
+        border: 1px solid gray;
+        height: 17px;
+        display: inline-block;
+        position: relative;
+        z-index:10;
+        background: white;
+    }
+    .page_subtitle .menu{
+        position: absolute;
+        top:22px;
+        display: none;
+        left:0;
+        border: 1px solid gray;
+        z-index:9;
+    }
+    .page_subtitle .menu ul {
+        margin:0;
+    }
+    .wrapper{
+        overrflow-y:auto;
+        padding-right:20px;
+    }
+    .editorline {
+        background: url(../img/pane_bg.png) repeat-x;
+    }
+    .wrapper tr.editorline td{
+        vertical-align: middle;
+    }
+    ._states.pdel{
+        margin:28px 12px 0 12px;
+    }
+    ._states.pgreen {
+        text-align: center;
+    }
+    ._states.pgreen span.number {
+        display:inline-block;
+        color:white;
+        font-size:11px;
+        font-family: arial;
+        margin:9px auto 5px auto;
+    }
+    ._states.pgreen input {
+        display:block;
+        margin:0 auto 0 auto;
+    }
+    .editorline .xaction {
+        margin-top:18px;
+    }
+    .editorline .xaction a {
+        font-size:11px;
+        font-weight:bold;
+    }
+
+.treemenu ul,ul.treemenu {
+    margin: 0 0 0 15px;
+    padding:0 ;
+    list-style-type: none;
+}
+
+ul.treemenu {
+    margin:0;
+}
+
+ul.treemenu>li>a {
+    font-weight: bold;
+    font-size:12px;
+    line-height: 18px;
+}
+
+ul.treemenu>li.off>a {
+    color: lightgray;
+}
+
+
+#colorpicker {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1060;
+        width: 160px;
+        height: 100px;
+        overflow: hidden;
+        background: lightgray;
+    }
+
+    #colorpicker .rule {
+        float: left;
+        width: 20px;
+        height: 90px;
+        margin: 5px 1px 5px 5px;
+    }
+    #colorpicker .pane {
+        float: left;
+        width: 90px;
+        height: 90px;
+        margin: 5px 1px 5px 5px;
+    }
+
+._states {
+    outline:none;
+    display:inline-block;
+    background: url(../img/align.png) no-repeat 0 0;
+    border: 0;
+    cursor: pointer;
+    padding:0;
+}
+a._states {
+    text-decoration:none;
+    border:0;
+}
+
+.collapsed>._states.treepoint {
+     background-position:-10px -50px;
+}
+
+.expanded>._states.treepoint {
+     background-position:0 -50px;
+}
+
+._states.treepoint {
+     background-position:-20px -50px;
+     width: 10px;
+     height: 10px;
+}
+
+._states.help {
+     background-position:0 0;
+     width: 18px;
+     height: 16px;
+}
+
+._states.logout {
+     background-position:0 -20px;
+     width: 18px;
+     height: 16px;
+}
+
+._states.arrowrt {
+     background-position:0 -40px;
+     width: 10px;
+     height: 10px;
+}
+
+._states.downcrn {
+     background-position:-40px -50px;
+     width: 10px;
+     height: 10px;
+}
+
+.collapsed>._states.sidebarroll {
+     background-position:0 -160px;
+}
+
+.expanded>._states.sidebarroll {
+     background-position:-20px -160px;
+}
+
+._states.sidebarroll {
+     background-position:-40px -160px;
+     width: 14px;
+     height: 30px;
+}
+
+._states.xilenium {
+     background-position:0 -320px;
+     width: 100px;
+     height: 37px;
+}
+
+._states.param {
+     background-position:-100px -320px;
+     width: 100px;
+     height: 18px;
+}
+
+._states.dbutton {
+     background-position:-200px -320px;
+     width: 110px;
+     height: 24px;
+}
+
+._states.redo {
+     background-position:0 -200px;
+     width: 32px;
+     height: 25px;
+}
+
+._states.bigparam {
+     background-position:-60px 0;
+     width: 130px;
+     height: 80px;
+}
+
+._states.bigtext {
+     background-position:-60px -80px;
+     width: 60px;
+     height: 80px;
+}
+
+._states.biglink {
+     background-position:-60px -160px;
+     width: 60px;
+     height: 80px;
+}
+
+._states.bigcolumns {
+     background-position:-60px -240px;
+     width: 60px;
+     height: 80px;
+}
+
+._states.bigfoto {
+     background-position:-200px -80px;
+     width: 60px;
+     height: 80px;
+}
+
+._states.bigcomment {
+     background-position:-200px -160px;
+     width: 60px;
+     height: 80px;
+}
+
+._states.greenbutton {
+     background-position:-200px -240px;
+     width: 70px;
+     height: 30px;
+}
+
+._states.ffolder {
+     background-position:-270px -240px;
+     width: 20px;
+     height: 20px;
+}
+
+._states.ffile {
+     background-position:-270px -260px;
+     width: 20px;
+     height: 20px;
+}
+
+._states.xexit {
+     background-position:0 -100px;
+     width: 13px;
+     height: 12px;
+}
+
+._states.xhelp {
+     background-position:-20px -100px;
+     width: 18px;
+     height: 18px;
+}
+
+._states.xbar {
+     background-position:-290px -240px;
+     width: 31px;
+     height: 54px;
+}
+
+._states.xbardivider {
+     background-position:-323px -240px;
+     width: 2px;
+     height: 54px;
+}
+
+._states.xbarsepar {
+     background-position:-325px -240px;
+     width: 2px;
+     height: 27px;
+}
+
+._states.xupdn {
+     background-position:-40px -80px;
+     width: 12px;
+     height: 14px;
+}
+
+._states.xltrt {
+     background-position:-40px -100px;
+     width: 12px;
+     height: 14px;
+}
+
+._states.xup {
+     background-position:-20px -120px;
+     width: 12px;
+     height: 14px;
+}
+
+._states.xdn {
+     background-position:-40px -120px;
+     width: 12px;
+     height: 14px;
+}
+
+._states.xlt {
+     background-position:-20px -140px;
+     width: 12px;
+     height: 14px;
+}
+
+._states.xrt {
+     background-position:-40px -140px;
+     width: 12px;
+     height: 14px;
+}
+
+.hiddenitem>._states.pgreen {
+     background-position:-360px 0;
+}
+
+._states.pgreen {
+     background-position:-320px 0;
+     width: 32px;
+     height: 65px;
+}
+
+._states.pseparator {
+     background-position:-354px 0;
+     width: 3px;
+     height: 65px;
+}
+
+._states.pdel {
+     background-position:0 -60px;
+     width: 13px;
+     height: 12px;
+}
+
+._states.p_up {
+     background-position:-20px -40px;
+     width: 8px;
+     height: 8px;
+}
+
+._states.p_dn {
+     background-position:-40px -40px;
+     width: 8px;
+     height: 8px;
+}
+
+._states.p_sqr {
+     background-position:-40px -60px;
+     width: 13px;
+     height: 12px;
+}
+
+/* Generic context menu styles */
+    .contextMenu {
+        position: absolute;
+        min-width:100px;
+        max-height:400px;
+        z-index: 99999;
+        border: solid 1px #ccc;
+        background: #f0f0f0;
+        padding: 2px 1px;
+        margin: 0;
+        display: none;
+        box-shadow:         3px 3px 3px #8e8e8e;
+    }
+    .contextMenu.white{
+        background:white;
+        border: 1px solid gray;
+    }
+
+    .contextMenu LI {
+        list-style: none;
+        padding: 0 ;
+        margin: 0  ;
+    }
+
+    span.shortcut,.contextMenu A{
+        font-size: 9pt;
+        font-family: Arial,sans-serif;
+        text-decoration: none;
+        vertical-align: middle;
+        line-height: 1.8em;
+
+    }
+
+    .contextMenu A {
+        color: #333;
+        display: block;
+        background-position: 6px center;
+        background-repeat: no-repeat;
+        outline: none;
+        padding: 1px 62px 1px 18px ;
+        border:0;
+    }
+
+    .contextMenu LI.hover>A, .contextMenu LI.hover>span.shortcut {
+        color: #FFF;
+        background-color: #3399FF;
+    }
+
+    .contextMenu LI.disabled A {
+        color: #AAA;
+        cursor: default;
+    }
+
+    .contextMenu LI.hover.disabled A {
+        background-color: transparent;
+    }
+
+    .contextMenu LI.separator {
+        border-top: 1px solid #e0e0e0;
+        margin:4px 0;
+        /* overflow:hidden;*/
+        height:1px;
+        background:white;
+
+    }
+
+    a.default{
+        font-weight: bold;
+    }
+
+    span.shortcut {
+        float:right;
+        margin:0 10px;
+    }
+
+    .contextMenu .regedit-icon-trig {
+        float:right;
+    }
+
+        /* отображаем вложенное меню при наведении мыши */
+    .contextMenu li.hover {
+        position: relative;
+    }
+        /* скрываем вложенные пункты меню */
+    .contextMenu li ul {
+        margin-left:100%;
+        position: absolute;
+        left: -10px;
+        top: 2px;
+    }
+
+    .contextMenu li.hover > ul {
+        display:block;
+    }

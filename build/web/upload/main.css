@@ -1,0 +1,125 @@
+﻿html, body {
+margin: 0;
+height: 100%;
+}
+
+* {
+margin: 0;
+padding: 0;
+font-family: arial;
+}
+
+#main {
+padding-top: 25px;
+padding-left: 18px;
+width: 740px;
+}
+
+#main h1 {
+margin-bottom: 25px;
+color: #c38e3a;
+font-size: 21px;
+font-weight: bold;
+text-align: center;
+}
+
+#main p {
+color: #504851;
+font-size: 13px;
+}
+
+#main .item {
+position: relative;
+width: 700px;
+min-height: 185px;
+}
+
+#first {
+margin-top: 20px;
+}
+
+#main .line {
+width: 100%;
+height: 1px;
+background: #969397;
+}
+
+#main .close {
+position: absolute;
+top: 0px;
+right: 0px;
+width: 14px;
+height: 15px;
+background-image: url(../../images/sale/close.jpg);
+}
+
+#main .item img {
+position: absolute;
+top: 8px;
+left: 20px;
+}
+
+.item .text {
+position: absolute;
+left: 220px;
+width: 215px;
+top: 12px;
+}
+
+.item .h {
+color: #6e396e;
+font-size: 14px;
+text-decoration: none;
+}
+
+.item .h:hover {
+text-decoration: underline;
+}
+
+.item .color {
+color: #7b7b7b;
+font-size: 16px;
+margin-top: 20px;
+}
+
+.item .nal {
+color: #b53a37;
+font-size: 12px;
+font-weight: bold;
+margin-top: 23px;
+}
+
+.item .time {
+color: #615b61;
+font-size: 12px;
+width: 280px;
+margin-top: 18px;
+}
+
+.price {
+position: absolute;
+top: 25px;
+right: 47px;
+
+color: #5890b7;
+font-size: 24px;
+font-weight: bold;
+}
+
+.more {
+position: absolute;
+top: 80px;
+right: 53px;
+width: 102px;
+height: 28px;
+background-image: url(../../images/sale/more.png);
+}
+
+.buy {
+position: absolute;
+top: 120px;
+right: 41px;
+width: 113px;
+height: 30px;
+background-image: url(../../images/sale/buy.png);
+}

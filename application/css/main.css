@@ -1,0 +1,34 @@
+/**
+ *  стили админки
+ * <% POINT::start('css_prefix');
+ require_once('../css/normalize.css');
+    point_finish();
+echo POINT::get('hat','comment');%>
+ */
+/* <%=POINT::get("css_prefix"); %> */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height:100%;
+
+}
+
+body {
+    position: relative;
+}
+
+table.fixed {
+    table-layout:fixed;
+}
+table td, table th {
+    vertical-align: top;
+}
+.long {
+    width:100%;
+}
+.wide {
+    height:100%;
+}
+
+/* <%=POINT::get('css_site');%> */

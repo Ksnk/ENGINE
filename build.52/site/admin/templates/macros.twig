@@ -1,0 +1,50 @@
+##
+## генерация таблицы редактирования свойств по структуре
+##   ELEMENT :=: {type:"fieldset"
+##      ,label:STRING,attributes:STRING
+##      ,elements:[ELEMENT]
+##      ,error:STRING,required:BOOLEAN,
+##      ,separator:STRING|ARRAY of STRING
+##      ,html:STRING
+##  }
+##
+
+{% macro output_element(element, ingroup) %}
+{% if 'fieldset' == element.type %}
+<fieldset{{ element.attributes|raw }}>
+    <legend>{{ element.label }}</legend>
+    {% for child in element.elements %}
+    {{ _self.output_element(child) }}
+    {% endfor %}
+</fieldset>
+{% elseif element.elements is defined %}
+<div class="row">
+    <label class="element">
+        {% if element.required %}<span class="required">* </span>{% endif %}
+        {{ element.label }}
+    </label>
+
+    <div class="element group {% if element.error %} error{% endif %}">
+        {% if element.error %}<span class="error">{{ element.error }}<br/></span>{% endif %}
+        {% for child in element.elements %}
+        {{ _self.output_element(child, true) }}
+        {{ element.separator[loop.index0]|raw }}
+        {% endfor %}
+    </div>
+</div>
+{% elseif ingroup %}
+{{ element.html|raw }}
+{% else %}
+<div class="row">
+    <label for="{{ element.id }}" class="element">
+        {% if element.required %}<span class="required">* </span>{% endif %}
+        {{ element.label }}
+    </label>
+
+    <div class="element {% if element.error %} error{% endif %}">
+        {% if element.error %}<span class="error">{{ element.error }}<br/></span>{% endif %}
+        {{ element.html|raw }}
+    </div>
+</div>
+{% endif %}
+{% endmacro %}

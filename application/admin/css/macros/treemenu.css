@@ -1,0 +1,22 @@
+/* <% POINT::start('css_body');%> /**/
+.treemenu ul,ul.treemenu {
+    margin: 0 0 0 15px;
+    padding:0 ;
+    list-style-type: none;
+}
+
+ul.treemenu {
+    margin:0;
+}
+
+ul.treemenu>li>a {
+    font-weight: bold;
+    font-size:12px;
+    line-height: 18px;
+}
+
+ul.treemenu>li.off>a {
+    color: lightgray;
+}
+
+/* <% POINT::finish(); %> */

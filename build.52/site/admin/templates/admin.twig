@@ -1,0 +1,375 @@
+#########################################################################
+##
+##  шаблоны админки
+##
+#########################################################################
+
+##
+##  вывод левой части строки - с заголовком и подсказкой
+##
+{%- macro first(title,help) %}
+<span class="_states xbardivider notext floatright">|</span>
+<div class="first">
+    <span class="_states xbar notext">|</span><span class="title">{{title}}</span>
+    {%- if help %}
+    <span class="_states xhelp notext" title="{{help}}">?</span>
+    {% endif %}
+</div>
+<span class="_states xbardivider notext">|</span>
+{% endmacro -%}
+#############################################################################
+##   support - внутренние макры для вывода отдельных элементов
+##  option - имя элемента value - массив значений элемента
+#############################################################################
+##
+##  вывод инпута
+##
+{%- macro longinput(option,value,def='') %}
+<input class="long" type="text" name="{{option}}" value="{{value[option]|default(def)}}">
+{% endmacro -%}
+##
+##  вывод скрытого значения
+##
+{%- macro hidden(option,value) %}
+<input type="hidden" name="{{option}}" value="{{value[option]|default('')}}">
+{% endmacro -%}
+##
+##  вывод инпута
+##
+{%- macro input(option,value) %}
+<input type="text" name="{{option}}" value="{{value[option]|default('')}}">
+{% endmacro -%}
+##
+##  вывод селектбокс
+##
+{%- macro select(option,sel) %}
+<select name="{{option}}" value="{{callex('Main','option',option)}}">
+    {%for ind,val in sel%}
+    <option value="{{ind}}">{{val}}</option>
+    {% endfor %}
+</select>
+{% endmacro -%}
+##
+##  вывод чекбокса
+##
+{%- macro check(option) %}
+<input type="checkbox" name="{{option}}" {% if callex('Main','option',option)%}checked="checked"{% endif%}">
+{% endmacro -%}
+##
+##  вывод цвета
+##
+{%- macro color(option) %}
+<span>Цвет:</span>
+<input type="text" class="color" name="{{option}}" value="{{callex('Main','option',option)}}">
+{% endmacro -%}
+
+#########################################################################
+##  страничный редактор
+##
+#########################################################################
+##  вывод текстового блока для панели редактора
+##
+{%- macro text(option) %}
+<textarea class="hidden tinyEdit" name="{{option}}">
+    {{callex('Main','option',option)|default("нажмите сюда для вставки текста")}}
+</textarea>
+{% endmacro -%}
+
+#########################################################################
+##
+##  шаблоны - диалог параметров
+##
+#########################################################################
+{%- macro param(data=0) %}
+{%- for title,body in data %}
+{% set bdata = body.data %}
+{% if not body %}
+<div style="height:20px;"></div>
+{% elseif body.type=='title' -%}
+<div class="titleline">{{title}}</div>
+{% elseif body.type=='str' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{input(bdata)}}
+</div>
+{% elseif body.type=='XxX' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{input(bdata[0])}}x{{input(bdata[1])}}
+</div>
+{% elseif body.type=='ramka' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span class="_states xupdn notext">|</span>
+    {{input(bdata[0])}}
+    <span class="_states xltrt notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xbarsepar notext">|</span>
+    {{color(bdata[3])}}
+    <span class="_states xbarsepar notext">|</span>
+    {{check(bdata[4])}}
+</div>
+{% elseif body.type=='offset' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span class="_states xup notext">|</span>
+    {{input(bdata[0])}}
+    <span class="_states xdn notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xlt notext">|</span>
+    {{input(bdata[2])}}
+    <span class="_states xrt notext">|</span>
+    {{input(bdata[3])}}
+</div>
+{% elseif body.type=='disp' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span class="_states xupdn notext">|</span>
+    {{input(bdata[0])}}
+    <span class="_states xltrt notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xbarsepar notext">|</span>
+    <span>Название фото</span>
+    {{check(bdata[4])}}
+</div>
+{% elseif body.type=='animation' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span>Задержка, сек.</span>
+    {{input(bdata[0])}}
+    <span class="_states xbarsepar notext">|</span>
+    <span>Вид.</span>
+    {{select(bdata[0],['простой','затухание'])}}
+    <span class="_states xltrt notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xbarsepar notext">|</span>
+    <span>Название фото</span>
+    {{check(bdata[4])}}
+</div>
+
+{% else %}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{body.type}}
+</div>
+{% endif  %}
+{%- endfor%}
+{% endmacro -%}
+
+#########################################################################
+##
+##  шаблоны - параметры страницы
+##
+#########################################################################
+{%- macro pageparam(data=0,values=0) %}
+{%- for title,body in data %}
+{% set bdata = body.data %}
+{% if not body %}
+<div style="height:20px;"></div>
+{% elseif body.type=='header' -%}
+{{title}}
+{{input(bdata,values)}}
+{% elseif body.type=='checkbox' -%}
+<div class="checkboxline">
+    {{title}}
+    {{check(bdata[4])}}
+</div>
+{% elseif body.type=='title' -%}
+<div class="titleline">{{title}}</div>
+{% elseif body.type=='str' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{longinput(bdata,values)}}
+</div>
+{% elseif body.type=='hidden' -%}
+    {{hidden(bdata,values)}}
+{% elseif body.type=='link' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{longinput(bdata,values)}}
+</div>
+{% elseif body.type=='XxX' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{input(bdata[0])}}x{{input(bdata[1])}}
+</div>
+{% elseif body.type=='ramka' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span class="_states xupdn notext">|</span>
+    {{input(bdata[0])}}
+    <span class="_states xltrt notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xbarsepar notext">|</span>
+    {{color(bdata[3])}}
+    <span class="_states xbarsepar notext">|</span>
+    {{check(bdata[4])}}
+</div>
+{% elseif body.type=='offset' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span class="_states xup notext">|</span>
+    {{input(bdata[0])}}
+    <span class="_states xdn notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xlt notext">|</span>
+    {{input(bdata[2])}}
+    <span class="_states xrt notext">|</span>
+    {{input(bdata[3])}}
+</div>
+{% elseif body.type=='disp' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span class="_states xupdn notext">|</span>
+    {{input(bdata[0])}}
+    <span class="_states xltrt notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xbarsepar notext">|</span>
+    <span>Название фото</span>
+    {{check(bdata[4])}}
+</div>
+{% elseif body.type=='animation' -%}
+<div class="dialogline"> {{first(title,body.title)}}
+    <span>Задержка, сек.</span>
+    {{input(bdata[0])}}
+    <span class="_states xbarsepar notext">|</span>
+    <span>Вид.</span>
+    {{select(bdata[0],['простой','затухание'])}}
+    <span class="_states xltrt notext">|</span>
+    {{input(bdata[1])}}
+    <span class="_states xbarsepar notext">|</span>
+    <span>Название фото</span>
+    {{check(bdata[4])}}
+</div>
+
+{% else %}
+<div class="dialogline"> {{first(title,body.title)}}
+    {{body.type}}
+</div>
+{% endif  %}
+{%- endfor%}
+{% endmacro -%}
+
+#########################################################################
+##
+##  шаблоны - список пользователей
+##
+#########################################################################
+{%- macro users(data=0) %}
+{%- for title,body in data %}
+user<br>
+
+{%- endfor%}
+{% endmacro -%}
+
+#########################################################################
+##
+##  шаблон - страница
+##
+#########################################################################
+##
+##  хвостик с float-right компонентами
+##
+{%- macro edlinefinish(data=0) %}
+<span class="_states pseparator floatright notext">|</span>
+<span class="_states pdel floatright notext"></span>
+<span class="_states pseparator floatright notext">|</span>
+<div class="floatright" style="text-align: center;margin:5px 10px;">
+    <span class="_states p_up  notext">|</span><br>
+    <span class="_states p_sqr  notext">|</span> <br>
+    <span class="_states p_dn  notext">|</span>
+</div>
+<span class="_states pseparator floatright notext">|</span>
+<span class="_states pdel floatright notext"></span>
+<span class="_states pseparator floatright notext">|</span>
+{% endmacro %}
+
+##
+##  сама страница
+##
+{%- macro page (data=0) %}
+<div class="page_title">
+    <span class="_states bigparam notext" onclick="return ADMIN('pageParam');" style="float:right;">param</span>
+    <span class="_states bigtext notext" onclick="return ADMIN('appendText');">Text</span>
+    <span class="_states bigfoto notext" onclick="return ADMIN('appendFoto');">foto</span>
+    <span class="_states biglink notext" onclick="return ADMIN('appendLink');">link</span>
+    <span class="_states bigcomment notext" onclick="return ADMIN('appendComment');">comment</span>
+    <span class="_states bigcolumns notext" onclick="return ADMIN('appendColumns');">columns</span>
+</div>
+<div class="page_subtitle valign-middle">
+    <span data-menu="Добавить#add||Переименовать#renam|Удалить#del||Copy#copy|Paste#paste||Параметры#menuParam" style="position:relative;" class="checkbox"><input type="checkbox"><span style="margin: 0 5px 0 10px;" class="_states downcrn notext downmenu">X</span>
+ {#   <ul class="contextMenu" style="background:white; top: 21px; left: -1px; display: block;"><li class=""><a href="#add">Добавить</a></li><li class="separator"></li><li><a href="#copy">Copy</a></li><li><a href="#paste">Paste</a></li><li class="separator"></li><li ><a href="#showpar">Параметры</a></li></ul>#}</span>
+ {#   <span class="menu">
+         <ul>
+             <li>one</li>
+             <li>two</li>
+             <li>three</li>
+             <li>four</li>
+         </ul>
+    </span>   #}
+
+    <div class="titleline">{% set item = callex('Sitemap','current') %}{{item.name}} </div>
+</div>
+<div class="wrapper">
+    <table class="fixed long">
+        <col width=32>
+        <col width=80>
+        <col>
+        <col width=100>
+        <col width=40>
+        <col width=40>
+        <col width=40>
+
+        {% for elem in data %}
+        <tr class="editorline" data-element="{type:'{{elem.type}}',eid:{{elem.typeid}}}">
+            <td {% if elem.type=='text' %}{% elseif elem.type=='foto' %}{%else%} class="hiddenitem"{%endif%}>
+            <span class="_states pgreen floatleft">
+        <span class="number">{{loop.index}}</span>
+        <input type="checkbox">
+    </span></td>
+            {% if elem.type=='text' %}
+            <td></td>
+            {% set xxx=truncate(elem.data[0].text,100)%}
+            <td onclick="ADMIN('htmleditor',this)">{{xxx|default('Нажмите сюда для вставки нового текста')}}
+            </td>
+            <td>
+                <span class="_states pseparator floatright notext">|</span>
+                <div class="xaction"><a class="upload" href="javascript:ADMIN('upload',this)">Доб.
+                    фото</a><span>({{xx|default(0)}})</span><br>
+                    <a href="javascript:ADMIN('htmleditor',this)">Подробнее</a>
+                </div>
+            </td>
+            <td>
+                <span class="_states pseparator floatright notext">|</span>
+                <span class="_states pdel floatright notext"></span>
+            </td>
+            {% elseif elem.type=='foto' %}
+            <td colspan=2>
+            </td>
+            <td>
+                <span class="_states pseparator floatright notext">|</span>
+
+                <div class="xaction"><a class="upload" data-admin="addFoto#{id:{{elem.id}},type:'{{elem.type}}'}"
+                                        href="javascript:ADMIN('upload',this)">Доб.
+                    фото</a><span>({{xx|default(0)}})</span>
+                </div>
+            </td>
+            <td>
+                <span class="_states pseparator floatright notext">|</span>
+                <span class="_states pdel floatright notext"></span>
+            </td>
+            {% else %}
+            <td colspan=4>
+                unsupported type
+            </td>
+            {% endif %}
+            <td>
+                <span class="_states pseparator floatright notext">|</span>
+                <div class="" style="text-align: center;margin:5px 10px;">
+                    <span class="_states p_up  notext">|</span><br>
+                    <span class="_states p_sqr  notext">|</span> <br>
+                    <span class="_states p_dn  notext">|</span>
+
+                </div>
+            </td>
+            <td>
+                <span class="_states pseparator floatright notext">|</span>
+                <span title="удалить" onclick="ADMIN('deleteEl',this);" class="_states pdel floatright notext"></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan=6 style="height:3px;"></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+{% endmacro -%}

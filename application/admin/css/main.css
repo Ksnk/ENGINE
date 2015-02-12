@@ -1,0 +1,164 @@
+/**
+ *  стили админки
+ * <% POINT::start('css_prefix');
+ require_once('../../css/normalize.css');
+    point_finish();
+echo POINT::get('hat','comment');%>
+ */
+/* <%=POINT::get("css_prefix"); %> */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+}
+
+/**    стиль для устранения текста из графического элемента  */
+.notext {
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.floatright {
+    float:right;
+}
+
+/**    не показывать ненужный элемент, если нельзя его скрыть  */
+.flyaway {
+    position: absolute;
+    top: -1000px;
+    left: -30000px;
+}
+
+.hidden {
+    display:none;
+}
+
+table.fixed {
+    table-layout:fixed;
+}
+
+.long {
+    width:98%;
+}
+
+.valign-middle, .valign-middle span, .valign-middle input {
+    vertical-align:middle;
+}
+
+table.xsite-adm {
+    border: 0; /* border="0" */
+    table-layout: fixed;
+    width: 100%;
+}
+
+table.xsite-adm th {
+    background: #1B1B1B url(../img/gray_bg.png) repeat;
+    height: 24px;
+    padding: 0;
+}
+
+table.xsite-adm td {
+    vertical-align: top;
+    /* height:16px;*/
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 10pt;
+}
+
+.wrapper table td {
+    white-space: normal;
+}
+
+.tahoma10 {
+    font-family: Tahoma, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+}
+
+.tahoma10 .blackbg, .tahoma10 .blackbg a {
+    color: #7e9298;
+}
+
+.tahoma10, .tahoma10  a {
+    color: #252525;
+}
+
+.tahoma10  a {
+    text-decoration: none;
+    font-weight: normal;
+    border-bottom: 1px dotted #808080;
+}
+
+.tahoma10  a:hover, .tahoma10  a.hover {
+    color: #c0f08e;
+}
+
+.tahoma10 .blackbg a {
+    text-decoration: none;
+    font-weight: normal;
+    border-bottom: none;
+}
+
+.tahoma10 .blackbg a:hover {
+    color: #c0f08e;
+}
+
+.hidden div {
+    display: none;
+}
+
+#searchform ._states.arrowrt {
+    position: absolute;
+    right: 2px;
+    top: 5px;
+}
+
+.input11  {
+    border:0;
+    height:18px;
+    width:114px;
+    font-size:11px;
+    padding:1px 10px;
+}
+
+/** модальности */
+.shaddow {
+    -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+.roundborder {
+    border: 1px solid #999;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.rowheader{
+    background: url(../img/gray_bg.png) 0 -20px repeat-x;
+}
+
+.rowheader>div {
+    display:inline-block;
+    padding:5px 0 0 10px;
+    color :white;
+    font-size:15px;
+    vertical-align: top;
+}
+
+.page_title {
+    padding:25px 0 25px 60px;
+}
+.page_title span {
+    margin: 10px 5px;
+}
+/* <%=POINT::get('css_body');%> */

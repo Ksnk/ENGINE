@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+    <!-- сборка ядра для Лапси-->
+
+    <var name="web" default="$dst"/>
+    <var name="system" default="$dst"/>
+    <var name="site" default="$dst"/>
+
+    <var name="version">X-Site cms (2.0, Sunty build), written by Ksnk (sergekoriakin@gmail.com)</var>
+    <var name="license">License MIT - Serge Koriakin - Jule 2012</var>
+    <import name="../preprocessor/git.hat.xml"/>
+    <!-- сборка ядра CMS (system)-->
+    <files code=":cp1251">
+    <files>
+        <file>application/admin/css/macros/*.*</file>
+        <file>plugins/macros/jinja_template.php</file>
+    </files>
+
+    <files dir="src/kernel">  <!-- конфигурация ядра -->
+        <file>engine_nocache.php</file>
+<!--        <file>events.php</file> -->
+        <file>options.php</file>
+        <file>autoload.php</file>
+ <!--       <file>engine_session.php</file>-->
+        <file>engine_xdata.php</file>
+        <file>engine_debug.php</file>
+        <file>engine_init.php</file>
+        <file>engine_db_handler.php</file>
+        <file>engine_shutdown.php</file>
+    </files>
+
+    <files dir="src/kernel" dstdir="$system">
+        <file >engine.php</file>
+    </files>
+    <!--
+    <files dir="src" dstdir="$system">
+        <file>func.php</file>
+    </files>
+
+    <files dir="plugins" dstdir="$system/plugins">
+        <file>*.php</file>
+    </files>
+
+    <files dir="src/kernel/options" dstdir="$system/plugins">
+        <file>*.php</file>
+    </files>-->
+
+    <files dir="../sql_template" dstdir="$system">
+        <file name="xDatabaseLapsi.php">xDatabase.php</file>
+    </files>
+    </files>
+</config>

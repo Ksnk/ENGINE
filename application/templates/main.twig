@@ -1,0 +1,63 @@
+{% extends "boilerplate.twig" %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block data%}
+<table class="fixed long wide">
+    <col width="100px">
+    <col width="10%">
+    <col width="200px">
+    <col width="10%">
+    <col width="50px">
+    <col width="10%">
+    <col width="420px">
+    <col width="50%">
+    <col width="20%">
+    <col width="130">
+    <tr style="background:url({{root}}img/gray_bg.png);">
+        <td colspan=6 style="height:84px;">
+            <a href="{{root}}/" class="_states mail" style="float:right; margin:10px 10px 0 0;">&nbsp;</a>
+            <a href="{{root}}/" class="_states sitemap" style="float:right; margin:10px 60px 0 0;">&nbsp;</a>
+            <a href="{{root}}/" class="_states home" style="float:right; margin:10px 60px 0 0;">&nbsp;</a>
+        </td>
+        <td colspan=4>
+            <a href="{{root}}/" class="_states online" style="float:right; margin:15px 20px 0 0;">&nbsp;</a>
+        </td>
+    </tr>
+    <tr style="background:url({{root}}img/gray_bg.png);">
+        <td colspan=6 style="background:black;height:90px;">
+            <a href="{{root}}/" class="_states engine" style="float:right; margin:15px 20px 0 0;">&nbsp;</a>
+        </td>
+        <td colspan=4>
+        </td>
+    </tr>
+    <tr>
+        <td colspan=10 style="height:30px;">
+            {% set map=callEx('Sitemap','getSiteMap') %}
+            <div id="menu_container" style="height:30px;">
+                <ul class="treemenu ulmenu">
+                {{ulli(map[1])}}
+                </ul>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan=2></td>
+        <td colspan=2>{::news - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </td>
+        <td colspan=2></td>
+        <td colspan=2>{data  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</td>
+        <td colspan=2></td>
+    </tr>
+
+    <tr>
+        <td colspan=10  style="height:50px;background:url({{root}}img/gray_bg.png);">
+            <a class="_states xilen" style="float:right;margin:5px 60px 0 0;" href="#">&nbsp;
+            </a>
+        </td>
+    </tr>
+</table>
+<div id="debug"></div>
+
+{% endblock %}

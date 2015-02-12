@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="cms" default="build Lapsi">
+
+    <import file="../common/common2.xml"/>
+    <property name="last_ftp" value="01/31/13 22:16:19"/>
+    <property name="zip" value="cms"/>
+
+    <target name="browser" depends="build test" description="run test">
+        <property name="dst" value="/projects/cms/build"/>
+        <exec command="start http://localhost${dst}/web" checkreturn="false" logoutput="false" />
+    </target>
+
+    <target name="build test" description="build project">
+        <preprocess config="config.xml" force="force">
+            <param name="root_url" value="/projects/cms/build/web"/>
+            <param name="dst" value="build"/>
+        </preprocess>
+    </target>
+
+    <target name="build Lapsi" description="build project">
+        <preprocess config="configLapsi.xml" force="force">
+            <param name="root_url" value="/"/>
+            <param name="dst" value="build.lapsi"/>
+        </preprocess>
+    </target>
+
+    <target name="build LapsiTV" description="build project">
+        <preprocess config="configLapsiTV.xml" force="force">
+            <param name="root_url" value="/"/>
+            <param name="dst" value="build.lapsiTV"/>
+        </preprocess>
+    </target>
+
+    <target name="build Sunty" description="build project">
+        <preprocess config="configSunty.xml" force="force">
+            <param name="root_url" value="/"/>
+            <param name="dst" value="build.sunty"/>
+        </preprocess>
+    </target>
+    <target name="build Yourlamp" description="build project">
+        <preprocess config="configYourlamp.xml" force="force">
+            <param name="root_url" value="/"/>
+            <param name="dst" value="build.yourlamp"/>
+        </preprocess>
+    </target>
+    <target name="build Micuna" description="build project">
+        <preprocess config="configMicuna.xml" force="force">
+            <param name="root_url" value="/"/>
+            <param name="dst" value="build.micuna"/>
+        </preprocess>
+    </target>
+
+    <target name="build console" description="build project">
+        <preprocess config="configConsole.xml" force="force">
+            <param name="root_url" value="/"/>
+            <param name="dst" value="build.console"/>
+        </preprocess>
+    </target>
+
+    <target name="build xsite php52" description="build project for 52 xsite">
+        <property name="dst" value="build.52"/>
+        <preprocess config="config.xml" force="force">
+            <!--
+            сей параметр означает, что весь сайт располагается в web каталоге $dst
+            -->
+            <param name="target" value="directory"/>
+            <param name="dst" value="${dst}"/>
+            <param name="web" value="${dst}"/>
+            <param name="root_url" value="/x-site"/>
+        </preprocess>
+
+        <delete file="./${zip}.zip"/>
+        <copy todir="build.52.forzip" preservelastmodified="true">
+            <fileset dir="build.52">
+                <date datetime="${last_ftp}" when="after"/>
+            </fileset>
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="ENGINE::(run|template|has_right|user_find|action|db|log|link)"
+                            replace="ENGINE::$I->\1" ignoreCase="true"/>
+                </replaceregexp>
+            </filterchain>
+        </copy>
+        <zip destfile="./${zip}.zip">
+            <fileset dir="build.52.forzip">
+                <include name="**/*.*"/>
+                <date datetime="${last_ftp}" when="after"/>
+            </fileset>
+        </zip>
+        <delete dir="build.52.forzip" includeemptydirs="true" verbose="true" failonerror="true"/>
+
+    </target>
+
+    <target name="build test.me/x-site" description="build project into TEST site">
+        <preprocess config="config.xml" force="force">
+            <param name="target" value="directory"/>
+            <param name="root_url" value="/x-site"/>
+            <param name="dst" value="z:/home/test.me/www/x-site"/>
+            <param name="web" value="z:/home/test.me/www/x-site"/>
+        </preprocess>
+    </target>
+
+</project>

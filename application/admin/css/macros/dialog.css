@@ -1,0 +1,132 @@
+/* <% POINT::start('css_body'); %> /**/
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: black;
+}
+
+.fade_in {
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+
+/** диалог */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1050;
+    max-height: 500px;
+    overflow: auto;
+    width: 560px;
+    margin: -250px 0 0 -280px;
+}
+.dialog .header {
+    background: #4f9936;
+}
+
+.dialog table td {
+    vertical-align:top;
+}
+.header span.xexit {
+    float:right;
+    margin:14px 10px 0 0;
+}
+.dialog .footer {
+    vertical-align: middle;
+    background: url(../img/gray_bg.png);
+}
+.dialog .inner {
+    width:100%;
+}
+.dialogline {
+    background:url(../img/dialogbar_bg.png) repeat-x;
+    margin:3px 0;
+    line-height:50px;
+}
+.titleline {
+    background: #4f9936;
+    display:inline-block;
+    padding: 5px 10px;
+    margin:5px 0 5px 31px;
+    color : white;
+}
+.dialogline .title {
+    display:inline-block;
+    margin:0 5px 0 15px;
+}
+.dialogline span{
+    color:gray;
+    font-size:11px;
+    vertical-align:middle;
+}
+.dialogline input[type="text"]{
+    width:40px;
+    border:1px solid gray;
+}
+.dialogline input.long{
+    width:300px;
+    border:1px solid gray;
+}
+.dialogline .first {
+    width:278px;
+    display:inline-block;
+}
+.modal.dialog {
+    border: 6px solid white ;
+
+    position:fixed;
+    top:40px; bottom:40px;
+    margin:0;
+    left:10%; width:80%;
+    min-height:400px;
+    min-width:600px;
+    background: white;
+}
+.modal.alert{
+    height: 170px;
+    width: 280px;
+    margin: -85px 0 0 -140px;
+    border: 10px solid white ;
+    text-align:center;
+    border-right-width: 12px;
+    border-left-width: 12px;
+    background: url(../img/green_bg.png);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding-box;
+    background-clip: padding-box;
+    color:white;
+    font-weight: bold;
+    font-size:12px;
+}
+.modal.alert .message{
+    margin: 50px 20px 30px 20px;
+}
+.modal.alert button{
+    color:white;
+    margin: 10px 0 0 0;
+    font-weight: bold;
+}
+.modal.alert .text {
+    width:200px;
+}
+
+.modal .header .title {
+    display:inline-block;
+    font-size:20px;
+    color:white ;
+    margin:5px 70px 5px 20px;
+}
+.modal .header .title1 {
+    display:inline-block;
+    color:white ;
+}
+.modal .header .title1 input{
+    width:200px; margin-left:10px;
+}
+/* <% POINT::finish('css_body'); %> */

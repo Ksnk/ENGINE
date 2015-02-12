@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>{{title}}</title>
+    {% if description %}<meta name="description" content="{{description}}">{% endif %}
+    {% block header_css %}
+        <link rel="stylesheet" href="{{rootsite}}css/main.1307181745.css">
+        {% endblock %}
+
+    ##    <script src="{{root}}/js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+    ##
+    <base href="{{rootsite}}">
+
+    {% block styles %}
+    {% endblock %}
+
+</head>
+<body onselectstart="return false;" data-root="{{rootsite}}">
+<!--[if lt IE 7]>
+<p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser
+    today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better
+    experience this site.</p>
+<![endif]-->
+{% block data %}
+{% endblock %}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{rootsite}}../js/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+
+##<script src="{{root}}/js/vendor/bootstrap.min.js"></script>
+
+##<script src="{{root}}/js/plugins.js"></script>
+
+{% block scripts %}
+<script src="{{rootsite}}js/main.1307181745.js"></script>
+{% endblock %}
+
+{#
+<script>
+    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+   (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+#}
+</body>
+</html>
+##
+##
+## вывод строки главного меню
+##
+{%- macro ulli (element)%}
+{% for child in element.childs %}
+{%- if ( child.flags & 1)%}
+<li{%- if child.active%} class="current"{% endif%}>
+     <a  href="{{root}}{{child.url|default(child.id)}}">{{child.name}}</a>
+    {%- if length(child.childs)>0 %}<ul>{{ulli(child)}}</ul>{% endif -%}
+</li>
+{% endif%}{% endif%} {% endfor %}
+{% endmacro %}

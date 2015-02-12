@@ -1,0 +1,30 @@
+#CharsetRecodeMultipartForms off
+
+php_value allow_call_time_pass_reference on
+php_value register_globals off
+php_value upload_max_filesize 8M
+
+php_value display_errors on
+php_value log_errors on
+php_value error_log /logs/error.log
+
+<ifModule mod_rewrite.c>
+#  Options +FollowSymlinks
+
+RewriteEngine On
+RewriteBase <%=$root_url%>/admin/
+
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteRule ^(.+)\.(\d+)\.(js|css|png|jpg|gif)$ $1.$3 [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^([a-z\.A-Z_0-9/]+)$ index.php?url=$1 [L,QSA]
+
+</ifModule>

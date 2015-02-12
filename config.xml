@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+    <var name="web" default="$dst/web"/>
+    <var name="system" default="$dst/system"/>
+    <var name="site" default="$dst/site"/>
+
+    <var name="version">X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com)</var>
+    <var name="license">License MIT - Serge Koriakin - Jule 2012</var>
+    <import name="../preprocessor/git.hat.xml"/>
+    <!-- сборка ядра CMS (system)-->
+    <files>
+        <file>application/admin/css/macros/*.*</file>
+        <file>plugins/macros/*.php</file>
+    </files>
+
+    <files dir="src/kernel">  <!-- конфигурация ядра -->
+        <file>engine.52.php</file>
+        <file>events.php</file>
+        <file>options.php</file>
+        <file>autoload.php</file>
+        <file>engine_session.php</file>
+        <file>engine_interface.php</file>
+        <file>engine_init.php</file>
+        <file>engine_debug.php</file>
+    </files>
+
+    <files dir="src/kernel" dstdir="$system">
+        <file>engine.php</file>
+    </files>
+    <files dir="src" dstdir="$system">
+        <file>func.php</file>
+    </files>
+
+    <files dir="plugins" dstdir="$system/plugins">
+        <file>*.php</file>
+    </files>
+
+    <files dir="src/kernel/options" dstdir="$system/plugins">
+        <file>*.php</file>
+    </files>
+
+    <!-- сборка sql_template  -->
+    <files dir="../sql_template" dstdir="$site">
+        <file>sql_template.php</file>
+    </files>
+    <files dir="../sql_template" dstdir="$system/plugins">
+        <file name="xDatabaseXilen.php">xDatabase.php</file>
+    </files>
+
+    <!-- сборка сайта  -->
+    <files dir="application" dstdir="$site">
+        <file>*.php</file>
+        <remove>index.php</remove>
+        <file>xAdmin.php</file>
+        <file>config/*</file>
+        <remove>admin/index.php</remove>
+        <file dstdir="">admin/js/macros/*.*</file>
+        <file>admin/templates/*.*</file>
+    </files>
+
+    <!-- сборка админки. Скрипты и css -->
+    <files dir="src/admin/4state" >
+        <file>4state.php</file>
+    </files>
+
+    <!-- ************************************** -->
+    <!-- ****		 ContextMenu	       **** -->
+    <!-- ************************************** -->
+    <files dir="common" >
+        <file>contextMenu.php</file>
+    </files>
+    <files dir="src/admin/4state" dstdir="$web/admin/img">
+        <copy>align.png</copy>
+    </files>
+    <files dir="application" dstdir="$web">
+        <file>admin/css/main.css</file>
+        <file>admin/.htaccess</file>
+        <file>admin/js/main.js</file>
+        <file>.htaccess</file>
+    </files>
+
+    <!-- сборка сайта. Скрипты и css -->
+   <files dir="application/img" >
+        <file>icons.php</file>
+    </files>
+
+    <files dir="application" dstdir="$web">
+        <file>css/*</file>
+        <file>js/*</file>
+        <file>img/*.png</file>
+        <file>js/vendor/*</file>
+    </files>
+
+    <files dir="application" dstdir="$site">
+        <file>*.php</file>
+        <remove>index.php</remove>
+        <remove>admin/index.php</remove>
+        <file>templates/*.*</file>
+    </files>
+
+    <!-- сборка www -->
+    <files dir="application" dstdir="$web">
+        <file>index.php</file>
+        <file>admin/index.php</file>
+        <file>install/index.php</file>
+        <copy>admin/img/*.*</copy>
+    </files>
+
+    <files dir="../tools/tinymce/jscripts" dstdir="$web/admin/js">
+        <copy>tiny_mce/**/*.*</copy>
+        <copy>tiny_mce/*.*</copy>
+    </files>
+
+</config>
