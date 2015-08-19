@@ -1,12 +1,12 @@
 /**
  *  стили админки
- * ------------------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1408, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
+ * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1505251519
+ * GIT: $
+ * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
  */
 /*  --- point::css_prefix --- */
 /*! normalize.css 2011-11-04T15:38 UTC - http://github.com/necolas/normalize.css */
@@ -466,6 +466,101 @@ table td, table th {
 }
 
 /*  --- point::css_site --- */
+div.ulmenuContainer {
+	height:36px;
+	z-index:1000;
+} 
+ul.ulmenu {
+	font-weight:bold;
+	z-index:100;
+	padding:0; margin:0; 
+	list-style: none;
+}
+ul.ulmenu ul{
+	list-style: none;
+	z-index:1000;
+	zoom:1;
+}
+ul.ulmenu li {
+	float:left; position:relative;
+	display:block;
+	padding:0 12px;
+	height:36px;
+    list-style: none;
+}
+    ul.ulmenu li ul {
+        position:absolute;
+        top:30px; left:0;
+        width:auto;
+        display: none;
+    }
+    ul.ulmenu li a {
+        display:block ; /*float:left;*/
+        cursor:pointer;
+    }
+    ul.ulmenu li ul li{
+        float:none;
+        display:block;
+        height:auto;
+    }
+    ul.ulmenu li li a {
+        float:none; display:block;
+        white-space:nowrap;
+        cursor:pointer;
+    }
+    
+ul.ulmenu li a {
+    display:inline-block;
+    padding:2px 10px 1px 10px;
+    font-size:16px;
+    text-decoration: none;
+    text-shadow: 1px 1px 2px white;
+    font-weight: bold;
+    line-height:1.4em;
+	color:#2a2a2c;
+}
+
+ul.ulmenu li a:hover {
+    color: white;
+    text-shadow: none;
+    background: #266397;
+}
+ul.ulmenu li a img {
+	margin:8px 0 4px 0;
+}
+
+ul.ulmenu li ul {
+  background:rgb(235,238,242);
+	padding:8px 8px 20px 8px;
+	margin:6px 0 0 0;
+}
+
+ul.ulmenu li li.first a {
+	border-top:0;
+}
+ul.ulmenu li li a {
+	border-right:none;
+	border-top:1px solid rgb(222,225,227);
+	color:rgb(99,111,125);
+	text-decoration:none;
+	font-size:14px;
+	margin: 0 11px;
+	padding:4px 2px 4px 2px ;
+}
+ul.ulmenu li ul li.level2 a{
+	padding:4px 2px 4px 22px 
+}
+ul.ulmenu li li a:hover, ul.ulmenu li li a.current {
+	background:transparent;
+	color: #2a2a2c;
+}
+ul.ulmenu li ul li ul{
+    top:5px;
+    left:100%;
+}
+
+
+
 ._states {
     outline:none;
     display:inline-block;

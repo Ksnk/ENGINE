@@ -81,8 +81,10 @@ class engine_options
                     array_merge_deep(self::$options[$name], $value);
                 }
                 return true;
-            } else
+            } else if (array_key_exists($name,self::$options))
                 return self::$options[$name];
+            else
+                return null;
         }
         if(is_string($transport))
             class_exists($transport);

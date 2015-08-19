@@ -7,7 +7,7 @@ class ENGINE_action
 
     static function relocate($link)
     {
-        if (ENGINE::option('debug', false)) {
+        if (ENGINE::hasflag('norelock') || ENGINE::option('debug', false)) {
             echo '<a href="' . $link . '">Press link to redirect</a>';
         } else {
             header('location:' . $link);
@@ -23,7 +23,7 @@ class ENGINE_action
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
             if (array_key_exists('handler', $_POST)) {
                 preg_match(
-                    '/^([^:]*)::([^:]+)(?:([^:]+))?(?:([^:]+))?(?:([^:]+))?/',
+                    '/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/',
                     $_POST['handler'], $m
                 );
                 if (empty($m[1])) {
@@ -40,7 +40,8 @@ class ENGINE_action
                 $act = array($m[1], 'do_' . $m[2]);
                 $data = ENGINE::exec($act, array($m[3], $m[4], $m[5]));
             } else {
-                ENGINE::error('Wrong usage of POST method.');
+                //ENGINE::error('Wrong usage of POST method.');
+                $data = self::getData();
             }
         } else {
             /* <%=POINT::get('BEFORE_GETDATA') %>*/
@@ -71,12 +72,17 @@ class ENGINE_action
         $result['stat'] = ob_get_contents();
         ob_end_clean();
         ENGINE::set_option('noreport',1);
-        echo json_encode_cyr($result);
+        //echo json_encode_cyr($result);
+        echo utf8_encode(json_encode($result));
     }
 
     static function getData()
     {
         $x = array(ENGINE::option('class', 'Main'), ENGINE::option('method', 'do_Default'));
+        //if(class_exists())
+        if(!ENGINE::getObj($x[0])){
+            $x=array('Main','do_404');
+        }
         return ENGINE::exec($x);
     }
 
@@ -93,7 +99,7 @@ class ENGINE_action
         } else {
             $headers = array();
         }
-        if (isset($headers['X-Requested-With']) || isset($_GET['ajax'])) {
+        if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
             self::ajax_action();
             return;
         }
@@ -109,9 +115,9 @@ class ENGINE_action
             unset($_SESSION['SAVE_POST'],$_SESSION['SAVE_FILES']);
         }
 
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        if ('POST' == $_SERVER['REQUEST_METHOD'] && !ENGINE::option('skip_post',false)) {
             if (array_key_exists('handler', $_POST)) {
-                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?/'
+                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/'
                     , $_POST['handler'], $m);
                 if (empty($m[1])) $m[1] = 'Main';
                 if (empty($m[2])) ENGINE::error('Wrong handler.');

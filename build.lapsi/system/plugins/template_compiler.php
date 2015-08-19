@@ -4,8 +4,8 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: 1.1-10-gd5c11d9, Last build: 1405071152
- * GIT: origin	https://github.com/Ksnk/templater (push)$
+ * ver: , Last build: 1507071228
+ * GIT: $
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012
  * ----------------------------------------------------------------------------

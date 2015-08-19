@@ -22,7 +22,7 @@ return array(
         'Main' => 'xAdmin',
         'User' => 'xUser',
         'Sitemap' => 'xSitemap',
-        'Database' => 'xDatabase',
+        'Database' => 'xDatabaseXilen',
         'Install' => 'installManager',
         'Rights' => 'xRights',
     ),

@@ -10,9 +10,38 @@
 class tpl_base
 {
 
-    function __construct(){
-        $this->macro=array();
+    function __construct()
+    {
+        $this->macro = array();
     }
+
+    /**
+     * преобразовать строку в url
+     * -- чистим теги, символы . + / и \
+     * @param $s
+     * @return string
+     */
+    function func_debug($s)
+    {
+        ENGINE::debug(func_get_args());
+        return $s;
+    }
+
+    /**
+     * преобразовать строку в url
+     * -- чистим теги, символы . + / и \
+     * @param $s
+     * @return string
+     */
+    function func_2url($s)
+    {
+        return str_replace(' ', '+',
+            preg_replace('~[\+/\.]~', '',
+                preg_replace('~\s+|&nbsp;~', ' ', strip_tags($s))
+            )
+        );
+    }
+
     /**
      * дополнить русские числительные
      * @param mixed $n
@@ -36,6 +65,21 @@ class tpl_base
             return $two;
         return $five;
 
+    }
+
+    /**
+     * еще один вариант
+     * выдать один из вариантов, в зависимости от параметра
+     * {{ number }} огур{{ number | rusuf('ец|ца|цов')}}
+     * @param $n
+     * @param string $search
+     * @param string $replace
+     * @internal param string $suf
+     * @return array
+     */
+    function func_replace($n, $search = '', $replace = '')
+    {
+        return str_replace($$search, $replace, $n);
     }
 
     /**
@@ -98,14 +142,25 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
 
     function func_date($s, $format = "d m Y")
     {
-        if(function_exists('toRusDate')){
+        if (function_exists('toRusDate')) {
+            // debug($s);
             return toRusDate($s, $format);
         }
-        return date($format, strtotime($s));
+        if(is_numeric($s))
+            return date($format,$s);
+        else
+            return date($format, strtotime($s));
+ //       return date($format, strtotime($s));
     }
 
     function func_truncate($s, $length = 255, $killwords = False, $end = ' ...')
     {
+        if ($killwords === 0) {
+            if (preg_match('/(?:\S+\s+){' . $length . '}/', strip_tags($s), $m))
+                return $m[0] . $end;
+            else
+                return $s;
+        }
         $s = trim(preg_replace('~\s+|&nbsp;~', ' ', strip_tags($s)));
         if ($killwords) {
             if (strlen($s) > $length)
@@ -157,7 +212,7 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
     {
         static $counter = 0;
         $result = '';
-        if(+$n <= 0 )$n=1;
+        if (+$n <= 0) $n = 1;
         for ($i = 0; $i < $n; $i++) {
             $words = rand($min, $max);
             for ($j = 0; $j < $words; $j++) {
@@ -171,15 +226,57 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
     }
 
     /**
+     * 3 возможных варианта
+     * -- класс-метод
+     * -- объект-атрибут
+     * -- класс-метод-параметры
+     * @param string $plugin
+     * @param string $method
+     * @param null $par1
+     * @param null $par2
+     * @param null $par3
+     */
+    public function attr($p1 = 'MAIN', $p2 = '_handle', $p3 = null, $p4=null)
+    {
+        if ($p1 == '') $p1 = $this;
+        // ENGINE::debug($p2,is_object($p1),method_exists($p1, $p2),is_array($p3));
+        if (is_string($p1)) {
+            $callable = array($p1, $p2);
+            return ENGINE::exec($callable, $p3);
+        } else if (is_object($p1)) {
+            $x = array();
+            if ($p1 instanceof tpl_Base) {
+                $p2 = '_' . $p2;
+                if (empty($p3)) $p3 = $x;
+                else if (!is_array($p3)) {
+                    $p3 = array(&$x, $p3, $p4);
+                }
+            }
+            if (method_exists($p1, $p2)) {
+                if (is_null($p3))
+                    return call_user_func(array($p1, $p2));
+                if (is_array($p3))
+                    return call_user_func_array(array($p1, $p2), $p3);
+                else
+                    return call_user_func(array($p1, $p2), &$p3);
+            } else if (property_exists($p1, $p2)) {
+                return $p1->$p2;
+            }
+            ENGINE::error('no method/property ' . $p2);
+        }
+    }
+
+    /**
      * Интерфейсная функция - вызов данных снаружи шаблонизатора
      * @param string $plugin
      * @param string $method
      */
     public function callex($plugin = 'MAIN', $method = '_handle', $par1 = null, $par2 = null, $par3 = null)
     {
-        if (class_exists('ENGINE'))
-            return ENGINE::exec(array($plugin, $method), array($par1, $par2, $par3));
-        else {
+        if (class_exists('ENGINE')) {
+            $callable = array($plugin, $method);
+            return ENGINE::exec($callable, array($par1, $par2, $par3));
+        } else {
             global $engine;
             if (!empty($engine)) {
                 return $engine->export($plugin, $method, $par1, $par2, $par3);
@@ -215,11 +312,11 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
         return implode($glue, $pieces);
     }
 
-
     /**
      * фильтр in_array - проверка на наличие значения в массиве
      * @param mixed $p - mixed
      * @param array $a
+     * @return bool
      */
     function func_in_array($p, $a)
     {
@@ -227,6 +324,16 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
             return in_array($p, $a);
         else
             return $p == $a;
+    }
+
+    /**
+     * фильтр is_array - массив или траверсабл
+     * @param mixed $p - mixed
+     * @return bool
+     */
+    function func_is_array($p)
+    {
+        return (is_array( $p ) || $p instanceof Traversable);
     }
 
     /**
@@ -273,12 +380,13 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
      */
     function func_bk(&$el)
     {
-        $x=func_get_args();
+        $x = func_get_args();
         array_shift($x);
-        $result=&$el;
-        foreach ($x as $idx){
-            if (is_array($result) && array_key_exists($idx,$result)) $result=&$result[$idx];
-            elseif (is_object($result)) $result=&$result->$idx ;
+        $result =& $el;
+        foreach ($x as $idx) {
+            if (is_array($result) && array_key_exists($idx, $result)) $result =& $result[$idx];
+            elseif (is_object($result))
+                @$result =& $result->$idx;
             else return '';
         }
         return $result;

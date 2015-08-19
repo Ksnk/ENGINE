@@ -36,7 +36,7 @@
     <!--        <file dir="plugins">ENGINE_router.php</file>
             <file dir="plugins">ENGINE_action.php</file> -->
 
-        <files dir="src/kernel" dstdir="$system">
+        <files dir="src/kernel" dstdir="$system" name="ENGINE.php">
             <file >engine.php</file>
         </files>
         <file dir="src/kernel/options" dstdir="$system">*.*</file>

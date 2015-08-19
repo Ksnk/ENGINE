@@ -12,9 +12,7 @@
 /* <%=POINT::get('ENGINE_top') %> */
 
 /**
- * @method static xDatabase db
  * @method static bool has_rights
- * @method static set_option
  * @method static link
  * @method static action
  * @method static run
@@ -62,6 +60,7 @@ class ENGINE
      */
     static function error($msg, $par = array(), $backtrace = array())
     {
+        if (!error_reporting()) return false;
         $error_handler = self::option('error.handler', 'echo');
         $error_format = self::option('error.format'
             , "<!--xxx-error-{backtrace}\n{msg}\n-->");
@@ -124,7 +123,7 @@ class ENGINE
 
     static function callFirst($method, $par)
     {
-        foreach (self::$class_list as $k => &$v)
+        foreach (self::$class_list as &$v)
             if (method_exists($v, $method)) {
                 if (!is_null($x = call_user_func_array(array(&$v, $method), $par)))
                     return $x;
@@ -135,7 +134,7 @@ class ENGINE
     static function callAll($method, $par = '')
     {
         $result = false;
-        foreach (self::$class_list as $k => &$v)
+        foreach (self::$class_list as &$v)
             if (method_exists($v, $method)) {
                 $result = $result || call_user_func(array($v, $method), $par);
             }
@@ -160,6 +159,8 @@ class ENGINE
      * get an object from alias record
      * @static
      * @param $name
+     * @param null $par
+     * @return null
      */
     static function getObj($name, $par = null)
     {
@@ -174,7 +175,8 @@ class ENGINE
             if (class_exists($class)) {
                 self::$class_list[$name] = new $class($par);
             } else {
-                if ($name == $class) {
+                if (!error_reporting()) return null;
+                else if ($name == $class) {
                     self::error(
                         'class `{class}` not found in (cwd:{dir})',
                         array('{class}' => $class, '{dir}' => getcwd())
@@ -266,6 +268,9 @@ class ENGINE
             $cache[$name] = new $name();
         }
 //debug($name,$par);
+        if(!is_string($name)){
+            self::debug('wtf?','~count|15');
+        }
         $x = $cache[$name]->$method($par);
         return $x;
     }

@@ -9,7 +9,7 @@ window.win_alert=function($msg,callback){
             if(ok && callback) callback();
         }
     }));
-}
+};
 
 window.win_confirm=function($msg,callback){
     ADMIN('modal',new Modal($('#confirm').clone().removeAttr('id'),{
@@ -18,7 +18,7 @@ window.win_confirm=function($msg,callback){
             if(ok && callback) callback($('.text',this).val());
         }
     }));
-}
+};
 
 
 window.win_dialog=function(o){
@@ -50,4 +50,4 @@ window.win_dialog=function(o){
             if(ok && callback) callback();
         }
     }));
-}
+};

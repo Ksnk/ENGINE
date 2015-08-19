@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: , Last build: 1410201429
+ * ver: , Last build: 1507071228
  * GIT: $
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012

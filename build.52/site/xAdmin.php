@@ -147,69 +147,48 @@ class xAdmin extends xWebApplication
     }
 
     /**
-     * загрузка файла. Результатом работы будет вывод скрипта с реакцией системы
+     * получаем часть url без приставки root. для вставки в базу данных и работы с ajax
+     * @param $path
+     * @return mixed
      */
-    function do_upload()
-    {
-        $files=array();
-        print_r($_FILES);
-
-        if (!empty($_FILES))
-        {
-            foreach ($_FILES as $k=>$f) {
-                if (is_array($f['error']))
-                    foreach ($f["error"] as $key => $error) {
-                        if ($error == UPLOAD_ERR_OK) {
-                            $files[$f["name"][$key]]=$f["tmp_name"][$key];
-                        }
-                    }
-                else
-                    if ($f['error'] == UPLOAD_ERR_OK) {
-                        $files[$f["name"]]=$f["tmp_name"];
-                    }
-            }
-        }
-        $result=array();
-        if(!empty($files)){
-            $upload_dir=ENGINE::option('upload_dir');
-            foreach($files as $name=>$tmp_name){
-                $xname = str_replace(array('-',' '),'_',
-                //    iconv('utf-8','ISO-8859-1//TRANSLIT//IGNORE',$name)
-                    translit($name)
-                );
-                if (move_uploaded_file($tmp_name, $upload_dir.'/'.$xname)){
-                    $result[$name]='/'.preg_replace('#.*/([^/]*/[^/]*)$#','\\1',$upload_dir.'/'.$xname);
-                    @chmod($upload_dir.'/'.$xname,0644);
-                }
-            }
-        }
-
-        $result=array('data'=>$result);
-
-        $data=ENGINE::slice_option('ajax.');
-        if(!empty($data)){
-            $result=array_merge($result,$data);
-        }
-        $error = ENGINE::option('page.error');
-        if(!empty($error))
-            $result['error']=utf8_encode($error);
-        $x=ob_get_contents();
-        $x.=trim(ENGINE::option('page.debug'));
-        if(!empty($x)){
-            $result['debug']=utf8_encode($x);
-        }
-        ob_end_clean();
-        if(session_id() != ""){
-            $result['session']=array('name'=>session_name(),'value'=>session_id());
-        }
-
-        $result['stat']=sprintf(" %f sec spent"
-            //,$this->req_cnt>>1
-            ,mkt());
-
-        echo '<script type="text/javascript">
-			top.upload_OnSuccess('.php2js($result).');
-		</script>'."\n//";
-        exit;
+    function path2url($path){
+        // отрезаем
+        return str_replace(
+            str_replace(rtrim(ENGINE::option('page.rootsite'),'/')
+                ,'',$this->xslash(INDEX_DIR))
+                .ENGINE::option('page.root')
+            ,'',$this->xslash(realpath($path)));
     }
+
+    /* --- point::admin_extension --- */
+
+    function do_uploadify(){
+        if (!ENGINE::has_rights(RIGHT::siteAdmin)) {
+            return 'Недостаточно прав для совершения операции';
+        }
+        // Define a destination
+        $targetFolder = ENGINE::option('upload_dir');
+
+        if (!empty($_FILES)) {
+            $tempFile = $_FILES['Filedata']['tmp_name'];
+            $targetPath = $targetFolder;
+            $targetFile = rtrim($targetPath,'/') . '/' . translit($_FILES['Filedata']['name']);
+
+            if(!move_uploaded_file($tempFile,$targetFile))
+                return 'file cannot be moved';
+            ENGINE::set_option('ajax.file',$this->path2url($targetFile));
+          /*  ENGINE::set_option('ajax.name',$targetFile);
+            ENGINE::set_option('ajax.sitepath',INDEX_DIR);
+            ENGINE::set_option('ajax.page.rootsite', ENGINE::option('page.rootsite'));
+            ENGINE::set_option('ajax.page.root', ENGINE::option('page.root'));
+            ENGINE::set_option('ajax.SCRIPT_NAME', $_SERVER['SCRIPT_NAME']);
+            ENGINE::set_option('ajax.document.root',realpath($_SERVER['DOCUMENT_ROOT']));
+
+            ENGINE::set_option('ajax.tmp1',
+                str_replace(rtrim(ENGINE::option('page.rootsite'),'/'),'',$this->xslash(INDEX_DIR)).ENGINE::option('page.root'));  */
+            return  1;
+        }
+        return 'No files uploded';
+    }
+
 }

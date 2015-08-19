@@ -34,6 +34,7 @@ if ( !function_exists('htmlspecialchars_decode') )
 if(!function_exists('http_build_query')) {
     function http_build_query($data,$prefix=null,$sep='',$key='') {
         $ret = array();
+        if(!empty($data))
         foreach((array)$data as $k => $v) {
             $k = urlencode($k);
             if(is_int($k) && $prefix != null) {

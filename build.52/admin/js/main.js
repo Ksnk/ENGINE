@@ -1,13 +1,13 @@
 /**
  *  скрипт админки
  *
- * ------------------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1408, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
+ * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1505251519
+ * GIT: $
+ * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
  */
 
 $(function () {
@@ -113,9 +113,9 @@ function menu(_self,param){
  * </code>
  *
  *  * вывести контекстное меню
-  * <code>
-  *     $('input').contextMenu('action',{'hello':})
-  * </code>
+ * <code>
+ *     $('input').contextMenu('action',{'hello':})
+ * </code>
 
  * @param string action
  * @param object o
@@ -124,382 +124,408 @@ function menu(_self,param){
  */
 var CMenu_keymap =
 {
-    F1:112,
-    F2:113,
-    F3:114,
-    F4:115,
-    F5:116,
-    F6:117,
-    F7:118,
-    F8:119,
-    F9:120,
-    F10:121,
-    Space:32,
-    BackSpace:8,
-    Tab:9,
-    Enter:13,
-    Shift:16,
-    Ctrl:17,
-    Alt:18,
-    CapsLock:20,
-    Esc:27,
-    Insert:45,
-    PageUp:33,
-    PageDown:34,
-    End:35,
-    Home:36,
-    Back:37,
-    Up:38,
-    Right:39,
-    Down:40,
-    Del:46,
-    PrintScreen:44,
-    ScrollLock:145,
-    Pause:19,
-    NumLock:144
+    F1: 112,
+    F2: 113,
+    F3: 114,
+    F4: 115,
+    F5: 116,
+    F6: 117,
+    F7: 118,
+    F8: 119,
+    F9: 120,
+    F10: 121,
+    Space: 32,
+    BackSpace: 8,
+    Tab: 9,
+    Enter: 13,
+    Shift: 16,
+    Ctrl: 17,
+    Alt: 18,
+    CapsLock: 20,
+    Esc: 27,
+    Insert: 45,
+    PageUp: 33,
+    PageDown: 34,
+    End: 35,
+    Home: 36,
+    Back: 37,
+    Up: 38,
+    Right: 39,
+    Down: 40,
+    Del: 46,
+    PrintScreen: 44,
+    ScrollLock: 145,
+    Pause: 19,
+    NumLock: 144
 };
 
-$.fn.contextMenu = function (action, o,o2) {
-
-    var options;
-
-    if(typeof(action)=='string'){
-
-    } else {
-        if(typeof(o)=='undefined')
-            o=action;
-        action='create';
-    }
-
-    function keypress(e) {
-        if(options._nokeyboard) return;
-        if(options._displayed){
-            // движения клавиш - обрабатывает меню
-            var key=e.keyCode; e.keyCode=0;
-            //console.log(e);
-            switch (key) {
-                case 37: //left
-                    if($('LI.hover>ul>li.hover',options._menu).length>0){
-                        $('LI.hover>ul>li',options._menu).removeClass('hover');
-                    }
-                    break;
-                case 39: // right
-                    if ($('LI.hover>ul>li',options._menu).length>0) {//есть 2 уровень
-                        if($('LI.hover>ul>li.hover',options._menu).length==0){ // пока еще не там
-                            // переходим на нижний уровень
-                            $('LI.hover>ul',options._menu).find('LI').filter(':not(.disabled,.separator)').eq(0).addClass('hover');
-                        }
-                    }
-                    break;
-                case 38: case 40: // up
-                    var pos,func;
-                    if (key==38){ pos='last';func='prevAll'}
-                    else { pos='first';func='nextAll'}
-                    if ($('LI.hover',options._menu).length==0) {
-                        $('LI:'+pos,options._menu).addClass('hover');
-                    } else {
-                        //уровень?
-                        if($('LI.hover>ul>li.hover',options._menu).length>0){
-                            $('LI.hover>ul>li.hover',options._menu).removeClass('hover')[func]('LI').filter(':not(.disabled,.separator)').eq(0).addClass('hover');
-                            if ($('LI.hover>ul>li.hover',options._menu).length == 0) $('LI.hover>ul>li:'+pos,options._menu).addClass('hover');
-                        } else {
-                            $('LI.hover',options._menu).removeClass('hover')[func]('LI').filter(':not(.disabled,.separator)').eq(0).addClass('hover');
-                            if ($('LI.hover',options._menu).length == 0) $('LI:'+pos,options._menu).addClass('hover');
-                        }
-                    }
-                    break;
-                case 13: // enter
-                    $('LI.hover>A',options._menu).last().trigger('click');
-                    break;
-                case 27: // esc
-                    $(document).trigger('mousedown');
-                    break;
-                default:
-                  // e.keyCode=key;
-            }
-            e.stopPropagation();
-        }
+var options;
+function keypress(e) {
+    if (options._nokeyboard) return;
+    if (options._displayed) {
+        // движения клавиш - обрабатывает меню
+        var key = e.keyCode;
+        e.keyCode = 0;
         //console.log(e);
-        //обрабатываем оставшиеся hotkey
-        if(!$(e.target).is('input,textarea')){
-            if(options.hotkey[e.keyCode]){
-                var action=options.hotkey[e.keyCode];
-                if ( !options._disabled[action.action]
-                    && e.altKey==action.alt
-                    && e.ctrlKey==action.ctrl
-                    && e.shiftKey==action.shift
-                ){
-                    if( options.action )
-                         options.action.call(null, action.action, e);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.result=false;
-                    return false;
+        switch (key) {
+            case 37: //left
+                if ($('LI.hover>ul>li.hover', options._menu).length > 0) {
+                    $('LI.hover>ul>li', options._menu).removeClass('hover');
                 }
+                break;
+            case 39: // right
+                if ($('LI.hover>ul>li', options._menu).length > 0) {//есть 2 уровень
+                    if ($('LI.hover>ul>li.hover', options._menu).length == 0) { // пока еще не там
+                        // переходим на нижний уровень
+                        $('LI.hover>ul', options._menu).find('LI').filter(':not(.disabled,.separator)').eq(0).addClass('hover');
+                    }
+                }
+                break;
+            case 38:
+            case 40: // up
+                var pos, func;
+                if (key == 38) {
+                    pos = 'last';
+                    func = 'prevAll'
+                }
+                else {
+                    pos = 'first';
+                    func = 'nextAll'
+                }
+                if ($('LI.hover', options._menu).length == 0) {
+                    $('LI:' + pos, options._menu).addClass('hover');
+                } else {
+                    //уровень?
+                    if ($('LI.hover>ul>li.hover', options._menu).length > 0) {
+                        $('LI.hover>ul>li.hover', options._menu).removeClass('hover')[func]('LI').filter(':not(.disabled,.separator)').eq(0).addClass('hover');
+                        if ($('LI.hover>ul>li.hover', options._menu).length == 0) $('LI.hover>ul>li:' + pos, options._menu).addClass('hover');
+                    } else {
+                        $('LI.hover', options._menu).removeClass('hover')[func]('LI').filter(':not(.disabled,.separator)').eq(0).addClass('hover');
+                        if ($('LI.hover', options._menu).length == 0) $('LI:' + pos, options._menu).addClass('hover');
+                    }
+                }
+                break;
+            case 13: // enter
+                $('LI.hover>A', options._menu).last().trigger('click');
+                break;
+            case 27: // esc
+                $(document).trigger('mousedown');
+                break;
+            default:
+            // e.keyCode=key;
+        }
+        e.stopPropagation();
+    }
+    //console.log(e);
+    //обрабатываем оставшиеся hotkey
+    if (!$(e.target).is('input,textarea')) {
+        if (options.hotkey[e.keyCode]) {
+            var action = options.hotkey[e.keyCode];
+            if (!options._disabled[action.action]
+                && e.altKey == action.alt
+                && e.ctrlKey == action.ctrl
+                && e.shiftKey == action.shift
+            ) {
+                if (options.action)
+                    options.action.call(null, action.action, e);
+                e.preventDefault();
+                e.stopPropagation();
+                e.result = false;
+                return false;
             }
         }
     }
+}
 
-    function showMenu(tgtElement,X,Y){
-        var _menu = getMenu(tgtElement);//options.menu.call(srcElement);
-        if(!_menu) return;
-        if(options._mode!='contextmenu') $(_menu).css('overflow-y','auto');
-        $('li',_menu).removeClass('disabled');
-        for(a in options._disabled){
-            $('a',_menu).find('[href$="#' + a + '"]').parent().addClass('disabled');
-        }
+function showMenu(tgtElement, X, Y) {
+    var _menu = getMenu(tgtElement);//options.menu.call(srcElement);
+    if (!_menu) return;
+    if (options._mode != 'contextmenu') $(_menu).css('overflow-y', 'auto');
+    $('li', _menu).removeClass('disabled');
+    for (a in options._disabled) {
+        $('a', _menu).find('[href$="#' + a + '"]').parent().addClass('disabled');
+    }
 
-        options._menu=_menu;
-        // Show the menu
-        if (!_menu.show_menu){
-            menu(_menu,{
-                show:function(){
-                    if(options.show)options.show.call();
-                    options._displayed=true;
+    options._menu = _menu;
+    // Show the menu
+    if (!_menu.show_menu) {
+        menu(_menu, {
+            show: function () {
+                if (options.show)options.show.call(this);
+                options._displayed = true;
 
-                    $(this).fadeIn(options.inSpeed)
-                },
-                hide:function(){
-                    if(options.hide)options.hide.call();
-                    options._displayed=false;
+                $(this).fadeIn(options.inSpeed)
+            },
+            hide: function () {
+                if (options.hide)options.hide.call(this);
+                options._displayed = false;
 
 //                    $(document).unbind('keydown',keypress);
-                    if(options._xmenu){
-                        $(options._xmenu).remove();
-                        options._xmenu=false;
-                    }
-                    $(this).fadeOut(options.outSpeed)
+                if (options._xmenu) {
+                    $(options._xmenu).remove();
+                    options._xmenu = false;
                 }
-            });
-            $('A',_menu).mouseover( function() {
-                 $(_menu).find('LI.hover').removeClass('hover');
-                 $(this).parents('LI').addClass('hover');
-            }).click(function(event){
-                _menu.hide_menu() ;
-                if( options._mode=='select'){
-                    if (options.set_text){
-                        options.set_text.call(tgtElement,$(this).attr('href').substr(1))
-                    }
-                } else if( options.action ) {
-                    options.action.call(tgtElement,
-                        $(this).attr('href').substr(1),
-                        event
-                    )
+                $(this).fadeOut(options.outSpeed)
+            }
+        });
+        $('A', _menu).mouseover(function () {
+            $(_menu).find('LI.hover').removeClass('hover');
+            $(this).parents('LI').addClass('hover');
+        }).click(function (event) {
+            _menu.hide_menu();
+            if (options._mode == 'select') {
+                event.target=tgtElement;
+                if (options.set_text) {
+                    options.set_text.call(tgtElement, $(this).attr('href').substr(1))
                 }
-                return false;
-            });
-        }
-        $(_menu).css({ top:Y, left:X });
-        _menu.show_menu();
-    }
-
-    function _getMenu(menu,el){
-        if (typeof(menu) == 'function'){
-            menu=menu.call(el,options);
-        }
-        if (menu instanceof Array) {
-            // строим меню
-            var xmenu=$('<ul/>').addClass("contextMenu");
-            if(options.class){
-                xmenu.addClass(options.class);
+            } else if (options.action) {
+                event.target=tgtElement;
+                options.action.call(tgtElement,
+                    $(this).attr('href').substr(1),
+                    event
+                )
             }
-            for(var i in menu){
-                var line=menu[i];
-                if ( line=='' ) {
-                    xmenu.append('<li class="separator"></li>');
-                    continue;
-                }
-                if(typeof(line)=='string'){
-                    line=line.split('#');
-                    line={'title':line[0],'href':line[1]||line[0]};
-                    var xx = $('<li><a href="#' + line.href + '">' + line.title.replace(' ', '&nbsp;') + '</a></li>');
-                    if(line.href==options._defaultaction)
-                        $('a',xx).addClass("default");
-                    if(options._act_hk[line.href])
-                        $('a',xx).before("<span class='shortcut'>"+options._act_hk[line.href]+"</span>");
-                    xmenu.append(xx);
-                } else if(line.children) {
-                    $('<li><span class="regedit-icon-trig"></span><a href="#'+(line.href||'')+'">'+line.title+'</a>'
-                         +'</li>').append(_getMenu(line.children,el)).appendTo(xmenu);
-                }
-            }
-            return xmenu[0];
-
-        } else if (typeof(options.menu) == 'string') {
-            // ищем селектор
-            menu = $(options.menu)[0]
-        }
-        return menu;
-    }
-
-    function getMenu(el){
-        return options._xmenu=$(_getMenu(options.menu,el)).appendTo(options.parent||document.body)[0];
-    }
-
-    function create(){
-        options = {
-            slowClick_timer:null,
-            slowClick_low: 400,
-            slowClick_high:2000,
-
-            inSpeed:150,
-            outSpeed:75,
-            menu:function () {
-                return $($(this).data('contextmenu'))[0]
-            },
-            hotkey:{},
-            _disabled:{},       // комплект задизейбленых акций
-            _defaultaction:'',  // акцио по даблклику
-            _act_hk:{},         // клавиатурные сокращения акций
-            _displayed:false,   // показывается или нет
-            _nokeyboard:false,
-            empty:''
-        };
-        if (!o) o = {};
-        else if (typeof(o) == 'string')
-            o = {xxx:o};
-        var hotkey=o.hotkey||{},
-            reg=/^((\d*)|(Ctrl?[-+ ])?(Alt[-+ ])?(Shift?[-+ ])?(\w+)~?)$/i;
-        if(o.hotkey) delete (o.hotkey);
-        $.extend(options, o);
-        for(var a in hotkey){
-
-            var idx=a
-                ,res=reg.exec(''+a)
-                ,key={ctrl:false,shift:false,alt:false,action:hotkey[a]};
-            if(!res)
-                continue;
-            if(res[3]){
-                key.ctrl=true;
-            }
-            if(res[4]){
-                key.alt=true;
-            }
-            if(res[5]){
-                key.shift=true;
-            }
-            if('default'==res[6]){
-                options._defaultaction=hotkey[a];
-            } else if(res[6]){
-                if(CMenu_keymap[res[6]]){
-                    idx=CMenu_keymap[res[6]];
-                } else if (res[6].length==1){
-                    idx=res[6].toLowerCase().charCodeAt(0);
-                    options.hotkey[idx]=key;
-                    idx=res[6].toUpperCase().charCodeAt(0);
-                }
-                options._act_hk[hotkey[a]]=a;
-            }
-            options.hotkey[idx]=key;//hotkey[a];
-        }
-        $(this).data('contextMenu',options);
-
-        // Defaults
-        function mouseup(event) {
-            event.stopPropagation();
-            var tgtElement=event.target;
-            $(this).unbind('mouseup',mouseup);
-            // Hide context menus that may be showing
-            //$(".contextMenu").hide();
-            // Get this context menu
-            options._mode='contextmenu';
-            showMenu(tgtElement,event.pageX+1, event.pageY+1);
-        }
-
-        this.mousedown(function (e) {
-            if (e.button == 2) {
-                 $(this).mouseup(mouseup);
-                e.stopPropagation();
-            }
-        }).bind('contextmenu',function(e) {
-            if($(e.target).is('input,textarea')) return ;
-            if(e.ctrlKey) return;
             return false;
         });
-        $(document)
-            .bind('keydown',keypress)
-            .bind('dblclick',function(e){
-                if (options.slowClick_timer)
-                    clearTimeout(options.slowClick_timer);
-                options._lasttgt = null;
-                if(options._defaultaction)
-                    if( options.action )
-                         options.action.call(e.target,
-                             options._defaultaction,
-                             event
-                         );
-            })
-            .click(function(event){
-                var $tgt = $(event.target);
-                // отслеживаем двойной медленный клик
-                if (options.slowClick_timer)
-                    clearTimeout(options.slowClick_timer);
-                if (!options._lasttgt != event.target) {
-                    options.slowClick_timer = (function (tgt) {
-                        return setTimeout(function () {
-                            options._lasttgt = tgt;
-                            options.slowClick_timer = setTimeout(function () {
-                                options._lasttgt = null;
-                                options.slowClick_timer = null;
-                            }, options.slowClick_high)
-                        }, options.slowClick_low)
-                    })(event.target);
-                }
-                if (!!options._lasttgt && options._lasttgt == event.target) {
-                    if(!options._displayed && options.action )
-                        options.action.call($tgt,
-                            'slowdbl',
-                            event
-                        );
-                }
-            });
     }
-    var a,x,pos;
-    switch (action){
+    $(_menu).css({ top: Y, left: X });
+    _menu.show_menu();
+}
+
+function _getMenu(menu, el) {
+    if (typeof(menu) == 'function') {
+        menu = menu.call(el, options);
+    }
+    if (menu instanceof Array) {
+        // строим меню
+        var xmenu = $('<ul/>').addClass("contextMenu");
+        if (options.class) {
+            xmenu.addClass(options.class);
+        }
+        for (var i in menu) {
+            var line = menu[i];
+            if (line == '') {
+                xmenu.append('<li class="separator"></li>');
+                continue;
+            }
+            if (typeof(line) == 'string') {
+                line = line.split('#');
+                if(line[0].substr(0,1)=='~'){
+                    line[0]=line[0].substr(1);
+                    options._defaultaction=line[1] || line[0];
+                }
+                line = {'title': line[0], 'href': line[1] || line[0]};
+                var xx = $('<li><a href="#' + line.href + '">' + line.title.replace(' ', '&nbsp;') + '</a></li>');
+                if (line.href == options._defaultaction)
+                    $('a', xx).addClass("default");
+                if (options._act_hk[line.href])
+                    $('a', xx).before("<span class='shortcut'>" + options._act_hk[line.href] + "</span>");
+                xmenu.append(xx);
+            } else if (line.children) {
+                $('<li><span class="regedit-icon-trig"></span><a href="#' + (line.href || '') + '">' + line.title + '</a>'
+                    + '</li>').append(_getMenu(line.children, el)).appendTo(xmenu);
+            }
+        }
+        return xmenu[0];
+
+    } else if (typeof(options.menu) == 'string') {
+        // ищем селектор
+        menu = $(options.menu)[0]
+    }
+    return menu;
+}
+
+function getMenu(el) {
+    return options._xmenu = $(_getMenu(options.menu, el)).appendTo(options.parent || document.body)[0];
+}
+
+function create(o) {
+    if ($(this).data('contextMenu'))
+        return;
+    options = {
+        slowClick_timer: null,
+        slowClick_low: 400,
+        slowClick_high: 2000,
+
+        inSpeed: 150,
+        outSpeed: 75,
+        menu: function () {
+            return $($(this).data('contextmenu'))[0]
+        },
+        hotkey: {},
+        _disabled: {},       // комплект задизейбленых акций
+        _defaultaction: '',  // акцио по даблклику
+        _act_hk: {},         // клавиатурные сокращения акций
+        _displayed: false,   // показывается или нет
+        _nokeyboard: false,
+        empty: ''
+    };
+    if (!o) o = {};
+    else if (typeof(o) == 'string')
+        o = {xxx: o};
+    var hotkey = o.hotkey || {},
+        reg = /^((\d*)|(Ctrl?[-+ ])?(Alt[-+ ])?(Shift?[-+ ])?(\w+)~?)$/i;
+    if (o.hotkey) delete (o.hotkey);
+    $.extend(options, o);
+    for (var a in hotkey) {
+
+        var idx = a
+            , res = reg.exec('' + a)
+            , key = {ctrl: false, shift: false, alt: false, action: hotkey[a]};
+        if (!res)
+            continue;
+        if (res[3]) {
+            key.ctrl = true;
+        }
+        if (res[4]) {
+            key.alt = true;
+        }
+        if (res[5]) {
+            key.shift = true;
+        }
+        if ('default' == res[6]) {
+            options._defaultaction = hotkey[a];
+        } else if (res[6]) {
+            if (CMenu_keymap[res[6]]) {
+                idx = CMenu_keymap[res[6]];
+            } else if (res[6].length == 1) {
+                idx = res[6].toLowerCase().charCodeAt(0);
+                options.hotkey[idx] = key;
+                idx = res[6].toUpperCase().charCodeAt(0);
+            }
+            options._act_hk[hotkey[a]] = a;
+        }
+        options.hotkey[idx] = key;//hotkey[a];
+    }
+    $(this).data('contextMenu', options);
+
+    // Defaults
+    function mouseup(event) {
+        event.stopPropagation();
+        var tgtElement = event.target;
+        $(this).unbind('mouseup', mouseup);
+        // Hide context menus that may be showing
+       // $(".contextMenu").hide();
+        // Get this context menu
+        options._mode = 'contextmenu';
+        showMenu(tgtElement, event.pageX + 1, event.pageY + 1);
+    }
+
+    this.mousedown(function (e) {
+        if (e.button == 2) {
+            $(this).mouseup(mouseup);
+            //e.stopPropagation();
+        }
+    }).bind('contextmenu', function (e) {
+            if ($(e.target).is('input,textarea')) return;
+            if (e.ctrlKey) return;
+            return false;
+        });
+    $(document)
+        .bind('keydown', keypress)
+        .bind('dblclick', function (e) {
+            if (options.slowClick_timer)
+                clearTimeout(options.slowClick_timer);
+            options._lasttgt = null;
+            if(!options._menu){
+                options._menu = getMenu(e.target);
+            }
+            if (options._defaultaction)
+                if (options.action)
+                    options.action.call(e.target,
+                        options._defaultaction,
+                        event
+                    );
+        })
+        .click(function (event) {
+            var $tgt = $(event.target);
+            // отслеживаем двойной медленный клик
+            if (options.slowClick_timer)
+                clearTimeout(options.slowClick_timer);
+            if (!options._lasttgt != event.target) {
+                options.slowClick_timer = (function (tgt) {
+                    return setTimeout(function () {
+                        options._lasttgt = tgt;
+                        options.slowClick_timer = setTimeout(function () {
+                            options._lasttgt = null;
+                            options.slowClick_timer = null;
+                        }, options.slowClick_high)
+                    }, options.slowClick_low)
+                })(event.target);
+            }
+            if (!!options._lasttgt && options._lasttgt == event.target) {
+                if (!options._displayed && options.action)
+                    options.action.call($tgt,
+                        'slowdbl',
+                        event
+                    );
+            }
+        });
+}
+
+$.fn.contextMenu = function (action, o, o2) {
+
+
+    if (typeof(action) == 'string') {
+
+    } else {
+        if (typeof(o) == 'undefined')
+            o = action;
+        action = 'create';
+    }
+
+    var a, x, pos;
+    switch (action) {
         case 'create': // создать меню и поставить хандлеры
-            create.call(this);
+            create.call(this, o);
             break;
         case 'keyboard':
-            options=$(this).data('contextMenu');
-            options._nokeyboard=!o;
+            options = $(this).data('contextMenu');
+            options._nokeyboard = !o;
             break;
         case 'enable':
-            options=$(this).data('contextMenu');
-            x=o.split(',');
-            for(a in x)
-                if(options._disabled[a])
+            options = $(this).data('contextMenu');
+            x = o.split(',');
+            for (a in x)
+                if (options._disabled[a])
                     delete options._disabled[a];
             break;
         case 'disable':
-            options=$(this).data('contextMenu');
-            x=o.split(',');
-            for(a in x)
-                options._disabled[x[a]]=true;
+            options = $(this).data('contextMenu');
+            x = o.split(',');
+            for (a in x)
+                options._disabled[x[a]] = true;
             break;
         case 'select': // показать меню в стиле select
-            options=$(this).data('contextMenu');
-            options._mode='select';
+            options = $(this).data('contextMenu');
+            options._mode = 'select';
             if (!o2) o2 = {};
             $.extend(options, o2);
-            if(o instanceof $){
-                pos=o.position();
-                showMenu.call(this,o,pos.left,pos.top+o.height());
+            if (o instanceof $) {
+                pos = o.position();
+                showMenu.call(this, o, pos.left, pos.top + o.height());
             } else {
                 console.log('Блин!');
             }
             break;
         case 'show': // показать меню
-            options=$(this).data('contextMenu');
-            options._mode='contextmenu';
-            if(o instanceof $){
-                pos=o.position();
-                if(options._position=='down')
-                    showMenu.call(this,o,pos.left,pos.top+o.height()-1);
+            options = $(this).data('contextMenu');
+            options._mode = 'contextmenu';
+            if (typeof(o) == 'string')
+                o = $(o, this);
+            else if (!o)
+                o = $(this);
+            if (o.target)
+                showMenu.call(this, o.target, o.pageX + 1, o.pageY + 1);
+            else if (o instanceof $) {
+                pos = o.position();
+                if (options._position == 'down')
+                    showMenu.call(this, o, pos.left, pos.top + o.height() - 1);
                 else
-                    showMenu.call(this,o,pos.left+(o.width()>>1),pos.top+o.height()-3);
+                    showMenu.call(this, o, pos.left + (o.width() >> 1), pos.top + o.height() - 3);
             } else {
-                pos=o.position();
-                showMenu.call(this,o,pos.left+20,pos.top+20);
+                pos = o.position();
+                showMenu.call(this, o, pos.left + 20, pos.top + 20);
             }
             break;
     }
@@ -571,7 +597,25 @@ $(function () {
 
 
 })
-;// поставить куку cookie.
+;// сохранить значение к LS или куке
+function supportLS(){
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
+function store(name,value,opt){
+    if(!supportLS) return cookie(name,value,opt);
+    if (typeof value != 'undefined'){
+        localStorage.setItem(name,value);
+        return true;
+    } else {
+        return localStorage.getItem(name);
+    }
+}
+
+// поставить куку cookie.
 function cookie(name,value,opt){
     if (typeof value != 'undefined') { // name and value given, set cookie
         if(typeof value == 'object' && !(value instanceof String)){
@@ -610,7 +654,7 @@ function cookie(name,value,opt){
             while((resa=reg.exec(cook))){
                 res[resa[1]]=resa[2];
                 obj=true;
-            };
+            }
             if(obj)
                 return res;
             else
@@ -719,7 +763,7 @@ window.win_alert=function($msg,callback){
             if(ok && callback) callback();
         }
     }));
-}
+};
 
 window.win_confirm=function($msg,callback){
     ADMIN('modal',new Modal($('#confirm').clone().removeAttr('id'),{
@@ -728,7 +772,7 @@ window.win_confirm=function($msg,callback){
             if(ok && callback) callback($('.text',this).val());
         }
     }));
-}
+};
 
 
 window.win_dialog=function(o){
@@ -760,7 +804,7 @@ window.win_dialog=function(o){
             if(ok && callback) callback();
         }
     }));
-}
+};
 
     /*  --- point::js_body --- */
 function showTT(){
@@ -783,6 +827,68 @@ function showTT(){
             $('#tooltip').hide('slow');
         }
     });
+
+var root=$(document.body).attr('data-root');
+if($.fn.uploadify)$('#upload_input').uploadify( {
+    buttonText    :'&nbsp;',
+    height        : 14,
+    formData : { handler:'Main::uploadify'},
+    overrideEvents: ['onDialogClose'],
+    swf           : root+'uploadify/uploadify.swf',
+    uploader      : root+'admin/?ajax=1',
+    width         : 60 ,
+    onUploadSuccess : function(file, data, response) {
+        try {
+            data = JSON.parse(data);
+            if(data.data!='1')
+                alert(data.data);
+            else {
+                var active=$('#uploader').data('active');
+                var x=JSON.parse(active.attr('data-upload'));
+                ADMIN(x.action,{self:active,'file':data.file});
+            }
+            console.log(data);
+        } catch (e) {
+        }
+    },
+    onDialogClose : function(queueData) {
+        var active=$('#uploader').css({display:'block', opacity:1,
+            top:0, left:0,
+            width:'auto', height:'auto'
+        }).data('active');
+        active.removeClass('hover');
+    }
+});
+$('#uploader').mouseleave(function(){
+    var active=$('#uploader').data('active');
+    if(active)
+        active.removeClass('hover');
+}).mouseenter(function(){
+    var active=$('#uploader').data('active');
+    if(active)
+        active.addClass('hover');
+});
+$(document).on('mouseover', '.upload', function () {
+    var $this = $(this);
+    $('.upload.hover').removeClass('hover');
+    $this.addClass('hover');// emulate mouse hover
+    var offset = $this.offset()
+        ,data=JSON.parse($this.attr('data-upload'));
+    if(data.mask=='picture'){
+        $('#upload_input').uploadify('settings','fileTypeDesc','Image Files');
+        $('#upload_input').uploadify('settings','fileTypeExts','*.gif; *.jpeg; *.jpg; *.png');
+    } else if(data.mask=='files'){
+        $('#upload_input').uploadify('settings','fileTypeDesc','All Files');
+        $('#upload_input').uploadify('settings','fileTypeExts','*.*');
+    } else{
+        $('#upload_input').uploadify('settings',data.mask);
+    }
+    $('#uploader').css({
+        display:'block', opacity:0.02,
+        top:offset.top, left:offset.left,
+        width:$this.width(), height:$this.height()
+    }).data('active',$this);
+});
 
 function Color(a, type) {
     this.type = type;
@@ -1221,81 +1327,6 @@ $('.rowheader').click(function(){
     }
 }) ;
 
-// контрол - загрузчик файлов
-    var active_element = null;
-    var locked_element = null;
-    $('input[type="file"]', '#uploader').on('change', function () {
-        locked_element=active_element;
-        $(this).parents('form').eq(0).submit();
-    });
-    $(document).on('click', '.upload', function () {
-        if(locked_element) return false;
-        activeElement=this;
-        $('input:file','#uploader').trigger('click');
-        return false;
-    });
-     window.upload_OnSuccess=  function (data) {
-    // console.log(data);
-    //alert('ok');
-     if(data && data.data){
-         // поиск атрибутов для выполнения
-         var x,o;
-         if(x=$(locked_element).attr('data-admin')){
-             x= x.split('#',2);
-             o={};
-             try{
-                x[1] && eval('o='+x[1]);
-             }catch(e){}
-             if(!o)o={};
-             o.element=locked_element;
-             for( var a in data.data){
-                 o.filename= data.data[a];
-                 o.name=a;
-                 ADMIN(x[0],o);
-             }
-         }
-     }
-     locked_element=null;
-/*            $complete = true;
-            if (data.error) alert(data.error);
-            if (data.debug) alert(data.debug);
-            toggleWait(null, true);
-            //alert([data.data,data.error]);
-            $upload_results = data.result || data;
-            var inp = $x && $x.getElementsByTagName('input');
-            if (!inp || !inp[0])
-                inp = $x && $x.parentNode.getElementsByTagName('input');
-            if (inp && inp[0]) {
-                inp = inp[0];
-                if (data.data.match(/javascript/i))
-                    inp.value = '';
-                else
-                    inp.value = data.data;
-                if (!!inp.onclick) {
-                    if (typeof(inp.onclick) == 'function') {
-                        //debug.trace('function');
-                        inp.onclick.apply(inp);
-                    }
-                    else {
-                        //debug.trace('eval');
-                        eval(inp.onclick);
-                    }
-                }
-                else
-                    inp.click();
-            }
-            inp = $x && $x.parentNode.getElementsByTagName('img');
-            if (!inp)
-                inp = $x && $x.parentNode.parentNode.getElementsByTagName('img');
-            if (inp && inp[0]) {
-                //var xx=inp[0].src;
-                inp[0].src = inp[0].src.replace(/\/uploaded.*$/, '' + data.data);
-                //alert([xx,inp[0].src]);
-            }
-            inp = null;
-            need_Save();  */
-        }
-
 var states ={ // 0 - usual, 1 hover, 2 - clicked , 4 passive
     treepoint:{bg:['-20px -50px','-10px -50px','0 -50px'],w:10,h:10,type:'tree','class':['','collapsed','expanded']},
     help:{bg:['0 0','-20px 0','-40px 0'],w:18,h:16},
@@ -1688,6 +1719,20 @@ var states ={ // 0 - usual, 1 hover, 2 - clicked , 4 passive
                         + '&id=' + $(document.body).attr('data-id'),
                     complete:function () {
                         ADMIN('reload');
+                    }
+                });
+                break;
+            case 'createPicture':
+                try{ eval('data='+($(o.self).parents().filter('[data-element]').eq(0).attr('data-element')||'false'));}catch(e){}
+                data.handler='Page::insertAttr';
+                data.attr='picture';
+                data.file=o.file;
+                ajax({
+                    type:'post',
+                    url:$(document.body).attr('data-root'),
+                    data:$.param(data),
+                    complete:function () {
+                       // ADMIN('reload');
                     }
                 });
                 break;

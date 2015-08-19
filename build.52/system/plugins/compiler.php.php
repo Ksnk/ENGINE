@@ -4,8 +4,8 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: 1.1-6-ga842b06, Last build: 1301082138
- * GIT: origin	https://github.com/Ksnk/templater (push)$
+ * ver: , Last build: 1410201429
+ * GIT: $
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012
  * ----------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 class php_compiler extends tpl_parser
 {
 
-    static $filename='';
+    static $filename = '';
 
     function __construct($options = array())
     {
@@ -28,41 +28,52 @@ class php_compiler extends tpl_parser
             ->newOp2('|', 11, array($this, 'function_filter'))
             ->newOp2('is', 11, array($this, 'function_filter'), 11)
             ->newOp2('== != > >= < <=', 2, null, 'B**')
-            ->newOp2('and', 3, '(%s) && (%s)', 'BBB')
-            ->newOp2('or', 3, '(%s) || (%s)', 'BBB')
+            ->newOp2('and', 1, '(%s) && (%s)', 'BBB')
+            ->newOp2('or', 1, '(%s) || (%s)', 'BBB')
             ->newOp2('~', 2, '(%s).(%s)', 'SSS')
             ->newOp1('not', '!(%s)', 'BB')
             ->newOp2('& << >>', 3)
-        // однопараметровые фильтры
-        // ну очень служебные функции
+            // однопараметровые фильтры
+            // ну очень служебные функции
             ->newFunc('defined', 'defined(%s)', 'SB')
-        //->newOpR('loop', array($this, 'operand_loop'))
+            //->newOpR('loop', array($this, 'operand_loop'))
             ->newOpR('self', 'self', self::TYPE_XID)
             ->newOpR('_self', 'self', self::TYPE_XID)
             ->newOp1('now', 'date(%s)')
-        // фильтры и тесты
+            // фильтры и тесты
             ->newFunc('e', 'htmlspecialchars(%s)', 'SS')
             ->newFunc('raw', '%s', 'SS')
             ->newFunc('escape', 'htmlspecialchars(%s)', 'SS')
             ->newFunc('replace', array($this, 'function_replace'), 'SSSS')
             ->newFunc('length', 'count(%s)', 'DI')
             ->newFunc('lipsum', '$this->func_lipsum(%s)')
+            ->newFunc('min')
+            ->newFunc('max')
+            ->newFunc('trim')
             ->newFunc('join', '$this->filter_join(%s)')
+            ->newFunc('explode', 'explode(%s)')
+            ->newFunc('price', 'number_format(%s,0,"."," ")')
             ->newFunc('default', '$this->filter_default(%s)')
             ->newFunc('justifyleft', '$this->func_justifyL(%s)')
             ->newFunc('slice', '$this->func_slice(%s)')
             ->newFunc('range', '$this->func_range(%s)')
             ->newFunc('keys', '$this->func_keys(%s)')
             ->newFunc('callex', '$this->callex(%s)')
+            ->newFunc('attribute', '$this->attr(%s)')
             ->newFunc('call', '$this->call($par,%s)')
             ->newFunc('translit', 'translit(%s)')
             ->newFunc('format', 'sprintf(%s)')
             ->newFunc('truncate', '$this->func_truncate(%s)')
+            ->newFunc('tourl', '$this->func_2url(%s)')
             ->newFunc('date', '$this->func_date(%s)')
             ->newFunc('finnumb', '$this->func_finnumb(%s)')
             ->newFunc('right', '$this->func_rights(%s)')
             ->newFunc('russuf', '$this->func_russuf(%s)')
             ->newFunc('in_array', '$this->func_in_array(%s)')
+            ->newFunc('is_array', '$this->func_is_array(%s)')
+            // ->newFunc('parent', 'parent::_styles(%s)')
+            ->newFunc('parent', array($this, 'function_parent'))
+            ->newFunc('debug', 'ENGINE::debug(%s)')
             ->newOp1('_echo_', array($this, '_echo_'));
 
     }
@@ -156,20 +167,20 @@ class php_compiler extends tpl_parser
                         }
                         ;
                     } elseif ($res->type == self::TYPE_SLICE) {
-                        if(!empty($res->list)){
-                            $this->to('I',$res->list[0]);
-                            $res->val =$res->list[0]->val;
-                            $condition=sprintf('$this->func_bk(%s',$res->list[0]->val);
+                        if (!empty($res->list)) {
+                            $this->to('I', $res->list[0]);
+                            $res->val = $res->list[0]->val;
+                            $condition = sprintf('$this->func_bk(%s', $res->list[0]->val);
 
                             array_shift($res->list);
-                            foreach($res->list as  $el){
-                                if($el->type==self::TYPE_ID){
-                                    $el->type=self::TYPE_STRING ;// вырезка через точку - это вырезка через индекс
+                            foreach ($res->list as $el) {
+                                if ($el->type == self::TYPE_ID) {
+                                    $el->type = self::TYPE_STRING; // вырезка через точку - это вырезка через индекс
                                 }
-                                $this->to('S',$el);
-                                $condition.=sprintf(',%s',$el->val);
+                                $this->to('S', $el);
+                                $condition .= sprintf(',%s', $el->val);
                             }
-                            $res->val=$condition.')';
+                            $res->val = $condition . ')';
                             unset($res->list);
                         }
                         $res->type = self::TYPE_XSTRING;
@@ -272,6 +283,24 @@ class php_compiler extends tpl_parser
             . ',' . $this->to('S', $op2->value['keys'][2])->val
             . ',' . $this->to('S', $op2->value['keys'][0])->val
             . ')';
+        $op1->type = "TYPE_OPERAND";
+        return $op1;
+    }
+
+    /**
+     * фильтр - replace
+     * @param operand $op1 - TYPE_ID - имя функции
+     * @param operand $op2 - TYPE_LIST - параметры функции
+     */
+    function function_parent($op1, $op2)
+    {
+        $value = array();
+        foreach ($op2->value['keys'] as &$v) {
+            $value[] = $this->to('S', $v)->val;
+        }
+        array_unshift($value,'$par');
+
+        $op1->val = 'parent::_' . $this->currentFunction . '(' . implode(',', $value) . ')';
         $op1->type = "TYPE_OPERAND";
         return $op1;
     }

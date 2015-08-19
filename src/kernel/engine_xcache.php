@@ -1,7 +1,7 @@
 <?php
 /**
- * Реализация инерфейса cache для варианта с xcached
- * User: Сергей
+ * Р РµР°Р»РёР·Р°С†РёСЏ РёРЅРµСЂС„РµР№СЃР° cache РґР»СЏ РІР°СЂРёР°РЅС‚Р° СЃ xcached
+ * User: РЎРµСЂРіРµР№
  * Date: 10.06.13
  * Time: 10:52
  * To change this template use File | Settings | File Templates.
@@ -10,11 +10,11 @@
 class ENGINE_xcache {
     /*<% POINT::start('ENGINE_body'); %>*/
     /**
-     *  доступ к xcached
+     *  РґРѕСЃС‚СѓРї Рє xcached
      * @static
      * @param $key
      * @param null $value
-     * @param int $time в секундах 28800 - 8 часов
+     * @param int $time РІ СЃРµРєСѓРЅРґР°С… 28800 - 8 С‡Р°СЃРѕРІ
      * @return bool|null
      */
     static function cache($key, $value = null, $time = 28800)

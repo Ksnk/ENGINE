@@ -2,9 +2,9 @@
 /**
  * плагин для работы с параметрами в виде var_export файлов
  * ----------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1410, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
+ * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1507161252
+ * GIT: $
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------

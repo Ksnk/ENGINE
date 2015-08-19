@@ -2,9 +2,9 @@
 /**
  * статический класс - преставитель CMS в космосе.
  * ----------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: , Modified: 
- *  SVN: $
+ * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1507161255
+ * GIT: $
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------
@@ -137,6 +137,10 @@ class ENGINE
 
     
 
+    static $cookie_name = 'testing';
+
+    
+
     /** @var xDatabaseLapsi */
     static private $db = null;
 
@@ -187,6 +191,7 @@ class ENGINE
      */
     static function error($msg, $par = array(), $backtrace = array())
     {
+        if (!error_reporting()) return;
         $error_handler = self::option('error.handler', 'echo');
         $error_format = self::option('error.format'
             , "<!--xxx-error-{backtrace}\n{msg}\n-->");
@@ -299,7 +304,8 @@ class ENGINE
             if (class_exists($class)) {
                 self::$class_list[$name] = new $class($par);
             } else {
-                if ($name == $class) {
+                if (!error_reporting()) return;
+                else if ($name == $class) {
                     self::error(
                         'class `{class}` not found in (cwd:{dir})',
                         array('{class}' => $class, '{dir}' => getcwd())
@@ -391,6 +397,9 @@ class ENGINE
             $cache[$name] = new $name();
         }
 //debug($name,$par);
+        if(!is_string($name)){
+            self::debug('wtf?','~count|15');
+        }
         $x = $cache[$name]->$method($par);
         return $x;
     }
@@ -503,8 +512,10 @@ class ENGINE
                     array_merge_deep(self::$options[$name], $value);
                 }
                 return true;
-            } else
+            } else if (array_key_exists($name,self::$options))
                 return self::$options[$name];
+            else
+                return null;
         }
         if(is_string($transport))
             class_exists($transport);
@@ -787,7 +798,7 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
         while( $c -- > 0 ) {
             $indent .= '|  ' ;
         }
-
+        if($depth>5) return '...';
         // if this has been parsed before
         if ( is_array($var) && isset($var[$block])) {
 
@@ -822,14 +833,14 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
                     if(!empty($var_name)){
                         $output .= $var_name.' = ';
                     }
-                    $output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
-                    break;
-              /*      if( !class_exists('ReflectionClass')){
+                    //$output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
+                    //break;
+                    //if( !class_exists('ReflectionClass')){
                         $output .= get_class($theVar).' {'.$nl;
                         foreach((array)$theVar as $name=>$value) {
                             self::varlog($value, $name, $reference.'->'.$name, '->', true);
                         }
-                    } else {
+                    /*} else {
                         $reflect = new ReflectionClass($theVar);
                         $output .= $reflect->getName().' {'.$nl;
                         $props   = $reflect->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
@@ -839,12 +850,16 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
                             self::varlog($theVar->{$prop}, $prop, $reference.'->'.$prop, '->', true);
                             print $prop->getName() . "\n";
                         }
-                    }
+                    }*/
                     $output .= $indent.'}'.$nl;
-                    break ;*/
+                    break ;
 
                 case 'string' :
-                    $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    if($var_name!='' && strlen($theVar)>1000){
+                        $output .= $indent . $var_name . ' '.$method.' "'.mb_substr($theVar,0,500,"UTF-8").'..."'.$nl;
+                    } else {
+                        $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    }
                     break ;
 
                 default :
@@ -864,6 +879,54 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
 
     }
 
+    
+
+
+    /**
+     * @param $flag
+     * @return int
+     * @sample if(DBG::hasflag('test1')){ ...
+     */
+    static function hasflag($flag)
+    {
+        return isset($_COOKIE) &&
+        isset($_COOKIE[self::$cookie_name]) &&
+        preg_match('/\b' . preg_quote($flag) . '\b/', $_COOKIE[self::$cookie_name]);
+    }
+
+    /**
+     * setting up cookie in case user want to start debuging
+     * @return bool
+     * @sample if(DBG::initflags()) header('location: '.#clear URL from testing parameter#)
+     */
+    static function initflags()
+    {
+        if (isset($_GET) && isset($_GET[self::$cookie_name]) && !preg_match('/[^\w,\+\-\.\s]/', $_GET[self::$cookie_name])) {
+            if(preg_match('/[\-\s\+]/',$_GET[self::$cookie_name])){
+                if(isset($_COOKIE[self::$cookie_name])){
+                    $cookie=preg_split('/[,]+/',$_COOKIE[self::$cookie_name]);
+                } else {
+                    $cookie=array();
+                }
+                if(preg_match_all('/([\s\-\+])([\w]*)/',$_GET[self::$cookie_name],$m))
+                foreach($m[0] as $k=>$v){
+                    if($m[1][$k]!='-') $cookie[]=$m[2][$k];
+                    else {
+                        $cookie=array_diff($cookie,array($m[2][$k])) ;
+                    }
+                }
+                $cookie=implode(',',array_unique($cookie));
+            } else {
+                $cookie=trim($_GET[self::$cookie_name]);
+            }
+            if (!empty($cookie))
+                setcookie(self::$cookie_name, $cookie);
+            else
+                setcookie(self::$cookie_name, "", time() - 3600);
+            return true;
+        }
+        return false;
+    }
     
 
 
@@ -929,20 +992,8 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
                 ENGINE::option('engine.logger_uri', 'db://userlog')
             );
             if (!empty($uri['host'])) {
-                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);               }
+                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);                    }
             self::$_logger_table = ENGINE::option('engine.log_table', $uri['path']);
-            ENGINE::db()->query(
-                'create table if not exists `' . self::$_logger_table . '`(
-`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
-`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-`msg` TEXT ,
-`type` VARCHAR( 8 ) NOT NULL ,
-`key` VARCHAR( 40 ) NOT NULL ,
-  PRIMARY KEY (`id`),
-  KEY `date` (`date`),
-  KEY `key` (`key`)
-) ENGINE = MYISAM ;'
-            );
         }
         if (is_string($arg)) {
             $arg = array('type' => $arg);
@@ -952,11 +1003,27 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
         if (!isset($arg['key'])) {
             $arg['key'] = session_id();
         }
-        ENGINE::db()->query(
+        for($i=1;$i<2;$i++){
+        $res=ENGINE::db()->query(
             'insert into `' . self::$_logger_table .
             '` set `msg`=?,`type`=?,`key`=?;',
             ENGINE::_t($msg, $arg), $arg['type'], $arg['key']
         );
+            if(!$res){
+                ENGINE::db()->query(
+                    'create table if not exists `' . self::$_logger_table . '`(
+`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
+`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+`msg` TEXT ,
+`type` VARCHAR( 8 ) NOT NULL ,
+`key` VARCHAR( 40 ) NOT NULL ,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`),
+  KEY `key` (`key`)
+) ENGINE = MYISAM ;'
+                );
+            }
+        }
     }
     
 
@@ -1039,7 +1106,7 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
         }
         foreach ($act as $x) {
             $action = $x[0];
-            $param = $x[1];
+            $param = self::_($x[1],'');
             switch ($action) {
                 case '+':
                     if (empty($param))
@@ -1071,7 +1138,10 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
                     break;
             }
         }
-        $query = http_build_query(self::$url_par);
+        if(!empty(self::$url_par))
+            $query = http_build_query(self::$url_par);
+        else
+            $query='';
         if (!empty($query))
             $query = '?' . $query;
         return self::$url_path . $query;
@@ -1083,7 +1153,7 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
 
     static function relocate($link)
     {
-        if (ENGINE::option('debug', false)) {
+        if (ENGINE::hasflag('norelock') || ENGINE::option('debug', false)) {
             echo '<a href="' . $link . '">Press link to redirect</a>';
         } else {
             header('location:' . $link);
@@ -1099,7 +1169,7 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
             if (array_key_exists('handler', $_POST)) {
                 preg_match(
-                    '/^([^:]*)::([^:]+)(?:([^:]+))?(?:([^:]+))?(?:([^:]+))?/',
+                    '/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/',
                     $_POST['handler'], $m
                 );
                 if (empty($m[1])) {
@@ -1116,7 +1186,8 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
                 $act = array($m[1], 'do_' . $m[2]);
                 $data = ENGINE::exec($act, array($m[3], $m[4], $m[5]));
             } else {
-                ENGINE::error('Wrong usage of POST method.');
+                //ENGINE::error('Wrong usage of POST method.');
+                $data = self::getData();
             }
         } else {
             /*  --- point::BEFORE_GETDATA --- */
@@ -1148,12 +1219,17 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
         $result['stat'] = ob_get_contents();
         ob_end_clean();
         ENGINE::set_option('noreport',1);
-        echo json_encode_cyr($result);
+        //echo json_encode_cyr($result);
+        echo utf8_encode(json_encode($result));
     }
 
     static function getData()
     {
         $x = array(ENGINE::option('class', 'Main'), ENGINE::option('method', 'do_Default'));
+        //if(class_exists())
+        if(!ENGINE::getObj($x[0])){
+            $x=array('Main','do_404');
+        }
         return ENGINE::exec($x);
     }
 
@@ -1170,7 +1246,7 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
         } else {
             $headers = array();
         }
-        if (isset($headers['X-Requested-With']) || isset($_GET['ajax'])) {
+        if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
             self::ajax_action();
             return;
         }
@@ -1186,9 +1262,9 @@ UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
             unset($_SESSION['SAVE_POST'],$_SESSION['SAVE_FILES']);
         }
 
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        if ('POST' == $_SERVER['REQUEST_METHOD'] && !ENGINE::option('skip_post',false)) {
             if (array_key_exists('handler', $_POST)) {
-                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?/'
+                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/'
                     , $_POST['handler'], $m);
                 if (empty($m[1])) $m[1] = 'Main';
                 if (empty($m[2])) ENGINE::error('Wrong handler.');

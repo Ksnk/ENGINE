@@ -1,13 +1,13 @@
 <?php
 /**
  * Файл инсталляции системы. Находимся в каталоге web/install
- * ------------------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1408, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
+ * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1505251519
+ * GIT: $
+ * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
  */
 error_reporting(-1); //E_ALL ^ E_NOTICE);
 ini_set('display_errors', '1');
@@ -106,7 +106,7 @@ class xInstall extends xWebApplication
             'database.prefix' => $_POST['prefix'],
             'database.base' => $_POST['base'],
         ));
-
+        //ENGINE::debug(ENGINE::option());
         $result = ENGINE::db()->select('SHOW TABLES');
         //($result);
         $error = ENGINE::option('page.error');
@@ -186,7 +186,7 @@ class xInstall extends xWebApplication
                  * переопределение ключевых объектов системы.
                  */
                 'engine.aliaces' => array(
-                    'Database' => 'xDatabase',
+                    'Database' => 'xDatabaseXilen',
                     'Rights' => 'xRights',
                 ),
 
@@ -317,6 +317,7 @@ class xInstall extends xWebApplication
 
     function do_Default()
     {
+        $aliace=ENGINE::option('engine.aliaces');
         ENGINE::set_option('page.tabs', array(
             'step1' => array(
                 'title' => "Проверка хостинга",
@@ -397,7 +398,7 @@ ENGINE::set_option(array(
     'engine.aliaces' =>
     array(
         'Main' => 'xInstall',
-        'Database' => 'xDatabase',
+        'Database' => 'xDatabaseXilen',
         'User' => 'xUser',
         'Sitemap' => 'xSitemap',
         'Rights' => 'xRights',

@@ -2,9 +2,9 @@
 /**
  * статический класс - преставитель CMS в космосе.
  * ----------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1410, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
+ * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1507161252
+ * GIT: $
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ class ENGINE
 
     
 
-    static private $options = array(); // : -
+    static private $options = array(); // пары: им€-значение
 
     
 
@@ -176,6 +176,7 @@ class ENGINE
      */
     static function error($msg, $par = array(), $backtrace = array())
     {
+        if (!error_reporting()) return;
         $error_handler = self::option('error.handler', 'echo');
         $error_format = self::option('error.format'
             , "<!--xxx-error-{backtrace}\n{msg}\n-->");
@@ -288,7 +289,8 @@ class ENGINE
             if (class_exists($class)) {
                 self::$class_list[$name] = new $class($par);
             } else {
-                if ($name == $class) {
+                if (!error_reporting()) return;
+                else if ($name == $class) {
                     self::error(
                         'class `{class}` not found in (cwd:{dir})',
                         array('{class}' => $class, '{dir}' => getcwd())
@@ -380,6 +382,9 @@ class ENGINE
             $cache[$name] = new $name();
         }
 //debug($name,$par);
+        if(!is_string($name)){
+            self::debug('wtf?','~count|15');
+        }
         $x = $cache[$name]->$method($par);
         return $x;
     }
@@ -424,7 +429,7 @@ class ENGINE
     
 
     /**
-     *    
+     * ¬ыдать параметр по имени
      * @param string|array $name
      * @param mixed $default
      * @return mixed
@@ -612,7 +617,6 @@ class ENGINE
             } else {
                 $out.=self::varlog($msg)."\r\n";
             }
-            ob_end_clean();
         }
         if(empty($backtrace_options))$backtrace_count=4;
         echo '<!--xxx-debug-'.self::backtrace($backtrace_options,$backtrace_count).' '.str_replace('-->','--&gt;',trim(substr($out,0,16000))).'-->';
@@ -658,7 +662,7 @@ class ENGINE
         while( $c -- > 0 ) {
             $indent .= '|  ' ;
         }
-
+        if($depth>5) return '...';
         // if this has been parsed before
         if ( is_array($var) && isset($var[$block])) {
 
@@ -693,14 +697,14 @@ class ENGINE
                     if(!empty($var_name)){
                         $output .= $var_name.' = ';
                     }
-                    $output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
-                    break;
-              /*      if( !class_exists('ReflectionClass')){
+                    //$output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
+                    //break;
+                    //if( !class_exists('ReflectionClass')){
                         $output .= get_class($theVar).' {'.$nl;
                         foreach((array)$theVar as $name=>$value) {
                             self::varlog($value, $name, $reference.'->'.$name, '->', true);
                         }
-                    } else {
+                    /*} else {
                         $reflect = new ReflectionClass($theVar);
                         $output .= $reflect->getName().' {'.$nl;
                         $props   = $reflect->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
@@ -710,12 +714,16 @@ class ENGINE
                             self::varlog($theVar->{$prop}, $prop, $reference.'->'.$prop, '->', true);
                             print $prop->getName() . "\n";
                         }
-                    }
+                    }*/
                     $output .= $indent.'}'.$nl;
-                    break ;*/
+                    break ;
 
                 case 'string' :
-                    $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    if($var_name!='' && strlen($theVar)>1000){
+                        $output .= $indent . $var_name . ' '.$method.' "'.mb_substr($theVar,0,500,"UTF-8").'..."'.$nl;
+                    } else {
+                        $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    }
                     break ;
 
                 default :
@@ -862,7 +870,7 @@ class ENGINE
         }
         foreach ($act as $x) {
             $action = $x[0];
-            $param = $x[1];
+            $param = self::_($x[1],'');
             switch ($action) {
                 case '+':
                     if (empty($param))
@@ -894,7 +902,10 @@ class ENGINE
                     break;
             }
         }
-        $query = http_build_query(self::$url_par);
+        if(!empty(self::$url_par))
+            $query = http_build_query(self::$url_par);
+        else
+            $query='';
         if (!empty($query))
             $query = '?' . $query;
         return self::$url_path . $query;
@@ -906,7 +917,7 @@ class ENGINE
 
     static function relocate($link)
     {
-        if (ENGINE::option('debug', false)) {
+        if (ENGINE::hasflag('norelock') || ENGINE::option('debug', false)) {
             echo '<a href="' . $link . '">Press link to redirect</a>';
         } else {
             header('location:' . $link);
@@ -922,7 +933,7 @@ class ENGINE
         if ('POST' == $_SERVER['REQUEST_METHOD']) {
             if (array_key_exists('handler', $_POST)) {
                 preg_match(
-                    '/^([^:]*)::([^:]+)(?:([^:]+))?(?:([^:]+))?(?:([^:]+))?/',
+                    '/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/',
                     $_POST['handler'], $m
                 );
                 if (empty($m[1])) {
@@ -939,7 +950,8 @@ class ENGINE
                 $act = array($m[1], 'do_' . $m[2]);
                 $data = ENGINE::exec($act, array($m[3], $m[4], $m[5]));
             } else {
-                ENGINE::error('Wrong usage of POST method.');
+                //ENGINE::error('Wrong usage of POST method.');
+                $data = self::getData();
             }
         } else {
             /*  --- point::BEFORE_GETDATA --- */
@@ -971,12 +983,17 @@ class ENGINE
         $result['stat'] = ob_get_contents();
         ob_end_clean();
         ENGINE::set_option('noreport',1);
-        echo json_encode_cyr($result);
+        //echo json_encode_cyr($result);
+        echo utf8_encode(json_encode($result));
     }
 
     static function getData()
     {
         $x = array(ENGINE::option('class', 'Main'), ENGINE::option('method', 'do_Default'));
+        //if(class_exists())
+        if(!ENGINE::getObj($x[0])){
+            $x=array('Main','do_404');
+        }
         return ENGINE::exec($x);
     }
 
@@ -993,7 +1010,7 @@ class ENGINE
         } else {
             $headers = array();
         }
-        if (isset($headers['X-Requested-With']) || isset($_GET['ajax'])) {
+        if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
             self::ajax_action();
             return;
         }
@@ -1009,9 +1026,9 @@ class ENGINE
             unset($_SESSION['SAVE_POST'],$_SESSION['SAVE_FILES']);
         }
 
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        if ('POST' == $_SERVER['REQUEST_METHOD'] && !ENGINE::option('skip_post',false)) {
             if (array_key_exists('handler', $_POST)) {
-                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?/'
+                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/'
                     , $_POST['handler'], $m);
                 if (empty($m[1])) $m[1] = 'Main';
                 if (empty($m[2])) ENGINE::error('Wrong handler.');

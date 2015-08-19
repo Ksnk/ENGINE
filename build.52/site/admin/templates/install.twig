@@ -189,7 +189,7 @@
 {% endmacro %}
 
 {% macro step3(text,dir,installed) %}
-<input style="float:right;" type="submit" value="Diff" name="show_diff"><input style="float:right;" type="submit" value="Save" name="save">{{text}}<br>
+<input style="float:right;" value="Diff"  type="submit"name="show_diff"><input style="float:right;" type="submit" value="Save" name="save">{{text}}<br>
 
 <div class='column'>
     {% for fl,nm in dir %} {% set indd=loop.index0 %}
@@ -216,7 +216,7 @@
 {% endmacro %}
 
 {% macro step4(text,dir,installed) %}
-<input style="float:right;" type="submit" value="Diff" name="show_diff"><input style="float:right;" type="submit" value="Save" name="save">{{text}}<br>
+<input type="submit" style="float:right;" value="Diff" name="show_diff"><input style="float:right;" type="submit" value="Save" name="save">{{text}}<br>
 
 <div class='column'>
     {% for fl,nm in dir %} {% set indd=loop.index0 %}

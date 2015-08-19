@@ -1,7 +1,7 @@
 <?php
 /**
- * Ðåàëèçàöèÿ èíåðôåéñà cache äëÿ âàðèàíòà ñ xcached
- * User: Ñåðãåé
+ * Ð ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¸Ð½ÐµÑ€Ñ„ÐµÐ¹ÑÐ° cache Ð´Ð»Ñ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ð° Ñ xcached
+ * User: Ð¡ÐµÑ€Ð³ÐµÐ¹
  * Date: 10.06.13
  * Time: 10:52
  * To change this template use File | Settings | File Templates.
@@ -13,7 +13,7 @@ class ENGINE_apc {
      * @static
      * @param $key
      * @param null $value
-     * @param int $time â ñåêóíäàõ 28800 - 8 ÷àñîâ
+     * @param int $time Ð² ÑÐµÐºÑƒÐ½Ð´Ð°Ñ… 28800 - 8 Ñ‡Ð°ÑÐ¾Ð²
      * @return bool|null
      */
     static function cache($key, $value = null, $time = 28800)

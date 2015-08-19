@@ -4,8 +4,8 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: 1.1-10-gd5c11d9, Last build: 1405071152
- * GIT: origin	https://github.com/Ksnk/templater (push)$
+ * ver: , Last build: 1507071228
+ * GIT: $
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012
  * ----------------------------------------------------------------------------
@@ -45,6 +45,7 @@ class php_compiler extends tpl_parser
             ->newFunc('raw', '%s', 'SS')
             ->newFunc('escape', 'htmlspecialchars(%s)', 'SS')
             ->newFunc('replace', array($this, 'function_replace'), 'SSSS')
+            ->newFunc('is_dir', 'is_dir(%s)', 'SI')
             ->newFunc('length', 'count(%s)', 'DI')
             ->newFunc('lipsum', '$this->func_lipsum(%s)')
             ->newFunc('min')
@@ -52,6 +53,7 @@ class php_compiler extends tpl_parser
             ->newFunc('trim')
             ->newFunc('join', '$this->filter_join(%s)')
             ->newFunc('explode', 'explode(%s)')
+            ->newFunc('price', 'number_format(%s,0,"."," ")')
             ->newFunc('default', '$this->filter_default(%s)')
             ->newFunc('justifyleft', '$this->func_justifyL(%s)')
             ->newFunc('slice', '$this->func_slice(%s)')

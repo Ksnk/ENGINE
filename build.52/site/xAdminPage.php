@@ -18,11 +18,6 @@ class xAdminPage extends xPage
             'typeid' => array('type' => 'int'),
             'name' => array('type' => 'str80')
         ),
-        '{{prefix}}_pages_text' => array(
-            'typeid' => array('type' => 'int', 'PRI' => true, 'AUTO' => true),
-            'text' => array('type' => 'text'),
-            'foto' => array('type' => 'int')
-        ),
         '{{prefix}}_pages_foto' => array(
             'id' => array('type' => 'int', 'PRI' => true, 'AUTO' => true),
             'typeid' => array('type' => 'int', 'IND' => true),
@@ -69,7 +64,8 @@ class xAdminPage extends xPage
             'select * from {{prefix}}_pages where `id`={{?|int}} order by `order`;'
             , $current['page']);
         foreach ($page as &$v) {
-            $v['data'] = $this->getElement($v['type'], $v['typeid']);
+            $element=xElement::get($v['type'], $v['typeid']);
+            $v['data'] = $element->data();
         }
         return ENGINE::template('tpl_admin', '_page', array('data' => $page));
     }
@@ -80,19 +76,14 @@ class xAdminPage extends xPage
      */
     function do_attr()
     {
-        $type = $_POST['type'];
-        $eid = $_POST['eid'];
-        switch ($type) {
-            case 'text':
-                ENGINE::db()->update('update {{prefix}}_pages_' . $type . ' set text={{?}} where `typeid`={{?|int}}', $_POST['text'],$eid);
-                break;
-            /*case 'foto':
-                ENGINE::db()->update('update {{prefix}}_pages_' . $type . ' set text={{?}}', $data);
-                break;*/
-            default :
-                return "fail";
+        if(!($element=xElement::get($_POST['type'],$_POST['eid']))) {
+            ENGINE::error('incorrect TYPE argument');
+            return '';
         }
-        return 'ok';
+        if($element->attr($_POST))
+            return 'attr ok' ;
+        else
+            return 'attr fault' ;
     }
 
     /**
@@ -101,18 +92,14 @@ class xAdminPage extends xPage
      */
     function do_delete()
     {
-        $sitemap = ENGINE::exec(array('Sitemap', 'getSiteMap'));
-        $id = $_POST['id'];
-        $type = $_POST['type'];
-        $eid = $_POST['eid'];
-        if (!in_array($type, array(self::TYPE_TEXT, self::TYPE_FOTO))) {
+        if(!($element=xElement::get($_POST['type'],$_POST['eid']))) {
             ENGINE::error('incorrect TYPE argument');
             return '';
         }
-        $current = $sitemap[$id];
-        ENGINE::db()->delete('delete from {{prefix}}_pages_' . $type . ' where `typeid`={{?|int}}',$eid);
-        ENGINE::db()->delete('delete from {{prefix}}_pages where `type`={{?}} and  `typeid`={{?|int}}',$type,$eid);
-        return 'delete ok';
+        if($element->delete())
+            return 'delete ok' ;
+        else
+            return 'delete fault' ;
     }
 
     /**
@@ -122,23 +109,23 @@ class xAdminPage extends xPage
      */
     function do_append()
     {
-        $sitemap = ENGINE::exec(array('Sitemap', 'getSiteMap'));
-        $id = $_POST['id'];
-        $type = $_POST['type'];
-        if (!in_array($type, array(self::TYPE_TEXT, self::TYPE_FOTO))) {
+        if(!($element=xElement::get($_POST['type']))) {
             ENGINE::error('incorrect TYPE argument');
             return '';
         }
-        $current = $sitemap[$id];
-        $text_id = ENGINE::db()->insert('insert into {{prefix}}_pages_' . $type . ' set text=""');
 
-        $data = array('typeid' => $text_id, 'type' => $type, 'order' => 1);
+        $sitemap = ENGINE::exec(array('Sitemap', 'getSiteMap'));
+        $id = 0+$_POST['id'];
+        $current = $sitemap[$id];
+
+        $text_id = $element->getnew();
+
+        $data = array('typeid' => $text_id, 'type' => $element->type, 'order' => 1);
 
         if (empty($current['page'])) {
             $page_id = ENGINE::db()->insert('insert into {{prefix}}_pages ({{?|format("`%s`",",")}}) values ({{?1|values|join(",")}})', $data);
             ENGINE::db()->update('update {{prefix}}_sitemap set `page`={{?|int}} where `id`={{?|int}}', $page_id, $current['id']);
-            //        echo '111--'.$page_id;
-        } else {
+         } else {
             $page_id = $current['page'];
             $max_order = ENGINE::db()->selectCell(
                 'select max(`order`) from {{prefix}}_pages where `id`={{?|int}}'
@@ -158,4 +145,116 @@ class xAdminPage extends xPage
         return 'ok';
     }
 
+    /**
+     * добавить элеммент в инфоблок
+     * @return string
+     */
+    function do_insertAttr()
+    {
+        if(!($element=xElement::get($_POST['type'],$_POST['eid']))) {
+            ENGINE::error('incorrect TYPE argument');
+            return '';
+        }
+        if(method_exists($element,$method='insert_'.$_POST['attr']))
+            $element->$method($_POST);
+        return '';
+    }
+}
+
+class xElement {
+
+    static $cache=array();
+
+    var $id,$type,$data=null;
+
+    function __construct($id,$type){
+        $this->id=$id;
+        $this->type=$type;
+    }
+
+    /**
+     * статический генератор элемета нужного типа с нужным ID
+     * @static
+     * @param $type
+     * @param $id
+     * @return xElement
+     */
+    static function get($type,$id=0){
+        $tp= 'x'.ucfirst($type);
+        if(class_exists($tp)){
+            if(!isset(self::$cache[$tp][$id])) {
+                self::$cache[$tp][$id]=new $tp($id);
+            }
+            return self::$cache[$tp][$id];
+        } else
+            return false;
+    }
+
+
+    function getnew(){
+        $this->id=ENGINE::db()->insert('insert into {{prefix}}_pages_' . $this->type . ' set text=""');
+        return $this->id;
+    }
+
+    function data(){
+        if(is_null($this->data)){
+            $this->data= ENGINE::db()->selectRow('select * from {{prefix}}_pages_' . $this->type
+                . ' where `typeid`={{?|int}};', $this->id);
+            if(!empty($this->data['_'])) {
+                $this->data=array_merge($this->data,unserialize($this->data['_']));
+            };
+        }
+        return $this->data;
+    }
+
+    function delete(){
+        $type = $this->type;
+        $eid = $this->id;
+        ENGINE::db()->delete('delete from {{prefix}}_pages_' . $type . ' where `ID`={{?|int}}',$eid);
+        ENGINE::db()->delete('delete from {{prefix}}_pages where `type`={{?}} and  `typeid`={{?|int}}',$type,$eid);
+        return 'delete ok';
+    }
+
+    function attr ($arr){
+        return false ;
+    }
+}
+
+class xText extends xElement {
+
+    var $fields=array(
+        '{{prefix}}_pages_text' => array(
+            'ID' => array('type' => 'int', 'PRI' => true, 'AUTO' => true),
+            'text' => array('type' => 'text'),
+            'foto' => array('type' => 'int'),
+            '_' => array('type' => 'text'),
+        ));
+
+    function __construct($id){
+        parent::__construct($id,'text');
+    }
+
+    function attr($post){
+            ENGINE::db()->update('update {{prefix}}_pages_' . $this->type . ' set text={{?}} where `ID`={{?|int}}', $post['text'],$this->id);
+            return true;
+    }
+
+    function insert_picture($arr){
+        $data=$this->data();
+        if(empty($data['foto'])){
+            $gallery= new xGallery();
+            $data['foto']=$gallery->getnew();
+        }
+        $picture= new xPicture();
+        $picture->getnew();
+        $picture->fillFrom($arr['url']);
+    }
+}
+class xPicture extends xElement {
+
+}
+class xFoto extends xElement {
+    function __construct($id){
+        parent::__construct($id,'foto');
+    }
 }

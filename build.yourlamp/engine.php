@@ -2,9 +2,9 @@
 /**
  * статический класс - преставитель CMS в космосе.
  * ----------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1410, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
+ * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1508191754
+ * GIT: $
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ class xData implements  Iterator {
     }
     // итератор
     function rewind() {
-        $this->eoa=count($this->data==0);
+        $this->eoa=count($this->data)==0;
         reset($this->data);
     }
 
@@ -105,9 +105,7 @@ class xData implements  Iterator {
 }
 
 /**
- * @method static xDatabase db
  * @method static bool has_rights
- * @method static set_option
  * @method static link
  * @method static action
  * @method static run
@@ -166,6 +164,7 @@ class ENGINE
      */
     static function error($msg, $par = array(), $backtrace = array())
     {
+        if (!error_reporting()) return false;
         $error_handler = self::option('error.handler', 'echo');
         $error_format = self::option('error.format'
             , "<!--xxx-error-{backtrace}\n{msg}\n-->");
@@ -228,7 +227,7 @@ class ENGINE
 
     static function callFirst($method, $par)
     {
-        foreach (self::$class_list as $k => &$v)
+        foreach (self::$class_list as &$v)
             if (method_exists($v, $method)) {
                 if (!is_null($x = call_user_func_array(array(&$v, $method), $par)))
                     return $x;
@@ -239,7 +238,7 @@ class ENGINE
     static function callAll($method, $par = '')
     {
         $result = false;
-        foreach (self::$class_list as $k => &$v)
+        foreach (self::$class_list as &$v)
             if (method_exists($v, $method)) {
                 $result = $result || call_user_func(array($v, $method), $par);
             }
@@ -264,6 +263,8 @@ class ENGINE
      * get an object from alias record
      * @static
      * @param $name
+     * @param null $par
+     * @return null
      */
     static function getObj($name, $par = null)
     {
@@ -278,7 +279,8 @@ class ENGINE
             if (class_exists($class)) {
                 self::$class_list[$name] = new $class($par);
             } else {
-                if ($name == $class) {
+                if (!error_reporting()) return null;
+                else if ($name == $class) {
                     self::error(
                         'class `{class}` not found in (cwd:{dir})',
                         array('{class}' => $class, '{dir}' => getcwd())
@@ -370,6 +372,9 @@ class ENGINE
             $cache[$name] = new $name();
         }
 //debug($name,$par);
+        if(!is_string($name)){
+            self::debug('wtf?','~count|15');
+        }
         $x = $cache[$name]->$method($par);
         return $x;
     }
@@ -377,11 +382,11 @@ class ENGINE
     /*  --- point::ENGINE_body --- */
 
     /**
-     *  ������ � xcached
+     *  доступ к xcached
      * @static
      * @param $key
      * @param null $value
-     * @param int $time � �������� 28800 - 8 �����
+     * @param int $time в секундах 28800 - 8 часов
      * @return bool|null
      */
     static function cache($key, $value = null, $time = 28800)
@@ -410,7 +415,6 @@ class ENGINE
      * @static
      * @param string|array $name
      * @param null $value
-     * @param string|object $transport
      * @return bool|mixed
      */
     static public function set_option($name, $value = null)
@@ -498,8 +502,9 @@ class ENGINE
         }
         //////////////////////////////////////////////////////////////////////////////////
 // register all default interfaces
-        foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
-            ENGINE::register_interface($k, $v);
+        if(method_exists('ENGINE','register_interface'))
+            foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
+                ENGINE::register_interface($k, $v);
 
 //////////////////////////////////////////////////////////////////////////////////
 // include all classes from `engine.include_files`
@@ -511,13 +516,14 @@ class ENGINE
         foreach (ENGINE::option('external.options', array()) as $k => $v)
             ENGINE::set_option($k, null, $v);
 
-        foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
-            if (is_array($v) && count($v) > 0) {
-                foreach ($v as $vv) {
-                    ENGINE::register_event_handler($k, $vv);
+        if(method_exists('ENGINE','register_event_handler'))
+            foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
+                if (is_array($v) && count($v) > 0) {
+                    foreach ($v as $vv) {
+                        ENGINE::register_event_handler($k, $vv);
+                    }
                 }
             }
-        }
     }
 
     
@@ -579,7 +585,6 @@ class ENGINE
             } else {
                 $out.=self::varlog($msg)."\r\n";
             }
-            ob_end_clean();
         }
         if(empty($backtrace_options))$backtrace_count=4;
         echo '<!--xxx-debug-'.self::backtrace($backtrace_options,$backtrace_count).' '.str_replace('-->','--&gt;',trim(substr($out,0,16000))).'-->';
@@ -625,7 +630,7 @@ class ENGINE
         while( $c -- > 0 ) {
             $indent .= '|  ' ;
         }
-
+        if($depth>5) return '...';
         // if this has been parsed before
         if ( is_array($var) && isset($var[$block])) {
 
@@ -660,14 +665,14 @@ class ENGINE
                     if(!empty($var_name)){
                         $output .= $var_name.' = ';
                     }
-                    $output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
-                    break;
-              /*      if( !class_exists('ReflectionClass')){
+                    //$output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
+                    //break;
+                    //if( !class_exists('ReflectionClass')){
                         $output .= get_class($theVar).' {'.$nl;
                         foreach((array)$theVar as $name=>$value) {
                             self::varlog($value, $name, $reference.'->'.$name, '->', true);
                         }
-                    } else {
+                    /*} else {
                         $reflect = new ReflectionClass($theVar);
                         $output .= $reflect->getName().' {'.$nl;
                         $props   = $reflect->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
@@ -677,12 +682,16 @@ class ENGINE
                             self::varlog($theVar->{$prop}, $prop, $reference.'->'.$prop, '->', true);
                             print $prop->getName() . "\n";
                         }
-                    }
+                    }*/
                     $output .= $indent.'}'.$nl;
-                    break ;*/
+                    break ;
 
                 case 'string' :
-                    $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    if($var_name!='' && strlen($theVar)>1000){
+                        $output .= $indent . $var_name . ' '.$method.' "'.mb_substr($theVar,0,500,"UTF-8").'..."'.$nl;
+                    } else {
+                        $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    }
                     break ;
 
                 default :
@@ -699,7 +708,7 @@ class ENGINE
 
         if( $sub == false )
             return $output ;
-
+        return '';
     }
 
     

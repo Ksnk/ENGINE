@@ -1,12 +1,12 @@
 /**
  *  стили админки
- * ------------------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1408, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
+ * $Id: X-Site cms (2.0), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1505251519
+ * GIT: $
+ * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
- * ------------------------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------------
  */
 /*  --- point::css_prefix --- */
 /*! normalize.css 2011-11-04T15:38 UTC - http://github.com/necolas/normalize.css */
@@ -855,6 +855,49 @@ ul.treemenu>li.off>a {
     color: lightgray;
 }
 
+
+.uploadify-queue {
+        margin-bottom: 1em;
+    }
+
+    .uploadify-queue-item {
+        background-color: #F5F5F5;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        font: 11px Verdana, Geneva, sans-serif;
+        margin-top: 5px;
+        max-width: 350px;
+        padding: 10px;
+    }
+
+    .uploadify-error {
+        background-color: #FDE5DD !important;
+    }
+
+    .uploadify-queue-item .cancel a {
+        background: url('../img/uploadify-cancel.png') 0 0 no-repeat;
+        float: right;
+        height: 16px;
+        text-indent: -9999px;
+        width: 16px;
+    }
+
+    .uploadify-queue-item.completed {
+        background-color: #E5E5E5;
+    }
+
+    .uploadify-progress {
+        background-color: #E5E5E5;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .uploadify-progress-bar {
+        background-color: #0099FF;
+        height: 3px;
+        width: 1px;
+    }
 
 #colorpicker {
         position: absolute;

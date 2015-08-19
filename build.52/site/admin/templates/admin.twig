@@ -1,5 +1,10 @@
 #########################################################################
 ##
+##   макросы админки - вывод панелей элементов для страницы
+##
+
+#########################################################################
+##
 ##  шаблоны админки
 ##
 #########################################################################
@@ -321,7 +326,10 @@ user<br>
             </td>
             <td>
                 <span class="_states pseparator floatright notext">|</span>
-                <div class="xaction"><a class="upload" href="javascript:ADMIN('upload',this)">Доб.
+                <div class="xaction">
+                    <a class="upload"
+                       data-upload='{"action":"createPicture","mask":"picture"}'
+                       href="javascript:ADMIN('upload',this)">Доб.
                     фото</a><span>({{xx|default(0)}})</span><br>
                     <a href="javascript:ADMIN('htmleditor',this)">Подробнее</a>
                 </div>

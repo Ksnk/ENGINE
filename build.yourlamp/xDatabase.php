@@ -4,9 +4,9 @@
  * Внешние зависиости
  *  ENGINE::debug, ::error, ::option, ::cache
  * ----------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1410, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
+ * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1508191754
+ * GIT: $
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------

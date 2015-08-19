@@ -27,6 +27,7 @@
             <file>engine_init.php</file>
             <file>engine_xdata.php</file>
             <file>engine_debug.php</file>
+            <file>engine_flags.php</file>
             <file>engine_db_handler.php</file>
             <file dir="plugins">ENGINE_router.php</file>
             <file>engine_shutdown.php</file>

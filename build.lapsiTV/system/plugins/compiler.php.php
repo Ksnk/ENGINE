@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: , Last build: 1410201429
+ * ver: , Last build: 1507071228
  * GIT: $
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012
@@ -45,6 +45,7 @@ class php_compiler extends tpl_parser
             ->newFunc('raw', '%s', 'SS')
             ->newFunc('escape', 'htmlspecialchars(%s)', 'SS')
             ->newFunc('replace', array($this, 'function_replace'), 'SSSS')
+            ->newFunc('is_dir', 'is_dir(%s)', 'SI')
             ->newFunc('length', 'count(%s)', 'DI')
             ->newFunc('lipsum', '$this->func_lipsum(%s)')
             ->newFunc('min')

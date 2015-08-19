@@ -4,8 +4,8 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: 1.1-6-ga842b06, Last build: 1301082138
- * GIT: origin	https://github.com/Ksnk/templater (push)$
+ * ver: , Last build: 1410201429
+ * GIT: $
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012
  * ----------------------------------------------------------------------------
@@ -18,14 +18,15 @@ class tpl_parser extends nat_parser
     // дополнительные константы типов
     const
         TYPE_SENTENSE = 101,
-        TYPE_LITERAL = 102
-;
+        TYPE_LITERAL = 102;
     protected
 
         $locals = array(), // стек идентификаторов с областью видимости
         $ids_low = 0; // нижняя граница области видимости
 
     public
+        $currentFunction = '', // имя текущей функции block или macro
+        //для корректной работы parent()
         $opensentence = array(), // комплект открытых тегов, для портирования
         /** @var string - скрипт для выполнения */
         $script,
@@ -92,8 +93,16 @@ class tpl_parser extends nat_parser
                         );
                     }
                 }
-                $op1->val = $this->template('callmacro', array('name' => $op1, 'param' => $arr, 'parkeys' => $arrkeys));
-                $op1->type = self::TYPE_SENTENSE;
+                if ($op1->type == self::TYPE_SLICE) {
+                    // вызов объектного макроса
+                    $this->to('I', $op1->list[0]);
+                    //$op1->val =$op1->list[0]->val;
+                    $op1->val = $this->template('callmacroex', array('par1' => $op1->list[0]->val, 'mm' => $op1->list[1]->val, 'param' => $arr));
+                    $op1->type = self::TYPE_OPERAND;
+                } else {
+                    $op1->val = $this->template('callmacro', array('name' => $op1, 'param' => $arr, 'parkeys' => $arrkeys));
+                    $op1->type = self::TYPE_SENTENSE;
+                }
                 return $op1;
             } else
                 $this->error('have no function ' . $op1);
@@ -140,7 +149,7 @@ class tpl_parser extends nat_parser
                 /* if ($this->op->val != '') {
                    $this->error('unexpected construction2');
                } */
-                if(!($op = $this->popOp())) break;
+                if (!($op = $this->popOp())) break;
                 $op = $this->to('S', $op);
                 if ($op->type == self::TYPE_SENTENSE)
                     $data[] = array('data' => $op->val);
@@ -275,7 +284,7 @@ class tpl_parser extends nat_parser
         $triml = false;
         $strcns = '';
         // найти начало следующего тега шаблонизатора
-        while ($curptr < $total && preg_match($reg0, &$script, $m, 0, $curptr)) {
+        while ($curptr < $total && preg_match($reg0, $script, $m, 0, $curptr)) {
             if ($m[0] == '')
                 break; // что-то незаладилось в реге
             $strcns .= $m[1];
@@ -299,7 +308,7 @@ class tpl_parser extends nat_parser
                     $this->lex[] = $this->oper('', self::TYPE_COMMA, $curptr);
                     $strcns = '';
                 } else {
-                    $strcns=preg_replace('/\s\s+$/m'," ",$strcns);
+                    $strcns = preg_replace('/\s\s+$/m', " ", $strcns);
                 }
             }
 
@@ -308,13 +317,13 @@ class tpl_parser extends nat_parser
             if ($m[2] == "") break; // нашли финальный кусок
 
             if ($m[2] == $this->options['COMMENT_LINE']) { // комментарий на всю линию
-                if (preg_match('~(.*?)\r?\n~i', &$script, $mm, 0, $curptr)) {
+                if (preg_match('~(.*?)\r?\n~i', $script, $mm, 0, $curptr)) {
                     $curptr += strlen($mm[1]);
                     continue;
                 }
             } elseif ($m[2] == $this->options['COMMENT_START']) { // комментарий? - ищем пару и продолжаем цирк
                 //$rreg='~.*?'.preg_quote($this->options['COMMENT_END'],'#~').'~si';
-                if (preg_match('~.*?' . preg_quote($this->options['COMMENT_END'], '#~') . '~si', &$script, $m, 0, $curptr)) {
+                if (preg_match('~.*?' . preg_quote($this->options['COMMENT_END'], '#~') . '~si', $script, $m, 0, $curptr)) {
                     $curptr += strlen($m[0]);
                     continue;
                 }
@@ -327,7 +336,7 @@ class tpl_parser extends nat_parser
 
             // отрезаем следующую лексему шаблонизатора
             $first = true;
-            while ($curptr < $total && preg_match($reg, &$script, $m, 0, $curptr)) {
+            while ($curptr < $total && preg_match($reg, $script, $m, 0, $curptr)) {
                 $pos = $curptr;
                 $curptr += strlen($m[0]);
                 if (!empty($m[1])) {
@@ -366,7 +375,7 @@ class tpl_parser extends nat_parser
                                         . '\s*endraw\s*'
                                         . preg_quote($this->options['BLOCK_END'], '#~')
                                         . '~si',
-                                    &$script, $m, 0, $curptr)
+                                    $script, $m, 0, $curptr)
                                 )
                                     $this->error('endraw missed');
                                 $curptr += strlen($m[0]);
@@ -424,7 +433,7 @@ class tpl_parser extends nat_parser
             // вызов.
             return call_user_func($op1->handler, $op1, $op2, 'attr');
         }
-        return $this->function_scratch($op1,$op2);
+        return $this->function_scratch($op1, $op2);
     }
 
     /**
@@ -449,7 +458,7 @@ class tpl_parser extends nat_parser
      * @example
      * // вызов макрокоманды
      * if(!empty($this->macros[macroname]))
-     * cal_user_func($this->macros[macroname],$namedpar,$par1,$par2,...);
+     * call_user_func($this->macros[macroname],$namedpar,$par1,$par2,...);
      *
      * неопределенные функции автоматически становятся макрами! Регистрировать не надо
      *
@@ -470,6 +479,7 @@ class tpl_parser extends nat_parser
         $this->getNext(); // name of macros
         // зарегистрировать как функцию
         $tag['name'] = $this->to(self::TYPE_LITERAL, $this->op)->val;
+        $this->currentFunction = $tag['name'];
         $this->getNext(); // name of macros
         if ($this->op->val != '(') {
             $this->error('expected macro parameters');
@@ -524,6 +534,7 @@ class tpl_parser extends nat_parser
         $tag = array('tag' => 'block', 'operand' => count($this->operand), 'data' => array());
         $this->getExpression(); // получили имя идентификатора
         $tag['name'] = $this->popOp()->val;
+        $this->currentFunction = $tag['name'];
         $this->getNext();
         $this->block_internal(array('endblock'), $tag);
         $this->getNext();
@@ -601,7 +612,7 @@ class tpl_parser extends nat_parser
         $this->getExpression(); // получили имя файла для импорта
         $op = $this->popOp();
         $t =& $this->opensent('class');
-        $t['import'][] = basename($op->val, '.jtpl');
+        $t['import'][] = basename($op->val, '.'.template_compiler::options('TEMPLATE_EXTENSION','jtpl'));
         //   $this->getNext();
         return false;
     }
@@ -643,7 +654,7 @@ class tpl_parser extends nat_parser
     function tplcalc($class = 'compiler')
     {
         $tag = array('tag' => 'class', 'import' => array(), 'macro' => array(), 'name' => $class, 'data' => array());
-        $this->opensentence[] = &$tag;
+        $this->opensentence[] = & $tag;
 
         $tagx = array('tag' => 'block', 'name' => ' ', 'operand' => count($this->operand), 'data' => array());
 
@@ -683,8 +694,9 @@ class tpl_parser extends nat_parser
         }
 
         if (!is_null($par)) {
+            $x =& $par;
             if (method_exists($tpl_compiler, '_' . $idx))
-                return call_user_func(array($tpl_compiler, '_' . $idx), &$par);
+                return call_user_func(array($tpl_compiler, '_' . $idx), $x);
             else
                 printf('have no template "%s:%s"', 'tpl_compiler', '_' . $idx);
         }
@@ -741,7 +753,7 @@ class tag_for
             $_attr = substr($_attr, 12);
             while ($loopdepth-- > 0 && $this->parcer->opensentence[$loopdepth]['tag'] != 'for') {
             }
-            $tag = &$this->parcer->opensentence[$loopdepth];
+            $tag = & $this->parcer->opensentence[$loopdepth];
         }
         // найти ближайший открытый for и отметить, что loop там используется.
         if ($reson == 'call') {
@@ -815,7 +827,7 @@ class tag_for
             'operand' => count($parcer->operand),
             'loopdepth' => count($parcer->opensentence)
         );
-        $parcer->opensentence[] = &$this->tag;
+        $parcer->opensentence[] = & $this->tag;
         $parcer->getExpression(); // получили имя идентификатора
         $id = $parcer->newId($parcer->popOp());
         $this->tag['index'] = $parcer->to(array('I', 'value'), $id);
@@ -828,9 +840,9 @@ class tag_for
         }
 
         $this->parcer = $parcer;
- /*       $op = $parcer->oper('loop', self::TYPE_OBJECT);
-        $op->handler = array($this, 'operand_loop');
-        $parcer->newOpr('loop', $op);  */
+        /*       $op = $parcer->oper('loop', self::TYPE_OBJECT);
+               $op->handler = array($this, 'operand_loop');
+               $parcer->newOpr('loop', $op);  */
 
         $parcer->newOpr('loop', array($this, 'operand_loop'));
 

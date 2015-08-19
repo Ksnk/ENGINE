@@ -78,7 +78,7 @@ class xData implements  Iterator {
     }
     // итератор
     function rewind() {
-        $this->eoa=count($this->data==0);
+        $this->eoa=count($this->data)==0;
         reset($this->data);
     }
 

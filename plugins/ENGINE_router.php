@@ -86,7 +86,7 @@ class ENGINE_router
         }
         foreach ($act as $x) {
             $action = $x[0];
-            $param = $x[1];
+            $param = self::_($x[1],'');
             switch ($action) {
                 case '+':
                     if (empty($param))
@@ -118,7 +118,10 @@ class ENGINE_router
                     break;
             }
         }
-        $query = http_build_query(self::$url_par);
+        if(!empty(self::$url_par))
+            $query = http_build_query(self::$url_par);
+        else
+            $query='';
         if (!empty($query))
             $query = '?' . $query;
         return self::$url_path . $query;

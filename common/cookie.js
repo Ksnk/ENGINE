@@ -1,3 +1,21 @@
+// сохранить значение к LS или куке
+function supportLS(){
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
+function store(name,value,opt){
+    if(!supportLS) return cookie(name,value,opt);
+    if (typeof value != 'undefined'){
+        localStorage.setItem(name,value);
+        return true;
+    } else {
+        return localStorage.getItem(name);
+    }
+}
+
 // поставить куку cookie.
 function cookie(name,value,opt){
     if (typeof value != 'undefined') { // name and value given, set cookie
@@ -37,7 +55,7 @@ function cookie(name,value,opt){
             while((resa=reg.exec(cook))){
                 res[resa[1]]=resa[2];
                 obj=true;
-            };
+            }
             if(obj)
                 return res;
             else

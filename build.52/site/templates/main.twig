@@ -35,9 +35,11 @@
     </tr>
     <tr>
         <td colspan=10 style="height:30px;">
+            {% set map=callEx('Sitemap','getSiteMap') %}
             <div id="menu_container" style="height:30px;">
-
-                {::menu:top} - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                <ul class="treemenu ulmenu">
+                {{ulli(map[1])}}
+                </ul>
             </div>
         </td>
     </tr>

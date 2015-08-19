@@ -4,9 +4,9 @@
  * Внешние зависиости
  *  ENGINE::debug, ::error, ::option, ::cache
  * ----------------------------------------------------------------------------------
- * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com)
- *  Rev: 1410, Modified: 
- *  SVN: file:///C:/notebook_svn/svn/xilen/cms$
+ * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
+ * ver: , Last build: 1507161252
+ * GIT: $
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------
@@ -603,7 +603,7 @@ class xDatabaseXilen extends xDatabase_parent
             $result = false;
         }
         if ($this->_debug) {
-            ENGINE::debug('QUERY: ' . $sql);
+            ENGINE::debug('QUERY: ' . $sql."\n".mysql_info());
         }
         return $result;
     }

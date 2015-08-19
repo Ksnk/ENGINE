@@ -47,3 +47,16 @@
 #}
 </body>
 </html>
+##
+##
+## вывод строки главного меню
+##
+{%- macro ulli (element)%}
+{% for child in element.childs %}
+{%- if ( child.flags & 1)%}
+<li{%- if child.active%} class="current"{% endif%}>
+     <a  href="{{root}}{{child.url|default(child.id)}}">{{child.name}}</a>
+    {%- if length(child.childs)>0 %}<ul>{{ulli(child)}}</ul>{% endif -%}
+</li>
+{% endif%}{% endif%} {% endfor %}
+{% endmacro %}

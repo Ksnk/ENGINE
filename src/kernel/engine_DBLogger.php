@@ -30,20 +30,8 @@ class engine_Db_logger
                 ENGINE::option('engine.logger_uri', 'db://userlog')
             );
             if (!empty($uri['host'])) {
-                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);               }
+                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);                    }
             self::$_logger_table = ENGINE::option('engine.log_table', $uri['path']);
-            ENGINE::db()->query(
-                'create table if not exists `' . self::$_logger_table . '`(
-`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
-`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-`msg` TEXT ,
-`type` VARCHAR( 8 ) NOT NULL ,
-`key` VARCHAR( 40 ) NOT NULL ,
-  PRIMARY KEY (`id`),
-  KEY `date` (`date`),
-  KEY `key` (`key`)
-) ENGINE = MYISAM ;'
-            );
         }
         if (is_string($arg)) {
             $arg = array('type' => $arg);
@@ -53,11 +41,27 @@ class engine_Db_logger
         if (!isset($arg['key'])) {
             $arg['key'] = session_id();
         }
-        ENGINE::db()->query(
+        for($i=1;$i<2;$i++){
+        $res=ENGINE::db()->query(
             'insert into `' . self::$_logger_table .
             '` set `msg`=?,`type`=?,`key`=?;',
             ENGINE::_t($msg, $arg), $arg['type'], $arg['key']
         );
+            if(!$res){
+                ENGINE::db()->query(
+                    'create table if not exists `' . self::$_logger_table . '`(
+`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
+`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+`msg` TEXT ,
+`type` VARCHAR( 8 ) NOT NULL ,
+`key` VARCHAR( 40 ) NOT NULL ,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`),
+  KEY `key` (`key`)
+) ENGINE = MYISAM ;'
+                );
+            }
+        }
     }
     /* <% POINT::finish() %>*/
 }

@@ -109,7 +109,7 @@ class ENGINE_debug {
         while( $c -- > 0 ) {
             $indent .= '|  ' ;
         }
-
+        if($depth>5) return '...';
         // if this has been parsed before
         if ( is_array($var) && isset($var[$block])) {
 
@@ -144,14 +144,14 @@ class ENGINE_debug {
                     if(!empty($var_name)){
                         $output .= $var_name.' = ';
                     }
-                    $output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
-                    break;
-              /*      if( !class_exists('ReflectionClass')){
+                    //$output .= '{'.var_export ($theVar,true).$indent.'}'.$nl;
+                    //break;
+                    //if( !class_exists('ReflectionClass')){
                         $output .= get_class($theVar).' {'.$nl;
                         foreach((array)$theVar as $name=>$value) {
                             self::varlog($value, $name, $reference.'->'.$name, '->', true);
                         }
-                    } else {
+                    /*} else {
                         $reflect = new ReflectionClass($theVar);
                         $output .= $reflect->getName().' {'.$nl;
                         $props   = $reflect->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
@@ -161,12 +161,16 @@ class ENGINE_debug {
                             self::varlog($theVar->{$prop}, $prop, $reference.'->'.$prop, '->', true);
                             print $prop->getName() . "\n";
                         }
-                    }
+                    }*/
                     $output .= $indent.'}'.$nl;
-                    break ;*/
+                    break ;
 
                 case 'string' :
-                    $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    if($var_name!='' && strlen($theVar)>1000){
+                        $output .= $indent . $var_name . ' '.$method.' "'.mb_substr($theVar,0,500,"UTF-8").'..."'.$nl;
+                    } else {
+                        $output .= $indent . $var_name . ' '.$method.' "'.$theVar.'"'.$nl;
+                    }
                     break ;
 
                 default :
@@ -183,7 +187,7 @@ class ENGINE_debug {
 
         if( $sub == false )
             return $output ;
-
+        return '';
     }
 
     /* <% POINT::finish() %>*/

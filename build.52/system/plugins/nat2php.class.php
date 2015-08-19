@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * $Id: Templater engine v 2.0 (C) by Ksnk (sergekoriakin@gmail.com).
  *      based on Twig sintax,
- * ver: 1.1-6-ga842b06, Last build: 1301082138
+ * ver: 1.1-10-gd5c11d9, Last build: 1309171559
  * GIT: origin	https://github.com/Ksnk/templater (push)$
  * ----------------------------------------------------------------------------
  * License MIT - Serge Koriakin - 2012
@@ -350,8 +350,9 @@ class nat_parser
     private function &new_Op($op, $prio, &$array, $phpeq, $types = '*')
     {
         if (strpos($op, ' ') !== false) {
-            foreach (explode(' ', $op) as $oop)
-                $this->new_Op($oop, $prio, &$array, $phpeq, $types);
+            foreach (explode(' ', $op) as $oop) {
+                $this->new_Op($oop, $prio, $array, $phpeq, $types);
+            }
             return $this;
         }
         $ww = 'JUST_OP';
@@ -362,7 +363,7 @@ class nat_parser
         }
         if ($prio < 10 || !isset($this->prio[$op])) $this->prio[$op] = $prio;
         if (is_string($phpeq)) {
-            $array[$op] = $this->oper(str_replace('~~~', $op, $phpeq));
+            $array[$op] = $this->oper(str_replace('~~~', str_replace('%','%%',$op), $phpeq));
         } else {
             $array[$op] = $this->oper($phpeq);
         }
@@ -380,7 +381,7 @@ class nat_parser
      * @param $op - имя операции
      * @param $phpeq - PHP эквивалент - паттерн для sprintf'а с одним параметром
      */
-    function &newFunc($op, $phpeq = '~~~(%s)', $types = '*')
+    function &newFunc($op, $phpeq = '(~~~(%s))', $types = '*')
     {
         $this->func[$op] = $this->oper(str_replace('~~~', $op, $phpeq));
         return $this;
@@ -394,7 +395,7 @@ class nat_parser
      */
     function &newOp1($op, $phpeq = null, $types = '*')
     {
-        return $this->new_Op($op, 10, &$this->unop, pps($phpeq, '~~~(%s)'), $types);
+        return $this->new_Op($op, 10, $this->unop, pps($phpeq, '(~~~(%s))'), $types);
     }
 
     /**
@@ -404,7 +405,7 @@ class nat_parser
      */
     function &newOpS($op, $phpeq = null, $prio = 10, $types = '*')
     {
-        return $this->new_Op($op, $prio, &$this->suffop, pps($phpeq, '%s~~~'), $types);
+        return $this->new_Op($op, $prio, $this->suffop, pps($phpeq, '(%s~~~)'), $types);
     }
 
     /**
@@ -434,7 +435,7 @@ class nat_parser
      */
     function &newOp2($op, $prio = 10, $phpeq = null, $types = '*')
     {
-        return $this->new_Op($op, $prio, &$this->binop, pps($phpeq, '(%s)~~~(%s)'), $types);
+        return $this->new_Op($op, $prio, $this->binop, pps($phpeq, '((%s)~~~(%s))'), $types);
     }
 
     /**

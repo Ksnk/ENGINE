@@ -36,7 +36,7 @@ class tpl_base
     function func_2url($s)
     {
         return str_replace(' ', '+',
-            preg_replace('~[\+/\.]~', '',
+            preg_replace('~[\+/\.,;]~', '',
                 preg_replace('~\s+|&nbsp;~', ' ', strip_tags($s))
             )
         );
@@ -79,7 +79,7 @@ class tpl_base
      */
     function func_replace($n, $search = '', $replace = '')
     {
-        return str_replace($$search, $replace, $n);
+        return str_replace($search, $replace, $n);
     }
 
     /**
@@ -258,7 +258,7 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
                 if (is_array($p3))
                     return call_user_func_array(array($p1, $p2), $p3);
                 else
-                    return call_user_func(array($p1, $p2), &$p3);
+                    return call_user_func(array($p1, $p2), $p3);
             } else if (property_exists($p1, $p2)) {
                 return $p1->$p2;
             }
@@ -366,6 +366,7 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
     /**
      * Хелпер для циклов.
      * @param unknown_type $loop_array
+     * @return mixed|string
      */
     function loopcycle(&$loop_array)
     {
@@ -382,14 +383,16 @@ Pellentesque dictum scelerisque urna, sed porta odio venenatis ut. Integer aucto
     {
         $x = func_get_args();
         array_shift($x);
-        $result =& $el;
+        $result = &$el;
         foreach ($x as $idx) {
-            if (is_array($result) && array_key_exists($idx, $result)) $result =& $result[$idx];
+            if (is_array($result) && array_key_exists($idx, $result))
+                $result = &$result[$idx];
             elseif (is_object($result))
-                @$result =& $result->$idx;
+                @$result = &$result->$idx;
             else return '';
         }
-        return $result;
+        $x=$result; unset($result);
+        return $x;
     }
 
 

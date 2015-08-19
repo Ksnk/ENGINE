@@ -3,6 +3,7 @@
 {% block scripts %}
 <script src="{{rootsite}}js/main.js"></script>
 <script src="{{rootsite}}js/tiny_mce/jquery.tinymce.js"></script>
+<script src="{{root}}admin/uploadify/jquery.uploadify-3.1.js"></script>
 {% endblock %}
 
 {% block styles -%}
@@ -153,24 +154,16 @@
     class="text"></span><span
     class="arrow"></span></blockquote>
 
+<form id="uploader" class="nocontext" style="position:absolute;top:0;left:0">
+    <input type="file" id="upload_input" name="file[]" multiple="multiple" >
+</form>
+
 <div style="display:none;" id="colorpicker">
     <canvas class="rule"></canvas>
     <canvas class="pane"></canvas>
     <div></div>
     <button>ok</button>
 </div>
-
-<iframe src='about:blank' id='uploadFrame' name='uploadFrame' class="hidden">
-</iframe>
-
-<form id="uploader" class="nocontext flyaway" target="uploadFrame" action=""
-      method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="handler" value="Main::upload">
-
-    <input type="file" name="file[]" multiple="multiple" >
-    <input type="submit" value="Submit">
-</form>
-
 
 <!--  -->
 <div id="htmleditor" class="modal dialog tahoma10" style="display:none;">

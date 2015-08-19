@@ -32,8 +32,9 @@ class ENGINE_init {
         }
         //////////////////////////////////////////////////////////////////////////////////
 // register all default interfaces
-        foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
-            ENGINE::register_interface($k, $v);
+        if(method_exists('ENGINE','register_interface'))
+            foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
+                ENGINE::register_interface($k, $v);
 
 //////////////////////////////////////////////////////////////////////////////////
 // include all classes from `engine.include_files`
@@ -45,13 +46,14 @@ class ENGINE_init {
         foreach (ENGINE::option('external.options', array()) as $k => $v)
             ENGINE::set_option($k, null, $v);
 
-        foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
-            if (is_array($v) && count($v) > 0) {
-                foreach ($v as $vv) {
-                    ENGINE::register_event_handler($k, $vv);
+        if(method_exists('ENGINE','register_event_handler'))
+            foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
+                if (is_array($v) && count($v) > 0) {
+                    foreach ($v as $vv) {
+                        ENGINE::register_event_handler($k, $vv);
+                    }
                 }
             }
-        }
     }
 
     /* <% POINT::finish() %>*/
