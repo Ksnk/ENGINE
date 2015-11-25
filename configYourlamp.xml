@@ -24,17 +24,19 @@
 
             <file>optionsLapsi.php</file>
             <file>autoload.php</file>
-    <!--       <file>engine_session.php</file>-->
+            <file>engine_session.php</file>
             <file>engine_init.php</file>
             <file>engine_xdata.php</file>
             <file>engine_debug.php</file>
+            <file>engine_flags.php</file>
             <file>engine_db_handler.php</file>
-    <!--        <file dir="plugins">ENGINE_router.php</file>-->
+            <file dir="plugins">ENGINE_router.php</file>
             <file>engine_shutdown.php</file>
+            <file>engine_DBLogger.php</file>
         </files>
 
-    <!--        <file dir="plugins">ENGINE_router.php</file>
-            <file dir="plugins">ENGINE_action.php</file> -->
+        <file dir="plugins">ENGINE_router.php</file>
+        <file dir="plugins">ENGINE_action.php</file>
 
         <files dir="src/kernel" dstdir="$system" name="ENGINE.php">
             <file >engine.php</file>
@@ -55,7 +57,7 @@
         </files>-->
 
         <files dir="../sql_template" dstdir="$system">
-            <file>xDatabase.php</file>
+            <file>xDatabaseLapsi.php</file>
         </files>
     </files>
 </config>

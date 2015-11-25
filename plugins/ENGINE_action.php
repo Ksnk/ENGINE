@@ -86,6 +86,26 @@ class ENGINE_action
         return ENGINE::exec($x);
     }
 
+    static function headers(){
+        static $headers=array();
+        if (empty($headers)) {
+            if (is_callable('apache_request_headers')) {
+                $headers = apache_request_headers();
+            } else {
+                $headers=array();
+                foreach($_SERVER as $key=>$value) {
+                    if (substr($key,0,5)=="HTTP_") {
+                        $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+                        $headers[$key]=$value;
+                    }else{
+                        $headers[$key]=$value;
+                    }
+                }
+            }
+        }
+        return $headers;
+    }
+
     static function action()
     {
         ob_start();
@@ -94,11 +114,8 @@ class ENGINE_action
             ENGINE::set_option('session.page.error', '');
             ENGINE::error($error);
         }
-        if (is_callable('apache_request_headers')) {
-            $headers = apache_request_headers();
-        } else {
-            $headers = array();
-        }
+        $headers=ENGINE::headers();
+
         if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
             self::ajax_action();
             return;

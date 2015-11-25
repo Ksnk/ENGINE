@@ -44,6 +44,7 @@ class xSimpleForm
     protected $plainerrors = array();
     var $fields = array();
     protected $method;
+    static $names=array();
 
     function __construct($fields, $name = '', $method = 'POST')
     {
@@ -53,7 +54,16 @@ class xSimpleForm
             $this->fields = $fields;
         }
         $this->name = $name;
+        if(!empty($name)){
+            self::$names[$name]=$this;
+        }
         $this->method = $method;
+    }
+
+    static function byname($name){
+        if(isset(self::$names[$name]))
+            return self::$names[$name];
+        return null;
     }
 
     function _error($msg, $field = null,$store=true)
@@ -113,6 +123,7 @@ class xSimpleForm
      */
     function load()
     {
+        ENGINE::start_session();
         if (empty($this->name)) {
             return;
         }
@@ -144,6 +155,8 @@ class xSimpleForm
 
     function store()
     {
+        ENGINE::start_session();
+
         if (empty($this->name)) {
             return;
         }
@@ -185,13 +198,42 @@ class xSimpleForm
     }
 
     /**
+     * @param $name - сюда хотели бы скопировать файл
+     * @param $oldone - отсюда хотим скопировать файл
+     * @return mixed|string - имя файла, куда можно скопировать файл
+     */
+    function createUniqueFileName($name, $oldone)
+    {
+        $name = ENGINE::option('engine.upload_dir', INDEX_DIR . 'uploaded') .
+            '/' . $name;
+        $stat_old=stat($oldone);
+        $x = 1;$cnt=5;
+        while (file_exists($name) && $cnt-->0) {
+            $stat_new=stat($name);
+            if($stat_new['size']==$stat_old['size']){
+                if(!isset($stat_old['md5'])){
+                    $stat_old['md5']=md5_file($oldone);
+                }
+                if(md5_file($name)==$stat_old['md5'])
+                    return $name;
+            }
+            $name = preg_replace('/(?:\[\d+\])?(\.\w+)$/', '[' . ($x++) . ']\1', $name);
+        }
+        return $name;
+    }
+
+    /**
      * проверка, что в поле таки что-то введено и введено корректно
      */
-    function handle()
+    function handle($nostore=false)
     {
         global $APPLICATION; // интергация с битрикс, такая уж интеграция.
 
         $this->load();
+        $headers=ENGINE::headers();
+        $urldecode=false;
+        if(isset($headers['Content-Type']) && preg_match('~^multipart/form\-data~',$headers['Content-Type'] ))
+            $urldecode=true;
 
         if ($_SERVER['REQUEST_METHOD'] != $this->method) {
             return false;
@@ -199,6 +241,11 @@ class xSimpleForm
 
         if ($this->method == 'POST') {
             $request =& $_POST;
+            if($urldecode){
+                foreach($request as &$x){
+                    $x=urldecode($x);
+                }
+            }
         } else {
             $request =& $_GET;
         }
@@ -206,8 +253,21 @@ class xSimpleForm
         foreach ($this->fields as $name => $field) {
             if (!is_int($name)) {
 
-                if (!empty($request[$name])) {
-                    $field->value = $request[$name];
+                if($field->type == 'files'){
+                    if(isset($_FILES) && isset($_FILES[$name])&& isset($_FILES[$name]['name'])){
+                        foreach($_FILES[$name]['name'] as $k=>$v){
+                            if(0==$_FILES[$name]['error'][$k]){
+                                $xname=$this->createUniqueFileName(translit($v),$_FILES[$name]['tmp_name'][$k]);
+                                move_uploaded_file($_FILES[$name]['tmp_name'][$k],$xname);
+                                $field->value[$v]=array(
+                                    'tmp_name'=>$xname,
+                                    'size'=>$_FILES[$name]['size'][$k]
+                                );
+                            }
+                        }
+                    }
+                } else if (!empty($request[$name]) && ''!=trim(($request[$name]))) {
+                    $field->value = trim($request[$name]);
                     if (($code = ENGINE::option('page.code', 'UTF-8')) != 'UTF-8') {
                         if (detectUTF8($field->value)) {
                             $field->value
@@ -253,7 +313,8 @@ class xSimpleForm
 
             }
         }
-        $this->store();
+
+        if(!$nostore)$this->store();
         return !$this->has_error;
     }
     /*
