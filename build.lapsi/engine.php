@@ -3,8 +3,9 @@
  * статический класс - преставитель CMS в космосе.
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: , Last build: 1507161252
- * GIT: $
+ * ver: , Last build: 1511251421
+ * status : draft build.
+ * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ class xData implements  Iterator {
     }
     // итератор
     function rewind() {
-        $this->eoa=count($this->data==0);
+        $this->eoa=count($this->data)==0;
         reset($this->data);
     }
 
@@ -105,9 +106,7 @@ class xData implements  Iterator {
 }
 
 /**
- * @method static xDatabase db
  * @method static bool has_rights
- * @method static set_option
  * @method static link
  * @method static action
  * @method static run
@@ -176,7 +175,7 @@ class ENGINE
      */
     static function error($msg, $par = array(), $backtrace = array())
     {
-        if (!error_reporting()) return;
+        if (!error_reporting()) return false;
         $error_handler = self::option('error.handler', 'echo');
         $error_format = self::option('error.format'
             , "<!--xxx-error-{backtrace}\n{msg}\n-->");
@@ -239,7 +238,7 @@ class ENGINE
 
     static function callFirst($method, $par)
     {
-        foreach (self::$class_list as $k => &$v)
+        foreach (self::$class_list as &$v)
             if (method_exists($v, $method)) {
                 if (!is_null($x = call_user_func_array(array(&$v, $method), $par)))
                     return $x;
@@ -250,7 +249,7 @@ class ENGINE
     static function callAll($method, $par = '')
     {
         $result = false;
-        foreach (self::$class_list as $k => &$v)
+        foreach (self::$class_list as &$v)
             if (method_exists($v, $method)) {
                 $result = $result || call_user_func(array($v, $method), $par);
             }
@@ -275,6 +274,8 @@ class ENGINE
      * get an object from alias record
      * @static
      * @param $name
+     * @param null $par
+     * @return null
      */
     static function getObj($name, $par = null)
     {
@@ -289,7 +290,7 @@ class ENGINE
             if (class_exists($class)) {
                 self::$class_list[$name] = new $class($par);
             } else {
-                if (!error_reporting()) return;
+                if (!error_reporting()) return null;
                 else if ($name == $class) {
                     self::error(
                         'class `{class}` not found in (cwd:{dir})',
@@ -448,7 +449,6 @@ class ENGINE
      * @static
      * @param string|array $name
      * @param null $value
-     * @param string|object $transport
      * @return bool|mixed
      */
     static public function set_option($name, $value = null)
@@ -536,8 +536,9 @@ class ENGINE
         }
         //////////////////////////////////////////////////////////////////////////////////
 // register all default interfaces
-        foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
-            ENGINE::register_interface($k, $v);
+        if(method_exists('ENGINE','register_interface'))
+            foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
+                ENGINE::register_interface($k, $v);
 
 //////////////////////////////////////////////////////////////////////////////////
 // include all classes from `engine.include_files`
@@ -549,13 +550,14 @@ class ENGINE
         foreach (ENGINE::option('external.options', array()) as $k => $v)
             ENGINE::set_option($k, null, $v);
 
-        foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
-            if (is_array($v) && count($v) > 0) {
-                foreach ($v as $vv) {
-                    ENGINE::register_event_handler($k, $vv);
+        if(method_exists('ENGINE','register_event_handler'))
+            foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
+                if (is_array($v) && count($v) > 0) {
+                    foreach ($v as $vv) {
+                        ENGINE::register_event_handler($k, $vv);
+                    }
                 }
             }
-        }
     }
 
     
@@ -740,7 +742,7 @@ class ENGINE
 
         if( $sub == false )
             return $output ;
-
+        return '';
     }
 
     
@@ -997,6 +999,26 @@ class ENGINE
         return ENGINE::exec($x);
     }
 
+    static function headers(){
+        static $headers=array();
+        if (empty($headers)) {
+            if (is_callable('apache_request_headers')) {
+                $headers = apache_request_headers();
+            } else {
+                $headers=array();
+                foreach($_SERVER as $key=>$value) {
+                    if (substr($key,0,5)=="HTTP_") {
+                        $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+                        $headers[$key]=$value;
+                    }else{
+                        $headers[$key]=$value;
+                    }
+                }
+            }
+        }
+        return $headers;
+    }
+
     static function action()
     {
         ob_start();
@@ -1005,11 +1027,8 @@ class ENGINE
             ENGINE::set_option('session.page.error', '');
             ENGINE::error($error);
         }
-        if (is_callable('apache_request_headers')) {
-            $headers = apache_request_headers();
-        } else {
-            $headers = array();
-        }
+        $headers=ENGINE::headers();
+
         if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
             self::ajax_action();
             return;

@@ -14,12 +14,6 @@ class engine_options_cookie
 
     var $options =array();
 
-    function __construct($options=''){
-        $this->option_filename =$option_filename;
-        if(is_readable($this->option_filename))
-            $this->option = include $this->option_filename ;
-    }
-
     function get($name)
     {
         return isset($_COOKIE[$name])?$_COOKIE[$name]:null;
