@@ -81,12 +81,12 @@ class engine_options
                     array_merge_deep(self::$options[$name], $value);
                 }
                 return true;
-            } else if (array_key_exists($name,self::$options))
+            } else if (array_key_exists($name, self::$options))
                 return self::$options[$name];
             else
                 return null;
         }
-        if(is_string($transport))
+        if (is_string($transport))
             class_exists($transport);
         if (!is_null($value)) {
             call_user_func(array($transport, 'set'), $name, $value);
@@ -107,10 +107,10 @@ class engine_options
         ) {
             // отделяем имя от параметра
             $x = explode('|', $transport . '|');
-            $y=explode('~',$x[0].'~');
+            $y = explode('~', $x[0] . '~');
             if (is_callable(array('engine_options_' . $y[0], 'init')))
                 self::$transports[$transport] =
-                    call_user_func(array('engine_options_' . $y[0], 'init'), $y[1],$x[1]);
+                    call_user_func(array('engine_options_' . $y[0], 'init'), $y[1], $x[1]);
             else
                 self::$transports[$transport] = 'engine_options_' . $y[0];
         }
@@ -120,6 +120,12 @@ class engine_options
     {
         $res = array();
         $reg = '#^' . preg_quote($start) . "(.*)$#";
+        foreach (self::$transport as $k => $v) {
+            if (preg_match($reg, $k, $m)) {
+                $v = self::option($k);
+                $res[$m[1]] = $v;
+            }
+        }
         foreach (self::$options as $k => $v) {
             if (preg_match($reg, $k, $m)) {
                 $res[$m[1]] = $v;
@@ -179,7 +185,7 @@ function array_clear_deep(&$tomerge, &$part)
         if (array_key_exists($k, $tomerge)) {
             if (is_array($tomerge[$k]) && is_array($v)) {
                 $result = array_clear_deep($tomerge[$k], $v) || $result;
-                if(count($tomerge[$k])==0){
+                if (count($tomerge[$k]) == 0) {
                     unset($tomerge[$k]);
                     $result = true;
                 }

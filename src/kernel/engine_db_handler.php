@@ -31,13 +31,13 @@ class ENGINE_db_handler
         if (empty(self::$db)) {
             self::$db = self::getObj('Database', $option);
         }
-        self::$db->set_option($option);
+        if (!empty(self::$db)) self::$db->set_option($option);
         return self::$db;
     }
 
     /* <% POINT::finish() %>*/
 
-    function _report()
+    static public function _report()
     {
         /* <% POINT::start('ENGINE_final_report') %>*/
         if (!empty(self::$db)) {

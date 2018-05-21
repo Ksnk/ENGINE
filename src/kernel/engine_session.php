@@ -19,24 +19,28 @@ class ENGINE_session
             if (!empty($session_name)) {
                 session_name($session_name);
             }
+            session_set_cookie_params ( ENGINE::option('engine.session_lifetime',600),ENGINE::option('engine.session_path','/'),ENGINE::option('engine.session_domain',null));
             session_start();
+            setcookie(session_name(),session_id(),time()+ENGINE::option('engine.session_lifetime',600),ENGINE::option('engine.session_path','/'),ENGINE::option('engine.session_domain',null));
             if($log){
-            $log = array();
-            foreach (array('REMOTE_ADDR', 'X-Forwarded-For', 'X-Real-IP') as $name) {
-                if (isset($_SERVER[$name])) {
-                    $log[$_SERVER[$name]] = $name;
+                $log = array();
+                foreach (array('REMOTE_ADDR', 'X-Forwarded-For', 'X-Real-IP') as $name) {
+                    if (isset($_SERVER[$name])) {
+                        $log[$_SERVER[$name]] = $name;
+                    }
                 }
-            }
-            ENGINE::log(
-                'Старт сессии.
-IP:{{IP}}
-REF:"{{HTTP_REFERER}}"
-UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
-                    '{{IP}}' => implode(',', array_keys($log)),
-                    '{{HTTP_REFERER}}' => ENGINE::_($_SERVER['HTTP_REFERER'], '-'),
-                    '{{HTTP_USER_AGENT}}' => ENGINE::_($_SERVER['HTTP_USER_AGENT'], '-')
-                )
-            );
+                /*
+                ENGINE::log(
+                    'Старт сессии.
+    IP:{{IP}}
+    REF:"{{HTTP_REFERER}}"
+    UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
+                        '{{IP}}' => implode(',', array_keys($log)),
+                        '{{HTTP_REFERER}}' => ENGINE::_($_SERVER['HTTP_REFERER'], '-'),
+                        '{{HTTP_USER_AGENT}}' => ENGINE::_($_SERVER['HTTP_USER_AGENT'], '-')
+                    )
+                );
+                */
             }
             self::$session_started = true;
         }

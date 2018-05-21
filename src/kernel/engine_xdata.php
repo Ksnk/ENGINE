@@ -8,16 +8,18 @@
  */
 
 /* <% POINT::start('ENGINE_top') %>*/
+
 /**
  * Class xData -data-holder,
  * базовый класс для хранителя данных для шаблонов
  */
-class xData implements  Iterator {
+class xData implements Iterator
+{
 
     /**
      * @var array
      */
-    static $items=array();
+    static $items = array();
 
     /**
      * система кэширования однотипных данных. Все данные различаются полем ID.
@@ -27,75 +29,88 @@ class xData implements  Iterator {
      * @param array $data
      * @return mixed
      */
-    static function get($class,$id,$data=array()){
-        if(!isset(self::$items[$class]))
-            self::$items[$class]=array();
-        if(is_array($id)) {
-            if(!isset(self::$items[$class][$id['id']]))
-                self::$items[$id['id']]=new $class($id,$data);
+    static function get($class, $id, $data = array())
+    {
+        if (!isset(self::$items[$class]))
+            self::$items[$class] = array();
+        if (is_array($id)) {
+            if (!isset(self::$items[$class][$id['id']]))
+                self::$items[$id['id']] = new $class($id, $data);
             return self::$items[$class][$id['id']];
-        } else if(!isset(self::$items[$class][$id])) {
-            self::$items[$class][$id]=new $class($id,$data);
+        } else if (!isset(self::$items[$class][$id])) {
+            self::$items[$class][$id] = new $class($id, $data);
         }
         return self::$items[$class][$id];
     }
 
-    protected $data=array();
-    private $def='',$eoa=false;
+    protected $data = array();
+    private $def = '';
 
-    function getData(){
+    function getData()
+    {
         return $this->data;
     }
 
-    function __construct($data,$def=''){
-        foreach($data as $k=>$v){
-            if(is_array($v))
-                $this->data[$k]=new self($v,$def);
+    function __construct($data, $def = '')
+    {
+        foreach ($data as $k => $v) {
+            if (is_array($v))
+                $this->data[$k] = new self($v, $def);
             else
-                $this->data[$k]=$v;
+                $this->data[$k] = $v;
         }
-        $this->def=$def;
+        $this->def = $def;
     }
 
-    protected function  &resolve($name){
-        if(!array_key_exists($name,$this->data))
-            $this->data[$name]=$this->def;
+    protected function  &resolve($name)
+    {
+        if (!array_key_exists($name, $this->data))
+            $this->data[$name] = $this->def;
         return $this->data[$name];
     }
 
-    function &__get($name){
-        if(array_key_exists($name,$this->data))
+    function &__get($name)
+    {
+        if (array_key_exists($name, $this->data))
             return $this->data[$name];
         else {
-            $x=$this->resolve($name);
+            $x = $this->resolve($name);
             return $x;
         }
     }
+
     public function __set($name, $value)
     {
         // echo "Setting '$name' to '$value'\n";
         $this->data[$name] = $value;
     }
+
     // итератор
-    function rewind() {
-        $this->eoa=count($this->data)==0;
+    function rewind()
+    {
+        // $this->eoa=true;//count($this->data==0);
         reset($this->data);
     }
 
-    function current() {
+    function current()
+    {
         return current($this->data);
     }
 
-    function key() {
+    function key()
+    {
         return key($this->data);
     }
 
-    function next() {
-        return $this->eoa=(false!==next($this->data));
+    function next()
+    {
+        return next($this->data);
     }
 
-    function valid() {
-        return $this->eoa;
+    function valid()
+    {
+        $key = key($this->data);
+        return ($key !== NULL && $key !== FALSE);
     }
 
 }
