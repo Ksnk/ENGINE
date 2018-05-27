@@ -1,36 +1,34 @@
-// сохранить значение к LS или куке
-function supportLS(){
+// сохранить значение в LS или куке
+function supportLS() {
     try {
         return 'localStorage' in window && window['localStorage'] !== null;
     } catch (e) {
         return false;
     }
 }
-function store(name,value,opt){
-    if(!supportLS) return cookie(name,value,opt);
-    if (typeof value != 'undefined'){
-        localStorage.setItem(name,value);
-        return true;
-    } else {
-        return localStorage.getItem(name);
-    }
-}
 
-// поставить куку cookie.
-function cookie(name,value,opt){
+/**
+ * поставить/удалить/выдать значение куки.
+ * @param {string} name - имя куки
+ * @param {mixed} value - значение куки для установки,
+ *        {null} value - удалить куку,
+ *          отсутствующий параметр - выдать значение куки
+ * @param {object} opt - параметры установки
+ *  - {number} expires: DAY - количество дней
+ *  - {date} expires: финальная дата
+ *  - {string} path - путь куки
+ *  - {string} domain - домен куки
+ *  - {boolean} secure - секретность
+ * @return {mixed}
+ */
+function cookie(name, value, opt) {
     if (typeof value != 'undefined') { // name and value given, set cookie
-        if(typeof value == 'object' && !(value instanceof String)){
-            // сворачиваем простой одноуровневый объект в структуру
-            var str=[];
-            for(a in value) str.push(a+'='+encodeURIComponent(value[a]||0));
-            value='&'+str.join('&');
-        }
         opt = opt || {};
         if (value === null) {
             value = '';
             opt.expires = -1;
         }
-        var expires = '';//expires:10
+        var expires = '';
         if (opt.expires && (typeof (opt.expires) == 'number' || opt.expires.toUTCString)) {
             var date;
             if (typeof opt.expires == 'number') {
@@ -47,20 +45,29 @@ function cookie(name,value,opt){
             (opt.domain ? '; domain=' + opt.domain : '') +
             (opt.secure ? '; secure' : '')
     }
-    else { // only name given, get cookie
+    else { // only name given, so get the cookie
         if (document.cookie && document.cookie != '') {
-            var cook = (new RegExp(";\\s*" + name + "\\s*=([^;]+)")).exec(';' + document.cookie);
-            var cook=cook && decodeURIComponent(cook[1]),
-                reg=new RegExp("[\b|&]([^=]+)=([^&]+)","g"),resa=[],res={},obj=false;
-            while((resa=reg.exec(cook))){
-                res[resa[1]]=resa[2];
-                obj=true;
+            var cook = (new RegExp(";\\s*" + name + "\\s*=([^;]+)")).exec(';' + document.cookie),
+                reg = new RegExp("[\b|&]([^=]+)=([^&]+)", "g"), res = {}, obj = false, resa;
+            cook = cook && decodeURIComponent(cook[1]);
+
+            while ((resa = reg.exec(cook))) {
+                res[resa[1]] = resa[2];
+                obj = true;
             }
-            if(obj)
+            if (obj)
                 return res;
             else
                 return cook;
         }
         return null;
+    }
+}
+var store = !supportLS() ? cookie : function (name, value) {
+    if (typeof value != 'undefined') {
+        localStorage.setItem(name, value);
+        return true;
+    } else {
+        return localStorage.getItem(name);
     }
 };

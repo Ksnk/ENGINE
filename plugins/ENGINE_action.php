@@ -20,11 +20,13 @@ class ENGINE_action
         ENGINE::set_option('ajax', true);
         header('Content-type: application/json; charset=UTF-8');
         $data = array();
-        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+        if ('POST' == $_SERVER['REQUEST_METHOD']&&
+            (array_key_exists('handler', $_POST) || !ENGINE::option('skip_post',false))
+        ) {
             if (array_key_exists('handler', $_POST)) {
                 preg_match(
                     '/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/',
-                    $_POST['handler'], $m
+                    str_replace('%3A',':',$_POST['handler']), $m
                 );
                 if (empty($m[1])) {
                     $m[1] = 'Main';
@@ -49,6 +51,17 @@ class ENGINE_action
         }
 
         $result = array('data' => $data);
+        $x = ob_get_contents();
+        $x .= trim(ENGINE::option('page.debug'));
+        if (!empty($x)) {
+            $result['debug'] = utf8_encode($x);
+        }
+        ob_end_clean();
+        self::_finish_ajax($result);
+
+    }
+
+    static function _finish_ajax($result=array()){
         $data = ENGINE::slice_option('ajax.');
         if (!empty($data)) {
             $result = array_merge($result, $data);
@@ -73,7 +86,10 @@ class ENGINE_action
         ob_end_clean();
         ENGINE::set_option('noreport',1);
         //echo json_encode_cyr($result);
-        echo utf8_encode(json_encode($result));
+        if(isset($_POST['ajax']) && $_POST['ajax']=='iframe'){
+            echo '<script type="text/javascript"> top.ajax_handle('.utf8_encode(json_encode($result)).'</script>';
+        } else
+            echo utf8_encode(json_encode($result));
     }
 
     static function getData()
@@ -116,7 +132,9 @@ class ENGINE_action
         }
         $headers=ENGINE::headers();
 
-        if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
+        if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest')
+            || isset($_GET['ajax'])
+            || (isset($_POST) && isset($_POST['ajax']))) {
             self::ajax_action();
             return;
         }
@@ -132,7 +150,9 @@ class ENGINE_action
             unset($_SESSION['SAVE_POST'],$_SESSION['SAVE_FILES']);
         }
 
-        if ('POST' == $_SERVER['REQUEST_METHOD'] && !ENGINE::option('skip_post',false)) {
+        if ('POST' == $_SERVER['REQUEST_METHOD'] &&
+            (array_key_exists('handler', $_POST) || !ENGINE::option('skip_post',false))
+        ) {
             if (array_key_exists('handler', $_POST)) {
                 preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/'
                     , $_POST['handler'], $m);

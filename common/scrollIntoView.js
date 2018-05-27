@@ -4,12 +4,21 @@
  * @param el HMLControl|selector|jueryObject - object to look at
  * depends: jQuery
  */
-function _scrollIntoView(el){
-    var el=$(el),
-        pos = el.position(),
-        topdisp=el.height()+2; // смещение до верха
-    if(el.length>0)
-    el.parents().add(window).each(function(){
+function _scrollIntoView(el,options){
+    el=$(el);
+    var topdisp=el.height()+ 2,
+        tdisp=options && options.topdisp||10,// смещение до верха
+        bdisp=options && options.botdisp||10; // смещение до низа
+    if(el.length>0){
+        var xpos=$(window).scrollTop(),
+            ofs=el.offset();
+        if(ofs.top<xpos+tdisp){ // 44 - высота тулбара админки Joomla
+            $(window).scrollTop(ofs.top-tdisp);
+        } else if(ofs.top+topdisp > xpos+$(window).height()-bdisp){// 30 - высота футера админки Joomla
+            $(window).scrollTop(ofs.top+10+bdisp+topdisp-$(window).height());
+        }
+    }
+    /*el.parents().add(window).each(function(){
         var xx = $(this),xpos;
         if (xx.is(document.body)) return;
         if(xx[0]==window)
@@ -28,5 +37,5 @@ function _scrollIntoView(el){
                 xx.scrollTop(xx.scrollTop() + pos.top  );
         }
         pos=xpos;
-    })
+    })*/
 }

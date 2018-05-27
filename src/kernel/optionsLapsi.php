@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by JetBrains PhpStorm.
  * User: Сергей
@@ -6,7 +7,8 @@
  * Time: 15:06
  * To change this template use File | Settings | File Templates.
  */
-class optionsLapsi {
+class optionsLapsi
+{
     /* <% POINT::start('ENGINE_header') %>*/
     static private $options = array(); // пары: имя-значение
 

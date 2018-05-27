@@ -6,19 +6,25 @@
     <var name="web" default="$dst"/>
     <var name="system" default="$dst"/>
     <var name="site" default="$dst"/>
+    <var name="namespace" default="Ksnk\core"/>
 
     <var name="version">X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com)</var>
     <var name="license">License MIT - Serge Koriakin - Jule 2012</var>
     <import name="../preprocessor/git.hat.xml"/>
     <!-- сборка ядра CMS (system)-->
-        <files>
+    <files>
+    <echo><![CDATA[<%
+            POINT::inline('ENGINE_namespace',
+'namespace '.$namespace.';') ;
+%>]]>
+    </echo>
             <file>application/admin/css/macros/*.*</file>
             <file>plugins/macros/jinja_template.php</file>
         </files>
 
         <files dir="src/kernel">  <!-- конфигурация ядра -->
             <file>engine_memcache.php</file>
-    <!--       <file>events.php</file>-->
+            <file>events.php</file>
             <file>options.php</file>
 
             <!--        <file>optionsLapsi.php</file>-->
@@ -38,7 +44,7 @@
         <file dir="plugins">ENGINE_action.php</file>
 
         <files dir="src/kernel" dstdir="$system">
-            <file >engine.php</file>
+            <file name="ENGINE.php" >engine.php</file>
         </files>
         <file dir="src/kernel/options" dstdir="$system">*.*</file>
 
@@ -57,5 +63,5 @@
 
         <files dir="../sql_template" dstdir="$system">
             <file name="xDatabaseLapsi.php">xDatabase.php</file>
-        </files>
+    </files>
 </config>

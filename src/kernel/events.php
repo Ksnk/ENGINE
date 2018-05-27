@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by JetBrains PhpStorm.
  * User: Сергей
@@ -79,9 +80,11 @@ class engine_events
                     self::exec($handle, array($event, &$args));
                 }
     }
+
     /* <% POINT::finish() %>*/
 
-    function soTest (){
+    function soTest()
+    {
         /* <% POINT::start('BEFORE_GETDATA') %>*/
         ENGINE::trigger_event('BEFORE_GETDATA');
         /* <% POINT::finish() %>*/

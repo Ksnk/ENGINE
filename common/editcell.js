@@ -17,7 +17,8 @@
             border:'1px #CCCCCC dotted',
             resize:'none',
             margin:0,
-            overflow:'hidden'
+            overflow:'hidden',
+            'min-height':'1.4em',
         },
 
         /** примерный CSS для контейнера div */
@@ -82,12 +83,13 @@
             cell_editor.internalScroll = false;
     }
 
-        /** scroll editor window into view */
+    /** scroll editor window into view */
     function cell_editor(t) {
         //cell_editor.internalScroll=false;
         options.exit_key = false;
+        options._cancel=false;
         cell_editor.internalScroll = true;
-        _scrollIntoView(t);
+        _scrollIntoView(t,options);
         /** @var jQuery $self */
         var $self = $(t);
         // scroll into view
@@ -128,47 +130,47 @@
         $(document).data('editcell-editor',options._editor);
 
         $('textarea', options._editor)
-        .blur(hide)
-        //todo: не очень удачная попытка изменить размер поля редактирования
-        /*             .keyup(function(){
-         if(this.scrollTop>0 || this.scrollWidth>$(this).width()+10){
-         $(options._editor).css('width',this.scrollWidth+10);
-         this.scrollTop(0);
-         }
-         })*/
-        .keydown(function (event) {
-            var $this = $(this);
-            if (event.keyCode == '13') {//enter
-                event.preventDefault();
-                hide();
-            } else if (event.keyCode == '27') {// esc
-                options._cancel = true;
-                hide();
-            }
-            switch (event.keyCode) {
-                case 37:
-                    if (!$this.carret('is', 0)) break;
-                case 38:
-                    options.exit_key = event.keyCode;
-                    hide();
+            .blur(hide)
+            //todo: не очень удачная попытка изменить размер поля редактирования
+            /*             .keyup(function(){
+             if(this.scrollTop>0 || this.scrollWidth>$(this).width()+10){
+             $(options._editor).css('width',this.scrollWidth+10);
+             this.scrollTop(0);
+             }
+             })*/
+            .keydown(function (event) {
+                var $this = $(this);
+                if (event.keyCode == '13') {//enter
                     event.preventDefault();
-                    break;
-                case 39:
-                    if (!$this.carret('is', $this.val().length)) break;
-                case 40:
-                    options.exit_key = event.keyCode;
                     hide();
-                    event.preventDefault();
-                    break;
-            }
-        });
+                } else if (event.keyCode == '27') {// esc
+                    options._cancel = true;
+                    hide();
+                }
+                switch (event.keyCode) {
+                    case 37:
+                        if (!$this.carret('is', 0)) break;
+                    case 38:
+                        options.exit_key = event.keyCode;
+                        hide();
+                        event.preventDefault();
+                        break;
+                    case 39:
+                        if (!$this.carret('is', $this.val().length)) break;
+                    case 40:
+                        options.exit_key = event.keyCode;
+                        hide();
+                        event.preventDefault();
+                        break;
+                }
+            });
         $.fn.editcell = function (action, o) {
             if (!!o)
                 $.extend(options, o);
 
             if (action == 'go') {
                 if (this.length > 0)
-                    cell_editor(this);
+                    cell_editor(this[0]);
             } else {
                 this.click(function (e) {
                     var t = e.target;

@@ -6,15 +6,14 @@
 
 
 
-%>
+  %>
  */
+/* <%=POINT::get('ENGINE_namespace') %> */
 
 /* <%=POINT::get('ENGINE_top') %> */
 
 /**
  * @method static bool has_rights
- * @method static link
- * @method static action
  * @method static run
  */
 class ENGINE
@@ -22,7 +21,7 @@ class ENGINE
 
     private static $class_list = array();
     private static $class_alias = array();
-    private static $SUBDIR='';
+    private static $SUBDIR = '';
 
     /* <%=POINT::get('ENGINE_header') %> */
 
@@ -169,7 +168,7 @@ class ENGINE
             $dir = substr($name, 0, $pos + 1);
             $name = substr($name, $pos + 1);
         }
-        self::$SUBDIR=$dir;
+        self::$SUBDIR = $dir;
         if (!isset(self::$class_list[$name])) {
             $class = self::getAliace($name);
             if (class_exists($class)) {
@@ -268,8 +267,8 @@ class ENGINE
             $cache[$name] = new $name();
         }
 //debug($name,$par);
-        if(!is_string($name)){
-            self::debug('wtf?','~count|15');
+        if (!is_string($name)) {
+            self::debug('wtf?', '~count|15');
         }
         $x = $cache[$name]->$method($par);
         return $x;

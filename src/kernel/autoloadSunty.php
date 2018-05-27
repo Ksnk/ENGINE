@@ -31,6 +31,6 @@ class engine_autoload
 
 /* <% POINT::start('ENGINE_bottom') %>*/
 
-spl_autoload_register('ENGINE::_autoload');
+spl_autoload_register('<%=$namespace."\"%>ENGINE::_autoload');
 
 /* <% POINT::finish() %>*/

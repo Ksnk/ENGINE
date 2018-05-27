@@ -3,7 +3,7 @@
  * плагин для работы с параметрами в виде var_export файлов
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: , Last build: 1511251421
+ * ver: xxx, Last build: 1805271922
  * status : draft build.
  * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------

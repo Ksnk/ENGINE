@@ -5,8 +5,7 @@
  *  ENGINE::debug, ::error, ::option, ::cache
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: , Last build: 1511251421
- * status : draft build.
+ * ver: xxx, Last build: 1512141436
  * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012

@@ -550,7 +550,9 @@ class ENGINE
             if (!empty($session_name)) {
                 session_name($session_name);
             }
+            session_set_cookie_params ( ENGINE::option('engine.session_lifetime',600),ENGINE::option('engine.session_path','/'),ENGINE::option('engine.session_domain',null));
             session_start();
+            setcookie(session_name(),session_id(),time()+ENGINE::option('engine.session_lifetime',600),ENGINE::option('engine.session_path','/'),ENGINE::option('engine.session_domain',null));
             if($log){
             $log = array();
             foreach (array('REMOTE_ADDR', 'X-Forwarded-For', 'X-Real-IP') as $name) {

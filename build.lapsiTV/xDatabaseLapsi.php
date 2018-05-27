@@ -1,11 +1,11 @@
 <?php
 /**
- * класс базы данных проекта
+ * класс базы данных проекта. Вариант с mysqli драйвером
  * Внешние зависиости
  *  ENGINE::debug, ::error, ::option, ::cache
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: , Last build: 1511251421
+ * ver: xxx, Last build: 1805271922
  * status : draft build.
  * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
@@ -27,12 +27,16 @@ class dbInsertValues
 
     /** @var string */
     private $_sql_start = '', $_sql_finish = '';
-    /** @var xDatabaseLapsi */
+
+    /** @var xDatabaseLapsii */
     private $_parentDb;
+
     /** @var array */
     private $_result_values = array();
+
     /** @var int - длина результирующего запроса */
     private $_result_length = 0;
+
     /** @var int */
     private $_max_result_length = 32000;
 
@@ -41,7 +45,7 @@ class dbInsertValues
      *
      * @param string $start кусок sql сначала поля value
      * @param string $finish кусок sql после поля value
-     * @param xDatabaseLapsi $parent - родительский датабейз
+     * @param xDatabaseLapsii $parent - родительский датабейз
      */
     public function __construct($start, $finish, $parent)
     {
@@ -78,8 +82,8 @@ class dbInsertValues
         if (count($this->_result_values) > 0) {
             $this->_parentDb->query(
                 $this->_sql_start .
-                    implode(',', $this->_result_values) .
-                    $this->_sql_finish
+                implode(',', $this->_result_values) .
+                $this->_sql_finish
             );
             $this->_result_values = array();
             $this->_result_length = strlen($this->_sql_start) +
@@ -104,16 +108,20 @@ class dbIterator implements Iterator
     private $_position = 0;
     private $_dbresult = null;
     private $_data = null;
+    /** @var xDatabase */
+    private $_parent = null;
 
     /**
-     * конструкт. Допускается только внутрифайловое конструирование объекта.
+     * конструкт. Допускается только внутриклассовое конструирование объекта.
      *
      * @param resource $dbresult датабаза
+     * @param $_parent
      */
-    public function __construct($dbresult)
+    public function __construct($dbresult, $_parent)
     {
         $this->_dbresult = $dbresult;
         $this->_position = 0;
+        $this->_parent = $_parent;
     }
 
     /**
@@ -123,7 +131,7 @@ class dbIterator implements Iterator
      */
     function rewind()
     {
-        $this->_data = mysql_fetch_assoc($this->_dbresult);
+        $this->next();
         $this->_position = 0;
     }
 
@@ -154,7 +162,7 @@ class dbIterator implements Iterator
      */
     function next()
     {
-        $this->_data = mysql_fetch_assoc($this->_dbresult);
+        $this->_data = $this->_parent->fetch($this->_dbresult);
     }
 
     /**
@@ -172,12 +180,11 @@ class dbIterator implements Iterator
      */
     public function __destruct()
     {
-        if (is_resource($this->_dbresult)) {
-            mysql_free_result($this->_dbresult);
-        }
+        $this->_parent->free($this->_dbresult);
     }
 
 }
+
 
 /**
  * общий наследник всех базоданческих драйверов
@@ -186,19 +193,25 @@ class xDatabase_parent
 {
     protected $debug = array();
     protected $once_options = array();
+
+    protected $_prefix='xsite';
     /**
      * @var bool - флаг - нужно ли инициализироваться на старте.
      * Устанавливать соединение и т.д.
      */
     protected $_init = true;
+
     /** @var bool - флаг - не исполнять запросы, а просто дебажиться.... */
     protected $_test = false;
+
     /** @var int - счетчик выполненных запросов */
     protected $q_count = 0;
+
     /** @var null|resource - сопроводительная переменная - линк работы с
      * открытой базой
      */
     protected $db_link = null;
+
     /** @var string -временная переменная для хранения ключа кэша */
     protected $cachekey = '';
 
@@ -214,22 +227,46 @@ class xDatabase_parent
         if (!empty($option)) {
             $this->set_option($option);
         }
-        if ($this->_init) {
-            $this->db_link = mysql_connect(
-                ENGINE::option('database.host'),
-                ENGINE::option('database.user'),
-                ENGINE::option('database.password')
-            );
-            if (empty($this->db_link)) {
-                ENGINE::error(
-                    'can\'t connect: ' .
-                        ENGINE::option('database.host') . "\n" .
-                        ENGINE::option('database.user') . "\n" .
-                        ENGINE::option('database.password')
-                );
-            }
-            mysql_select_db(ENGINE::option('database.base') /* , $this->db_link */);
-        }
+    }
+
+    function error($msg)
+    {
+        echo $msg;
+    }
+
+    function fetch($res)
+    {
+        $this->error('unrealised awhile ');
+        return array();
+    }
+
+    function notempty($res)
+    {
+        $this->error('unrealised awhile ');
+        return false;
+    }
+
+    function escape($str)
+    {
+        $this->error('unrealised awhile ');
+        return '';
+    }
+
+    function free($res)
+    {
+        $this->error('unrealised awhile ');
+    }
+
+    function affectedrow()
+    {
+        $this->error('unrealised awhile ');
+        return false;
+    }
+
+    function insertid()
+    {
+        $this->error('unrealised awhile ');
+        return false;
     }
 
     /**
@@ -249,22 +286,30 @@ class xDatabase_parent
     {
         $prop = array();
         $once = false;
-        foreach (explode(' ', $option) as $o) {
-            if ($o == 'once') {
-                $once = true;
-                continue;
-            } else if (strpos($o, '~') === 0) {
-                $this->debug[] = $o;
-                continue;
-            } else if (strpos($o, 'no') === 0) {
-                $o = substr($o, 2);
-                $val = false;
-            } else {
-                $val = true;
+        if (is_array($option)) {
+            $prop = $option;
+        } else if (is_string($option)) {
+            foreach (explode(' ', $option) as $o) {
+                if ($o == 'once') {
+                    $once = true;
+                    continue;
+                } else if (strpos($o, '~') === 0) {
+                    $this->debug[] = $o;
+                    continue;
+                } else if (strpos($o, 'no') === 0) {
+                    $o = substr($o, 2);
+                    $val = false;
+                } else {
+                    $val = true;
+                }
+                $prop[$o] = $val;
             }
-            $prop[$o] = $val;
         }
 
+        /*        if(isset($prop['debug'])){
+                    ENGINE::debug('db debug:'.$prop['debug'],'~count|10');
+                }
+        */
         if (!empty($this->once_options)) {
             foreach ($this->once_options as $o => $val) {
                 $this->$o = $val;
@@ -303,15 +348,15 @@ class xDatabase_parent
     function selectCell()
     {
         $result = $this->_query(func_get_args(), true);
-        if (!is_resource($result)) {
+        if (!$this->notempty($result)) {
             return $result;
         }
-        $rows = mysql_fetch_row($result);
+        $rows = $this->fetch($result);
         $this->free($result);
         if (!$rows) {
             return false;
         }
-        return $this->cache($this->cachekey, $rows[0]);
+        return $this->cache($this->cachekey, array_pop($rows));
     }
 
     /**
@@ -322,12 +367,12 @@ class xDatabase_parent
     function selectCol()
     {
         $result = $this->_query(func_get_args(), true);
-        if (!is_resource($result)) {
+        if (!$this->notempty($result)) {
             return $result;
         }
         $res = array();
-        while ($row = mysql_fetch_row($result)) {
-            $res[] = $row[0];
+        while ($row = $this->fetch($result)) {
+            $res[] = array_shift($row);
         }
         $this->free($result);
         return $this->cache($this->cachekey, $res);
@@ -340,10 +385,11 @@ class xDatabase_parent
     function selectRow()
     {
         $result = $this->_query(func_get_args(), true);
-        if (!is_resource($result)) {
-            return $result;
+        //ENGINE::debug($result);
+        if (!$this->notempty($result)) {
+            return false; //$result;
         }
-        $rows = mysql_fetch_assoc($result);
+        $rows = $this->fetch($result);
         $this->free($result);
         return $this->cache($this->cachekey, $rows);
     }
@@ -351,11 +397,11 @@ class xDatabase_parent
     function selectAll()
     {
         $result = $this->_query(func_get_args(), true);
-        if (!is_resource($result)) {
+        if (!$this->notempty($result)) {
             return $result;
         }
         $res = array();
-        while ($row = mysql_fetch_assoc($result)) {
+        while ($row = $this->fetch($result)) {
             $res[] = $row;
         }
         $this->free($result);
@@ -370,11 +416,11 @@ class xDatabase_parent
     function select()
     {
         $result = $this->_query(func_get_args(), true);
-        if (!is_resource($result)) {
+        if (!$this->notempty($result)) {
             return $result;
         }
         $res = array();
-        while ($row = mysql_fetch_assoc($result)) {
+        while ($row = $this->fetch($result)) {
             $res[] = $row;
         }
         $this->free($result);
@@ -404,10 +450,10 @@ class xDatabase_parent
         $result = $this->_query(
             func_get_args(), false // не кэшировать большие запросы
         );
-        if (!is_resource($result)) {
+        if (!$this->notempty($result)) {
             return $result;
         }
-        return new dbIterator($result);
+        return new dbIterator($result, $this);
     }
 
     /**
@@ -422,11 +468,11 @@ class xDatabase_parent
         $arg = func_get_args();
         array_shift($arg);
         $result = $this->_query($arg, true);
-        if (!is_resource($result)) {
+        if (!$this->notempty($result)) {
             return $result;
         }
         $res = array();
-        while ($row = mysql_fetch_assoc($result)) {
+        while ($row = $this->fetch($result)) {
             if (!empty($row[$idx])) {
                 $res[$row[$idx]] = $row;
             }
@@ -442,7 +488,7 @@ class xDatabase_parent
     {
         $result = $this->_query(func_get_args());
         $this->free($result);
-        return @mysql_insert_id($this->db_link);
+        return $this->insertid();
     }
 
     /**
@@ -454,7 +500,7 @@ class xDatabase_parent
     {
         $result = $this->_query(func_get_args());
         $this->free($result);
-        return @mysql_affected_rows($this->db_link);
+        return $this->affectedrow();
     }
 
     /**
@@ -468,22 +514,8 @@ class xDatabase_parent
      */
     protected function _query($arg, $options = '')
     {
-        ENGINE::error('unrealised awhile ');
+        $this->error('unrealised awhile ', $arg, $options);
         return null;
-    }
-
-    /**
-     * free
-     *
-     * @param resource $handle хандл
-     *
-     * @return null
-     */
-    function free($handle)
-    {
-        if (is_resource($handle)) {
-            mysql_free_result($handle);
-        }
     }
 
     /**
@@ -495,18 +527,7 @@ class xDatabase_parent
     {
         $result = $this->_query(func_get_args());
         $this->free($result);
-        return @mysql_affected_rows($this->db_link);
-    }
-
-    /**
-     * закрыть неправеднооткрытое.
-     * Не нужно, но чистота требует жертв
-     */
-    function __destruct()
-    {
-        if (!empty($this->db_link) && is_resource($this->db_link)) {
-            mysql_close($this->db_link);
-        }
+        return $this->affectedrow();
     }
 
     /**
@@ -538,206 +559,6 @@ class xDatabase_parent
         $result = $this->_query(func_get_args());
         $this->free($result);
     }
-}
-
-/**
- * x3 зачем он нужен
- * По иде - простой класс для работы с mysql без наворотов
- */
-class xDatabase extends xDatabase_parent
-{
-    /**
-     * затычка - квери как он есть.
-     *
-     * @param array $arg
-     * @param string $options
-     *
-     * @return resource
-     */
-    protected function _query($arg, $options = '')
-    {
-        return mysql_query($arg[0] /* , $this->db_link */);
-    }
-}
-
-/**
- * вариант xDatabase для работы с mysql - Xilen style
- * Используется twig-like язык запросов.
- */
-class xDatabaseXilen extends xDatabase_parent
-{
-    protected $_debug = false;
-    private $tpl = null;
-
-    function __construct()
-    {
-        parent::__construct();
-        $this->tpl = new sql_template();
-        $this->tpl->regcns('prefix', ENGINE::option('database.prefix', 'xsite'));
-        $this->tpl->regcns('CODE', ENGINE::option('database.code', 'UTF8'));
-        if ($this->_init) {
-            $this->query("SET NAMES {{CODE}}");
-        }
-    }
-
-    /**
-     * выполнить запрос с параметрами.
-     * sql парсится и дополняется параметрами.
-     * @param array $arg - Запрос + параметры запроса
-     * @param string $options - опции запроса
-     * @return resource
-     */
-    protected function _query($arg, $options = '')
-    {
-        $func = $this->tpl->parse($arg[0]);
-        $sql = call_user_func_array($func, $arg);
-        if (!$this->_test) {
-            $result = mysql_query($sql /* , $this->db_link */);
-            if (!$result) {
-                ENGINE::error('Invalid query: ' . mysql_error() . "\n" .
-                    'Whole query: ' . $sql);
-            } else {
-                $this->q_count += 1;
-            }
-        } else {
-            ENGINE::debug('TEST: ' . $sql);
-            $result = false;
-        }
-        if ($this->_debug) {
-            ENGINE::debug('QUERY: ' . $sql."\n".mysql_info());
-        }
-        return $result;
-    }
-}
-
-/**
- * вариант xDatabase для работы с mysql с memcache-кэшированием (LAPSI style)
- */
-class xDatabaseLapsi extends xDatabase_parent
-{
-    /** @var bool|Memcache */
-    // private $mcache = false;
-    public $_cache = true;
-    protected $_debug = false;
-    private $c_count = 0;
-
-    /**
-     * конструктор
-     *
-     * @param string $option араметры
-     */
-    function __construct($option = '')
-    {
-        parent::__construct($option);
-        $this->prefix = ENGINE::option('database.prefix', 'xsite');
-        if ($option = ENGINE::option('database.options')) {
-            $this->set_option($option);
-        }
-
-        if ($this->_init) {
-            $this->query(
-                "SET NAMES " . ENGINE::option('database.code', 'UTF8') . ";"
-            );
-        }
-    }
-
-    /**
-     * вывод финального репорта про количество запросов.
-     *
-     * @param string $format строк формата
-     *
-     * @return string
-     */
-    function report($format = "mysql:[%s(%s) queries] ")
-    {
-        return sprintf($format, $this->q_count, $this->c_count);
-    }
-
-    /**
-     * Вставить. Сгенерировать очень длинную простыню.
-     * @example
-     *   $x=array(...);
-     *   $i=$db->insertValues('insert into `table` (?1[?1k])
-     *      values () on duplicate key update ?1[?1k=VALUES(?1k)]',$x[0]);
-     *   foreach($x as $xx)
-     *      $i->insert($xx);
-     *
-     * @return dbInsertValues
-     */
-    function insertValues()
-    {
-        $sql = $this->_(func_get_args());
-        list($start, $finish) = explode('()', $sql);
-        return new dbInsertValues($start, $finish, $this);
-    }
-
-    /**
-     * выполнить запрос с параметрами.
-     * sql парсится и дополняется параметрами.
-     *
-     * @param array $arg    Запрос + параметры запроса
-     * @param bool $cached кэшировать или нетъ
-     *
-     * @return resource
-     */
-    protected function _query($arg, $cached = false)
-    {
-        $start = 0;
-        if ($this->_debug) {
-            $start = microtime(true);
-        }
-        $sql = $this->_($arg);
-        if ($cached) {
-            $this->cachekey = ENGINE::option('cache.prefix', 'x') . md5($sql);
-            if (false !== ($result = $this->cache($this->cachekey))) {
-                if (false !== ($result = $this->cache($this->cachekey))) {
-                    if ($this->_debug) {
-                        $arg = $this->debug;
-                        $arg[] = '~function|_query';
-                        $arg[] = '~shift|1';
-                        array_unshift(
-                            $arg,
-                            'QUERY(cache)' .
-                                sprintf('[%f]', microtime(true) - $start) .
-                                ': ' . $sql . "\n"
-                        );
-                        call_user_func_array(array('ENGINE', 'debug'), $arg);
-                    }
-                    return $result;
-                }
-                return $result;
-            }
-        }
-        //ENGINE::debug( 222/* ,$this->db_link */);
-        if (!$this->_test) {
-            $result = mysql_query($sql /* , $this->db_link */);
-            if (!$result) {
-                ENGINE::error(
-                    'Invalid query: ' . mysql_error() . "\n" . 'Whole query: ' . $sql
-                );
-            } else {
-                $this->q_count += 1;
-            }
-        } else {
-            ENGINE::debug(
-                "QUERY-TEST:\n" . $sql . "\n", '~function|_query', '~shift|1'
-            );
-            $result = false;
-        }
-        if ($this->_debug) {
-            $arg = $this->debug;
-            $arg[] = '~function|_query';
-            $arg[] = '~shift|1';
-            array_unshift(
-                $arg,
-                'QUERY(cache)' . sprintf('[%f]', microtime(true) - $start) .
-                    ': ' . $sql . "\n"
-            );
-            call_user_func_array(array('ENGINE', 'debug'), $arg);
-        }
-
-        return $result;
-    }
 
     /**
      * helper-заполнятель sql конструкций.
@@ -749,7 +570,7 @@ class xDatabaseLapsi extends xDatabase_parent
      *  ?d, ?i - параметр - чиcло. Явно приводится к числовому значению, каычек нет.
      *  ?k - параметр - имя поля, обрамляется `` кавычками
      *  ?s - параметр - строка - выводится в двойных кавычках,
-     *      делается mysql_real_escape_string
+     *      делается escape_string
      *  ? - анализируется значение, для чисел не вставляются кавычки,
      *      для строк делается ескейп
      *  ?[...] - параметр - массив, для каждой пары ключ-значение массива
@@ -794,7 +615,7 @@ class xDatabaseLapsi extends xDatabase_parent
         $format = $args[0];
         $cnt = 1;
         $start = 0;
-        while (preg_match('/(?<!\\\\)\?(\d*)([id\#ayxk_s]|\[([^\]]+)\]|)/i'
+        while (preg_match('/(?<!\\\\)\?(\d*)([id\#ayxk_sq]|\[([^\]]+)\]|)/i'
             , $format, $m, PREG_OFFSET_CAPTURE, $start)
         ) {
             $x = '';
@@ -814,14 +635,14 @@ class xDatabaseLapsi extends xDatabase_parent
                 } elseif (is_int($args[$cur]) || ctype_digit($args[$cur])) {
                     $x = (0 + $args[$cur]);
                 } else {
-                    $x = '"' . @mysql_real_escape_string($args[$cur]) . '"';
+                    $x = '"' . $this->escape($args[$cur]) . '"';
                 }
                 $xx = '';
             } else {
                 switch ($xx = $m[2][0]) {
                     case '_':
                         if (!isset($pref)) {
-                            $pref = ENGINE::option('database.prefix', 'xxx_');
+                            $pref = $this->_prefix;
                         }
                         if (empty($m[1][0])) {
                             $cnt--;
@@ -839,10 +660,16 @@ class xDatabaseLapsi extends xDatabase_parent
                         $x = '`' . str_replace("`", "``", $args[$cur]) . '`';
                         break;
                     case 's':
-                        $x = '"' . @mysql_real_escape_string($args[$cur]) . '"';
+                        $x = '"' . $this->escape($args[$cur]) . '"';
+                        break;
+                    case 'q':
+                        $x = "'" . $this->escape($args[$cur]) . "'";
+                        break;
+                    case 'l': //for like
+                        $x = '"%' . addCslashes($args[$cur], '"\%_') . '%"';
                         break;
                     case 'y':
-                        $x = mysql_real_escape_string($args[$cur]);
+                        $x = $this->escape($args[$cur]);
                         break;
                     default: //()
                         $explode = ',';
@@ -884,7 +711,43 @@ class xDatabaseLapsi extends xDatabase_parent
     }
 
     /**
-     * Кэширование. аразитирует на системном кэшировании, с использованием
+     * Вставить. Сгенерировать очень длинную простыню.
+     * @example
+     *   $x=array(...);
+     *   $i=$db->insertValues('insert into `table` (?1[?1k])
+     *      values () on duplicate key update ?1[?1k=VALUES(?1k)]',$x[0]);
+     *   foreach($x as $xx)
+     *      $i->insert($xx);
+     *
+     * @return dbInsertValues
+     */
+    function insertValues()
+    {
+        $sql = $this->_(func_get_args());
+        list($start, $finish) = explode('()', $sql);
+        return new dbInsertValues($start, $finish, $this);
+    }
+
+}
+
+/**
+ * Class xDatabase - завязка на кэш от ENGINE и сопроводительный сервис
+ */
+class xDatabase extends xDatabase_parent
+{
+    public $_cache = true;
+    protected $c_count = 0;
+
+    protected
+        $_host = 'localhost',
+        $_port = 9306,
+        $_user = '',
+        $_password = '',
+        $_base = '',
+        $_code = 'UTF8';
+
+    /**
+     * Кэширование. Паразитирует на системном кэшировании, с использованием
      * собственных флагов
      *
      * @param string $name имя
@@ -910,5 +773,389 @@ class xDatabaseLapsi extends xDatabase_parent
         return $data;
     }
 
+    /**
+     * вывод финального репорта про количество запросов.
+     *
+     * @param string $format строк формата
+     *
+     * @return string
+     */
+    function report($format = "mysql:[%s(%s) queries] ")
+    {
+        return sprintf($format, $this->q_count, $this->c_count);
+    }
+
+    function error($msg)
+    {
+        ENGINE::error($msg);
+    }
+}
+
+/**
+ * вариант xDatabase для работы с mysqli
+ */
+class xDatabaseLapsii extends xDatabase
+{
+    /** @var bool|Memcache */
+    // private $mcache = false;
+    protected $_debug = false;
+
+    function notempty($res)
+    {
+        return is_a($res, 'mysqli_result');
+    }
+
+    function affectedrow()
+    {
+        return @mysqli_affected_rows($this->db_link);
+    }
+
+    function insertid()
+    {
+        return @mysqli_insert_id($this->db_link);
+    }
+
+    /**
+     * конструктор
+     *
+     * @param string $option параметры
+     */
+    function __construct($option = '')
+    {
+        parent::__construct($option);
+        //ENGINE::debug(ENGINE::slice_option('database.'));
+        $this->set_option(ENGINE::slice_option('database.'));
+        // if ($this->_init) {
+        $this->db_link = @mysqli_connect(
+            $this->_host,
+            $this->_user,
+            $this->_password,
+            $this->_base
+        );
+        if (empty($this->db_link) || mysqli_connect_error()) {
+            ENGINE::error(
+                'can\'t connect: (' . mysqli_connect_errno() . ') '
+                . mysqli_connect_error() . "\n" .
+                $this->_host . "\n" .
+                $this->_user . "\n" .
+                $this->_password . "\n" .
+                $this->_base
+            );
+        }
+
+        //$this->prefix = ENGINE::option('database.prefix', 'xsite');
+        if ($option = ENGINE::option('database.options')) {
+            $this->set_option($option);
+        }
+
+        if ($this->_init) {
+            mysqli_set_charset($this->db_link, $this->_code);
+        }
+    }
+
+    /**
+     * выполнить запрос с параметрами.
+     * sql парсится и дополняется параметрами.
+     *
+     * @param array $arg Запрос + параметры запроса
+     * @param bool $cached кэшировать или нетъ
+     *
+     * @return resource
+     */
+    protected function _query($arg, $cached = false)
+    {
+        $start = 0;
+        if ($this->_debug) {
+            $start = microtime(true);
+        }
+        $sql = $this->_($arg);
+        if ($cached) {
+            $this->cachekey = ENGINE::option('cache.prefix', 'x') . md5($sql);
+            if (false !== ($result = $this->cache($this->cachekey))) {
+                if (false !== ($result = $this->cache($this->cachekey))) {
+                    if ($this->_debug) {
+                        $arg = $this->debug;
+                        $arg[] = '~function|_query';
+                        $arg[] = '~shift|1';
+                        array_unshift(
+                            $arg,
+                            'QUERY(cache)' .
+                            sprintf('[%f]', microtime(true) - $start) .
+                            ': ' . $sql . "\n"
+                        );
+                        call_user_func_array(array('ENGINE', 'debug'), $arg);
+                    }
+                    return $result;
+                }
+                return $result;
+            }
+        }
+        //ENGINE::debug( 222/* ,$this->db_link */);
+        if (!$this->_test) {
+            $result = mysqli_query($this->db_link, $sql);
+            //ENGINE::debug($result);
+            if (!$result) {
+                ENGINE::error(
+                    'Invalid query: ' . mysqli_error($this->db_link) . "\n" . 'Whole query: ' . $sql
+                );
+            } else {
+                $this->q_count += 1;
+            }
+        } else {
+            ENGINE::debug(
+                "QUERY-TEST:\n" . $sql . "\n", '~function|_query', '~shift|1'
+            );
+            $result = false;
+        }
+        if ($this->_debug) {
+            $arg = $this->debug;
+            $arg[] = '~function|_query';
+            $arg[] = '~shift|1';
+            array_unshift(
+                $arg,
+                'QUERY' . sprintf('[%f]', microtime(true) - $start) .
+                ': ' . $sql . "\n" . mysqli_info($this->db_link)
+                . "\n" . mysqli_error($this->db_link)
+            );
+            call_user_func_array(array('ENGINE', 'debug'), $arg);
+        }
+
+        return $result;
+    }
+
+    function fetch($result)
+    {
+        return mysqli_fetch_assoc($result);
+    }
+
+    function escape($str)
+    {
+        return '' . @mysqli_real_escape_string($this->db_link, $str);
+    }
+
+    function free($result)
+    {
+        if ($this->notempty($result)) {
+            mysqli_free_result($result);
+        }
+
+    }
+
+    /**
+     * закрыть неправеднооткрытое.
+     * Не нужно, но чистота требует жертв
+     */
+    function __destruct()
+    {
+        if (!empty($this->db_link)) {
+            mysqli_close($this->db_link);
+            $this->db_link = null;
+        }
+    }
+
+}
+
+/**
+ * вариант xDatabase для работы со sphinx
+ */
+class xSphinxDB extends xDatabaseLapsii
+{
+
+    function __construct($option = '')
+    {
+        xDatabase::__construct($option);
+        $this->db_link = @mysqli_connect(
+            $this->_host,
+            $this->_user,
+            $this->_password,
+            '',
+            $this->_port
+        );
+        if (empty($this->db_link) || mysqli_connect_error()) {
+            ENGINE::error(
+                'can\'t connect: (' . mysqli_connect_errno() . ') '
+                . mysqli_connect_error() . "\n" .
+                $this->_host . "\n" .
+                $this->_user . "\n" .
+                $this->_password . "\n" .
+                $this->_port
+            );
+        }
+    }
+}
+
+/**
+ * вариант xDatabase для работы с mysql
+ */
+class xDatabaseLapsi extends xDatabase
+{
+    /** @var bool|Memcache */
+    // private $mcache = false;
+    protected $_debug = false;
+
+    function notempty($res)
+    {
+        return is_resource($res);
+    }
+
+    function affectedrow()
+    {
+        if(!is_null($this->db_link))
+            return mysql_affected_rows($this->db_link);
+        else
+            return mysql_affected_rows();
+    }
+
+    function insertid()
+    {
+        if(!is_null($this->db_link))
+            return mysql_insert_id($this->db_link);
+        else
+            return mysql_insert_id();
+    }
+
+    /**
+     * конструктор
+     *
+     * @param string $option параметры
+     */
+    function __construct($option = '')
+    {
+        parent::__construct($option);
+        $this->set_option(ENGINE::slice_option('database.'));
+        // ENGINE::debug(ENGINE::slice_option('database.'));
+        if ($this->_init) {
+            $this->db_link = mysql_connect(
+                $this->_host,
+                $this->_user,
+                $this->_password
+            );
+            if (empty($this->db_link)) {
+                ENGINE::error(
+                    'can\'t connect: '
+                    . mysql_error() . "\n" .
+                    $this->_host . "\n" .
+                    $this->_user . "\n" .
+                    $this->_password
+                );
+            }
+            mysql_select_db($this->_base);
+        }
+
+        //$this->prefix = ENGINE::option('database.prefix', 'xsite');
+        if ($option = ENGINE::option('database.options')) {
+            $this->set_option($option);
+        }
+
+        if ($this->_init) {
+            $this->query('set names ?x', $this->_code);
+        }
+    }
+
+    /**
+     * выполнить запрос с параметрами.
+     * sql парсится и дополняется параметрами.
+     *
+     * @param array $arg Запрос + параметры запроса
+     * @param bool $cached кэшировать или нетъ
+     *
+     * @return resource
+     */
+    protected function _query($arg, $cached = false)
+    {
+        $start = 0;
+        if ($this->_debug) {
+            $start = microtime(true);
+        }
+        $sql = $this->_($arg);
+        if ($cached) {
+            $this->cachekey = ENGINE::option('cache.prefix', 'y') . md5($sql);
+            if (false !== ($result = $this->cache($this->cachekey))) {
+                if (false !== ($result = $this->cache($this->cachekey))) {
+                    if ($this->_debug) {
+                        $arg = $this->debug;
+                        $arg[] = '~function|_query';
+                        $arg[] = '~shift|1';
+                        array_unshift(
+                            $arg,
+                            'QUERY(cache)' .
+                            sprintf('[%f]', microtime(true) - $start) .
+                            ': ' . $sql . "\n"
+                        );
+                        call_user_func_array(array('ENGINE', 'debug'), $arg);
+                    }
+                    return $result;
+                }
+                return $result;
+            }
+        }
+        //ENGINE::debug( 222/* ,$this->db_link */);
+        if (!$this->_test) {
+            if(is_null($this->db_link))
+                $result = mysql_query($sql/*, $this->db_link*/);
+            else
+                $result = mysql_query($sql, $this->db_link);
+            //ENGINE::debug($result);
+            if (!$result) {
+                ENGINE::error(
+                    'Invalid query: ' . (!is_null($this->db_link)?mysql_error($this->db_link):mysql_error()) . "\n" . 'Whole query: ' . $sql
+                );
+            } else {
+                $this->q_count += 1;
+            }
+        } else {
+            ENGINE::debug(
+                "QUERY-TEST:\n" . $sql . "\n", '~function|_query', '~shift|1'
+            );
+            $result = false;
+        }
+        if ($this->_debug) {
+            $arg = $this->debug;
+            $arg[] = '~function|_query';
+            $arg[] = '~shift|1';
+            array_unshift(
+                $arg,
+                'QUERY' . sprintf('[%f]', microtime(true) - $start) .
+                ': ' . $sql . "\n" . (!is_null($this->db_link)?mysql_info($this->db_link):mysql_info())
+                . "\n" . (!is_null($this->db_link)?mysql_error($this->db_link):mysql_error())
+            );
+            call_user_func_array(array('ENGINE', 'debug'), $arg);
+        }
+
+        return $result;
+    }
+
+    function fetch($result)
+    {
+        return mysql_fetch_assoc($result);
+    }
+
+    function escape($str)
+    {
+        if(!is_null($this->db_link)){
+            return @mysql_real_escape_string($str, $this->db_link);
+        } else
+            return '' . @mysql_real_escape_string($str);
+    }
+
+    function free($result)
+    {
+        if ($this->notempty($result)) {
+            mysql_free_result($result);
+        }
+
+    }
+
+    /**
+     * закрыть неправеднооткрытое.
+     * Не нужно, но чистота требует жертв
+     */
+    function __destruct()
+    {
+        if (!empty($this->db_link)) {
+            mysql_close($this->db_link);
+            $this->db_link = null;
+        }
+    }
 
 }

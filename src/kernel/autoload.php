@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  */
@@ -12,24 +13,23 @@ class engine_autoload
         if (is_array($classes) && isset($classes[$cls])) {
             $x = $classes[$cls];
             if (substr($x, -1, 1) == '/') {
-                $x.=$cls;
+                $x .= $cls;
             }
         } else {
-            $x=$cls;
-        }  ;
-        $x.= '.php' ;
-        if(!isset($include_path)) {
-            $include_path=ENGINE::option('engine.include_path',array('.'));
+            $x = $cls;
+        };
+        $x .= '.php';
+        if (!isset($include_path)) {
+            $include_path = ENGINE::option('engine.include_path', array('.'));
         }
-        foreach($include_path as $path) {
-            if (is_readable($path .'/'.self::$SUBDIR. $x)){
-                include_once($path .'/'.self::$SUBDIR. $x);
+        foreach ($include_path as $path) {
+            if (is_readable($path . '/' . self::$SUBDIR . $x)) {
+                include_once($path . '/' . self::$SUBDIR . $x);
                 return;
             }
         }
-        if (function_exists("__autoload"))
-        {
-            __autoload($cls) ;
+        if (function_exists("__autoload")) {
+            __autoload($cls);
         }
 
     }
@@ -38,6 +38,6 @@ class engine_autoload
 
 /* <% POINT::start('ENGINE_bottom') %>*/
 
-spl_autoload_register('ENGINE::_autoload');
+spl_autoload_register('<%=$namespace%>\ENGINE::_autoload');
 
 /* <% POINT::finish() %>*/

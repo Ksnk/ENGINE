@@ -19,7 +19,7 @@ class engine_Db_logger
      * По дороге делается попытка проинициировать таблицу лога.
      *
      * @param string $msg сообщение
-     * @param array  $arg параметры в стиле _t + параметр type -
+     * @param array $arg параметры в стиле _t + параметр type -
      *
      * @return empty
      */
@@ -30,7 +30,8 @@ class engine_Db_logger
                 ENGINE::option('engine.logger_uri', 'db://userlog')
             );
             if (!empty($uri['host'])) {
-                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);                    }
+                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);
+            }
             self::$_logger_table = ENGINE::option('engine.log_table', $uri['path']);
         }
         if (is_string($arg)) {
@@ -41,13 +42,13 @@ class engine_Db_logger
         if (!isset($arg['key'])) {
             $arg['key'] = session_id();
         }
-        for($i=1;$i<2;$i++){
-        $res=ENGINE::db()->query(
-            'insert into `' . self::$_logger_table .
-            '` set `msg`=?,`type`=?,`key`=?;',
-            ENGINE::_t($msg, $arg), $arg['type'], $arg['key']
-        );
-            if(!$res){
+        for ($i = 1; $i < 2; $i++) {
+            $res = ENGINE::db()->query(
+                'insert into `' . self::$_logger_table .
+                '` set `msg`=?,`type`=?,`key`=?;',
+                ENGINE::_t($msg, $arg), $arg['type'], $arg['key']
+            );
+            if (!$res) {
                 ENGINE::db()->query(
                     'create table if not exists `' . self::$_logger_table . '`(
 `id` INT( 11 ) NOT NULL AUTO_INCREMENT ,

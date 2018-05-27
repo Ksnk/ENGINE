@@ -21,8 +21,8 @@ class DBG
     static function hasflag($flag)
     {
         return isset($_COOKIE) &&
-        isset($_COOKIE[self::$cookie_name]) &&
-        preg_match('/\b' . preg_quote($flag) . '\b/', $_COOKIE[self::$cookie_name]);
+            isset($_COOKIE[self::$cookie_name]) &&
+            preg_match('/\b' . preg_quote($flag) . '\b/', $_COOKIE[self::$cookie_name]);
     }
 
     /**
@@ -33,22 +33,22 @@ class DBG
     static function initflags()
     {
         if (isset($_GET) && isset($_GET[self::$cookie_name]) && !preg_match('/[^\w,\+\-\.\s]/', $_GET[self::$cookie_name])) {
-            if(preg_match('/[\-\s\+]/',$_GET[self::$cookie_name])){
-                if(isset($_COOKIE[self::$cookie_name])){
-                    $cookie=preg_split('/[,]+/',$_COOKIE[self::$cookie_name]);
+            if (preg_match('/[\-\s\+]/', $_GET[self::$cookie_name])) {
+                if (isset($_COOKIE[self::$cookie_name])) {
+                    $cookie = preg_split('/[,]+/', $_COOKIE[self::$cookie_name]);
                 } else {
-                    $cookie=array();
+                    $cookie = array();
                 }
-                if(preg_match_all('/([\s\-\+])([\w]*)/',$_GET[self::$cookie_name],$m))
-                foreach($m[0] as $k=>$v){
-                    if($m[1][$k]!='-') $cookie[]=$m[2][$k];
-                    else {
-                        $cookie=array_diff($cookie,array($m[2][$k])) ;
+                if (preg_match_all('/([\s\-\+])([\w]*)/', $_GET[self::$cookie_name], $m))
+                    foreach ($m[0] as $k => $v) {
+                        if ($m[1][$k] != '-') $cookie[] = $m[2][$k];
+                        else {
+                            $cookie = array_diff($cookie, array($m[2][$k]));
+                        }
                     }
-                }
-                $cookie=implode(',',array_unique($cookie));
+                $cookie = implode(',', array_unique($cookie));
             } else {
-                $cookie=trim($_GET[self::$cookie_name]);
+                $cookie = trim($_GET[self::$cookie_name]);
             }
             if (!empty($cookie))
                 setcookie(self::$cookie_name, $cookie);

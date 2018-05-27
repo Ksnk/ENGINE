@@ -1,16 +1,17 @@
 <?php
 /**
- * Äåêîðàöèÿ. Îòìåòêà âðåìåíè íà÷àëà âûïîëíåíèÿ è âûâîä ôèíàëüíîãî ðåïîðòà.
- * Ñîâìåñòíî ñ øàòäàóíîì è ðåïîðòîì âñåõ ñåðâèñîâ.
- * User: Ñåðãåé
+ * Ð”ÐµÐºÐ¾Ñ€Ð°Ñ†Ð¸Ñ. ÐžÑ‚Ð¼ÐµÑ‚ÐºÐ° Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð° Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ Ð¸ Ð²Ñ‹Ð²Ð¾Ð´ Ñ„Ð¸Ð½Ð°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ñ€ÐµÐ¿Ð¾Ñ€Ñ‚Ð°.
+ * Ð¡Ð¾Ð²Ð¼ÐµÑÑ‚Ð½Ð¾ Ñ ÑˆÐ°Ñ‚Ð´Ð°ÑƒÐ½Ð¾Ð¼ Ð¸ Ñ€ÐµÐ¿Ð¾Ñ€Ñ‚Ð¾Ð¼ Ð²ÑÐµÑ… ÑÐµÑ€Ð²Ð¸ÑÐ¾Ð².
+ * User: Ð¡ÐµÑ€Ð³ÐµÐ¹
  * Date: 08.06.13
  * Time: 14:00
  * To change this template use File | Settings | File Templates.
  */
 
-class ENGINE_shutdown {
+class ENGINE_shutdown
+{
     /* <% POINT::start('ENGINE_header') %>*/
-    static $start_time ;
+    static $start_time;
 
     /* <% POINT::start('ENGINE_body') %>*/
     static public function _report()
@@ -18,14 +19,15 @@ class ENGINE_shutdown {
         echo '<!--';
         /* <%=POINT::get('ENGINE_final_report'); %>*/
         printf("%f sec spent (%s)"
-            ,microtime(true)-self::$start_time,date("Y-m-d H:i:s"));
+            , microtime(true) - self::$start_time, date("Y-m-d H:i:s"));
         echo '-->';
     }
+
     static public function _shutdown()
     {
         /* <%=POINT::get('ENGINE_shutdown');%> */
 
-        if(ENGINE::option('noreport'))return;
+        if (ENGINE::option('noreport')) return;
         ENGINE::_report();
     }
     /* <% POINT::finish() %>*/
@@ -33,6 +35,6 @@ class ENGINE_shutdown {
 }
 
 /* <% POINT::start('ENGINE_bottom') %>*/
-register_shutdown_function('ENGINE::_shutdown');
-ENGINE::$start_time=microtime(true);
+register_shutdown_function('<%=$namespace%>\ENGINE::_shutdown');
+ENGINE::$start_time = microtime(true);
 /* <% POINT::finish() %>*/

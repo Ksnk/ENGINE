@@ -7,7 +7,8 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class ENGINE_interface {
+class ENGINE_interface
+{
     /* <% POINT::start('ENGINE_header') %>*/
 
     static private $interface = array();

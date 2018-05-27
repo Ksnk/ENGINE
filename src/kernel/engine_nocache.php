@@ -7,7 +7,8 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class ENGINE_nocache {
+class ENGINE_nocache
+{
     /*<% POINT::start('ENGINE_body'); %>*/
     /**
      *  доступ к xcached

@@ -23,7 +23,8 @@ $.fn.carret=function(act,selectionStart, selectionEnd){
         selectionEnd=selectionStart;
         selectionStart=act;
         act='set';
-    } else if(undefined==selectionEnd)
+    }
+    if(undefined==selectionEnd)
         selectionEnd=selectionStart;
 
     if(act=='set'){

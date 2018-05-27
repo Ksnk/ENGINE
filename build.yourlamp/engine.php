@@ -3,8 +3,9 @@
  * статический класс - преставитель CMS в космосе.
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, Lapsi build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: , Last build: 1508191754
- * GIT: $
+ * ver: , Last build: 1511151925
+ * status : draft build.
+ * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
  * License MIT - Serge Koriakin - Jule 2012
  * ----------------------------------------------------------------------------------
@@ -123,12 +124,29 @@ class ENGINE
 
     
 
+    static public $session_started = false;
+
+    
+
+    static $cookie_name = 'testing';
+
+    
+
     /** @var xDatabaseLapsi */
     static private $db = null;
 
     
 
     static $start_time ;
+
+    
+
+    static private $_logger_table = false;
+
+    
+
+    static $url_par = null;
+    static $url_path = null;
 
     /**
      * простейший строковый шаблон для вывода минимально параметризованных строк.
@@ -479,6 +497,64 @@ class ENGINE
     }
     
 
+    static function start_session($log=true)
+    {
+        if (!self::$session_started) {
+            $session_name = ENGINE::option('engine.sessionname');
+            if (!empty($session_name)) {
+                session_name($session_name);
+            }
+            session_start();
+            if($log){
+            $log = array();
+            foreach (array('REMOTE_ADDR', 'X-Forwarded-For', 'X-Real-IP') as $name) {
+                if (isset($_SERVER[$name])) {
+                    $log[$_SERVER[$name]] = $name;
+                }
+            }
+            ENGINE::log(
+                'Старт сессии.
+IP:{{IP}}
+REF:"{{HTTP_REFERER}}"
+UA:"{{HTTP_USER_AGENT}}"', array('type' => 'session',
+                    '{{IP}}' => implode(',', array_keys($log)),
+                    '{{HTTP_REFERER}}' => ENGINE::_($_SERVER['HTTP_REFERER'], '-'),
+                    '{{HTTP_USER_AGENT}}' => ENGINE::_($_SERVER['HTTP_USER_AGENT'], '-')
+                )
+            );
+            }
+            self::$session_started = true;
+        }
+    }
+
+    static function startSessionIfExists()
+    {
+        if (self::$session_started) {
+            return;
+        }
+
+        $session_name = ENGINE::option('engine.sessionname', session_name());
+        if (array_key_exists($session_name, $_GET)
+            && array_key_exists($session_name, $_COOKIE)
+        ) {
+            ENGINE::set_option('action', 'reload');
+        }
+        if (array_key_exists($session_name, $_GET)
+            || array_key_exists($session_name, $_COOKIE)
+        ) {
+            ENGINE::start_session(false); //session_start();
+        }
+    }
+
+    static function close_session()
+    {
+        if (self::$session_started) {
+            session_write_close();
+            self::$session_started = false;
+        }
+    }
+    
+
     /**
      * инициализация системы и прописка основных обработчиков
      * @static
@@ -715,6 +791,54 @@ class ENGINE
 
 
     /**
+     * @param $flag
+     * @return int
+     * @sample if(DBG::hasflag('test1')){ ...
+     */
+    static function hasflag($flag)
+    {
+        return isset($_COOKIE) &&
+        isset($_COOKIE[self::$cookie_name]) &&
+        preg_match('/\b' . preg_quote($flag) . '\b/', $_COOKIE[self::$cookie_name]);
+    }
+
+    /**
+     * setting up cookie in case user want to start debuging
+     * @return bool
+     * @sample if(DBG::initflags()) header('location: '.#clear URL from testing parameter#)
+     */
+    static function initflags()
+    {
+        if (isset($_GET) && isset($_GET[self::$cookie_name]) && !preg_match('/[^\w,\+\-\.\s]/', $_GET[self::$cookie_name])) {
+            if(preg_match('/[\-\s\+]/',$_GET[self::$cookie_name])){
+                if(isset($_COOKIE[self::$cookie_name])){
+                    $cookie=preg_split('/[,]+/',$_COOKIE[self::$cookie_name]);
+                } else {
+                    $cookie=array();
+                }
+                if(preg_match_all('/([\s\-\+])([\w]*)/',$_GET[self::$cookie_name],$m))
+                foreach($m[0] as $k=>$v){
+                    if($m[1][$k]!='-') $cookie[]=$m[2][$k];
+                    else {
+                        $cookie=array_diff($cookie,array($m[2][$k])) ;
+                    }
+                }
+                $cookie=implode(',',array_unique($cookie));
+            } else {
+                $cookie=trim($_GET[self::$cookie_name]);
+            }
+            if (!empty($cookie))
+                setcookie(self::$cookie_name, $cookie);
+            else
+                setcookie(self::$cookie_name, "", time() - 3600);
+            return true;
+        }
+        return false;
+    }
+    
+
+
+    /**
      * хяндлер ENGINE::DB
      *
      * @param string $option строка параметров
@@ -752,6 +876,340 @@ class ENGINE
         if(ENGINE::option('noreport'))return;
         ENGINE::_report();
     }
+    
+
+    /**
+     * вывод собощения в системный лог.
+     * Записывается сессия пользователя, если она есть.
+     * По дороге делается попытка проинициировать таблицу лога.
+     *
+     * @param string $msg сообщение
+     * @param array  $arg параметры в стиле _t + параметр type -
+     *
+     * @return empty
+     */
+    static function log($msg, $arg = array())
+    {
+        if (!self::$_logger_table) {
+            $uri = parse_url(
+                ENGINE::option('engine.logger_uri', 'db://userlog')
+            );
+            if (!empty($uri['host'])) {
+                $uri['path'] = $uri['host'] . ENGINE::_($uri['path']);                    }
+            self::$_logger_table = ENGINE::option('engine.log_table', $uri['path']);
+        }
+        if (is_string($arg)) {
+            $arg = array('type' => $arg);
+        } else if (!isset($arg['type'])) {
+            $arg['type'] = 'userlog';
+        }
+        if (!isset($arg['key'])) {
+            $arg['key'] = session_id();
+        }
+        for($i=1;$i<2;$i++){
+        $res=ENGINE::db()->query(
+            'insert into `' . self::$_logger_table .
+            '` set `msg`=?,`type`=?,`key`=?;',
+            ENGINE::_t($msg, $arg), $arg['type'], $arg['key']
+        );
+            if(!$res){
+                ENGINE::db()->query(
+                    'create table if not exists `' . self::$_logger_table . '`(
+`id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
+`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+`msg` TEXT ,
+`type` VARCHAR( 8 ) NOT NULL ,
+`key` VARCHAR( 40 ) NOT NULL ,
+  PRIMARY KEY (`id`),
+  KEY `date` (`date`),
+  KEY `key` (`key`)
+) ENGINE = MYISAM ;'
+                );
+            }
+        }
+    }
+    
+
+    /**
+     * организация массива - регулярка, имена захваченных
+     * @var array
+     *
+     */
+    static function route($rules = null)
+    {
+
+        /** @var array $rules */
+        if (empty($rules)) {
+            /**
+             * дефолтное правило - если нет роутинга в конфиге
+             * - показываем стартовую страницу
+             */
+            $rules = ENGINE::option(
+                'router.rules',
+                array('', array('class' => 'Main', 'method' => 'do_Default'))
+            );
+        }
+
+        /**
+         * @var string $query_string - очищенная от стартового
+         * каталога строка запроса
+         */
+        $query_string = preg_replace(
+            '#^' . ENGINE::option('page.rootsite') . '#i',
+            '',
+            $_SERVER['REQUEST_URI']
+        );
+
+        /** аварийное правило, если никакое правило роутинга не подойдет  */
+        ENGINE::set_option(
+            array('class' => 'Main', 'method' => 'do_404')
+        );
+
+        foreach ($rules as $rule) {
+            if (empty($rule[0]) || preg_match($rule[0], $query_string, $m)) {
+                foreach ($rule[1] as $k => $v) {
+                    if (is_int($k)) {
+                        if (!empty($m[$k])) {
+                            if ($v == 'method') {
+                                $m[$k] = 'do_' . $m[$k];
+                            }
+                            ENGINE::set_option($v, $m[$k]);
+                        }
+                    } else {
+                        ENGINE::set_option($k, $v);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * строим ссылку, по полученным параметрам
+     * @param string $z - адре для перехода
+     * @param string|array $act - действие
+     * @param null $par - дополнительные параметры
+     * @return string
+     */
+    static function link($z = '', $act = '', $par = null)
+    {
+        if (is_null(self::$url_par)) {
+            self::$url_par = $_GET;
+        }
+        if (is_null(self::$url_path)) {
+            self::$url_path = preg_replace("/\?.*$/", "", $_SERVER['REQUEST_URI']);
+        }
+        //$uri = ENGINE::option('page.rootsite');
+        $z = str_replace('\\', '/', $z);
+        $host = 'http://'
+            . $_SERVER["SERVER_NAME"]
+            . (80 == $_SERVER["SERVER_PORT"] ? '' : ':' . $_SERVER["SERVER_PORT"]);
+        if (!is_array($act)) {
+            $act = array(array($act, $par));
+        }
+        foreach ($act as $x) {
+            $action = $x[0];
+            $param = self::_($x[1],'');
+            switch ($action) {
+                case '+':
+                    if (empty($param))
+                        self::$url_par = array();
+                    self::$url_par = array_merge(self::$url_par, $param);
+                    break;
+                case '-':
+                    if (empty($param)) {
+                        self::$url_par = array();
+                    } else {
+                        self::$url_par = array_diff_key(self::$url_par, array_flip($param));
+                    }
+                    break;
+                case 'file2url':
+                    if(empty($par)){
+                        $query='';
+                    } else {
+                        $query=$par;
+                    }
+                    if (!empty($query))
+                        $query = '?' . $query;
+                    $z=str_replace(str_replace('\\', '/',INDEX_DIR),'',$z);
+                    return $z . $query;
+                case 'root':
+                    self::$url_path=ENGINE::option('page.rootsite', self::$url_path).$z;
+                    break;
+                case 'replace':
+                    self::$url_par = $param;
+                    break;
+            }
+        }
+        if(!empty(self::$url_par))
+            $query = http_build_query(self::$url_par);
+        else
+            $query='';
+        if (!empty($query))
+            $query = '?' . $query;
+        return self::$url_path . $query;
+
+    }
+
+    
+
+
+    static function relocate($link)
+    {
+        if (ENGINE::hasflag('norelock') || ENGINE::option('debug', false)) {
+            echo '<a href="' . $link . '">Press link to redirect</a>';
+        } else {
+            header('location:' . $link);
+        }
+        exit;
+    }
+
+    static function  ajax_action()
+    {
+        ENGINE::set_option('ajax', true);
+        header('Content-type: application/json; charset=UTF-8');
+        $data = array();
+        if ('POST' == $_SERVER['REQUEST_METHOD']) {
+            if (array_key_exists('handler', $_POST)) {
+                preg_match(
+                    '/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/',
+                    $_POST['handler'], $m
+                );
+                if (empty($m[1])) {
+                    $m[1] = 'Main';
+                }
+                if (empty($m[2])) {
+                    ENGINE::error('Wrong handler.');
+                }
+                for ($i = 3; $i < 6; $i++) {
+                    if (!array_key_exists($i, $m)) {
+                        $m[$i] = '';
+                    }
+                }
+                $act = array($m[1], 'do_' . $m[2]);
+                $data = ENGINE::exec($act, array($m[3], $m[4], $m[5]));
+            } else {
+                //ENGINE::error('Wrong usage of POST method.');
+                $data = self::getData();
+            }
+        } else {
+            /*  --- point::BEFORE_GETDATA --- */
+
+            $data = self::getData();
+        }
+
+        $result = array('data' => $data);
+        $data = ENGINE::slice_option('ajax.');
+        if (!empty($data)) {
+            $result = array_merge($result, $data);
+        }
+        $error = ENGINE::option('page.error');
+        if (!empty($error))
+            $result['error'] = utf8_encode($error);
+        $x = ob_get_contents();
+        $x .= trim(ENGINE::option('page.debug'));
+        if (!empty($x)) {
+            $result['debug'] = utf8_encode($x);
+        }
+        ob_end_clean();
+        if (session_id() != "") {
+            $result['session'] = array('name' => session_name(), 'value' => session_id());
+        }
+
+        // $q=ENGINE::db()->exec('Database',get_request_count
+        ob_start();
+        ENGINE::_report();
+        $result['stat'] = ob_get_contents();
+        ob_end_clean();
+        ENGINE::set_option('noreport',1);
+        //echo json_encode_cyr($result);
+        echo utf8_encode(json_encode($result));
+    }
+
+    static function getData()
+    {
+        $x = array(ENGINE::option('class', 'Main'), ENGINE::option('method', 'do_Default'));
+        //if(class_exists())
+        if(!ENGINE::getObj($x[0])){
+            $x=array('Main','do_404');
+        }
+        return ENGINE::exec($x);
+    }
+
+    static function action()
+    {
+        ob_start();
+        $error = ENGINE::option('session.page.error');
+        if (!empty($error)) {
+            ENGINE::set_option('session.page.error', '');
+            ENGINE::error($error);
+        }
+        if (is_callable('apache_request_headers')) {
+            $headers = apache_request_headers();
+        } else {
+            $headers=array();
+            foreach($_SERVER as $key=>$value) {
+                if (substr($key,0,5)=="HTTP_") {
+                    $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+                    $headers[$key]=$value;
+                }else{
+                    $headers[$key]=$value;
+                }
+            }
+        }
+        if ((isset($headers['X-Requested-With']) && $headers['X-Requested-With']=='XMLHttpRequest') || isset($_GET['ajax'])) {
+            self::ajax_action();
+            return;
+        }
+        header('Content-Type:text/html; charset=' . ENGINE::option('page.code', 'UTF-8'));
+        header('X-UA-Compatible: IE=edge,chrome=1');
+
+        if(isset($_SESSION['SAVE_POST'])){
+            if('POST' != $_SERVER['REQUEST_METHOD']) {
+                $_SERVER['REQUEST_METHOD']='POST';
+                $_POST=$_SESSION['SAVE_POST'];
+                $_FILES=$_SESSION['SAVE_FILES'];
+            }
+            unset($_SESSION['SAVE_POST'],$_SESSION['SAVE_FILES']);
+        }
+
+        if ('POST' == $_SERVER['REQUEST_METHOD'] && !ENGINE::option('skip_post',false)) {
+            if (array_key_exists('handler', $_POST)) {
+                preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/'
+                    , $_POST['handler'], $m);
+                if (empty($m[1])) $m[1] = 'Main';
+                if (empty($m[2])) ENGINE::error('Wrong handler.');
+                for ($i = 3; $i < 6; $i++)
+                    if (!array_key_exists($i, $m)) $m[$i] = '';
+                $act = array($m[1], 'do_' . $m[2]);
+                ENGINE::exec($act, array($m[3], $m[4], $m[5]));
+            } else
+                ENGINE::error('Wrong usage of POST method.');
+            $error = ENGINE::option('page.error');
+            if (!empty($error)) {
+                ENGINE::set_option('session.page.error', $error);
+            }
+            ENGINE::relocate(ENGINE::link());
+        }
+        /*  --- point::BEFORE_GETDATA --- */
+
+        $data = self::getData();
+
+        $x = ENGINE::template(
+            ENGINE::option('page_tpl', 'tpl_main')
+            , ENGINE::option('page_macro', '_')
+            , array_merge(array('data' => $data), ENGINE::slice_option('page.'))
+        );
+        if (!trim($x)) {
+            ENGINE::error($x = ENGINE::_t('template `{{tpl}}::{{macro}}` not defined',
+                array('{{tpl}}' => ENGINE::option('page_tpl', 'tpl_main'),
+                    '{{macro}}' => ENGINE::option('page_macro', '_'))));
+            $x = '<html><head><title>Oops</title></head><body>' . $x . '</body></html>';
+        }
+        echo $x;
+
+//        unset($_SESSION['errormsg']);
+    }
 
 }
 
@@ -759,6 +1217,33 @@ class ENGINE
 
 
 spl_autoload_register('ENGINE::_autoload');
+
+
+
+/**
+ * класс для хранения параметров в сессии
+ */
+class engine_options_session
+{
+
+    function get($name)
+    {
+        if (ENGINE::$session_started)
+            return $_SESSION[$name];
+        else
+            return null;
+    }
+
+    function set($name, $value = null)
+    {
+        ENGINE::start_session();
+        if (empty($value))
+            unset($_SESSION[$name]);
+        else
+            $_SESSION[$name] = $value;
+    }
+
+}
 
 
 

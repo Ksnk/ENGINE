@@ -7,7 +7,8 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class ENGINE_init {
+class ENGINE_init
+{
     /* <% POINT::start('ENGINE_body') %>*/
     /**
      * инициализация системы и прописка основных обработчиков
@@ -26,13 +27,13 @@ class ENGINE_init {
         if (is_array($options)) {
             ENGINE::set_option($options);
         } else if (is_readable($options)) {
-            ENGINE::set_option(include ($options));
+            ENGINE::set_option(include($options));
         } else {
             ENGINE::error('Init: parameter failed');
         }
         //////////////////////////////////////////////////////////////////////////////////
 // register all default interfaces
-        if(method_exists('ENGINE','register_interface'))
+        if (method_exists('ENGINE', 'register_interface'))
             foreach (ENGINE::option('engine.interfaces', array()) as $k => $v)
                 ENGINE::register_interface($k, $v);
 
@@ -46,7 +47,7 @@ class ENGINE_init {
         foreach (ENGINE::option('external.options', array()) as $k => $v)
             ENGINE::set_option($k, null, $v);
 
-        if(method_exists('ENGINE','register_event_handler'))
+        if (method_exists('ENGINE', 'register_event_handler'))
             foreach (ENGINE::option('engine.event_handler', array()) as $k => $v) {
                 if (is_array($v) && count($v) > 0) {
                     foreach ($v as $vv) {

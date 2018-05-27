@@ -12,7 +12,7 @@
  * - ^name      - имя поля для атрибута name
  * - value      - значение поля
  * - filter     - араметр для фильтрации - параметр функции filter_var
- * - filter_reg - регулярка для провери опля (php style)
+ * - filter_reg - регулярка для провери поля (php style)
  * - fcall      - callable - функция проверки, вызываемая при олучении данных.
  * - type       - captchaBitrix - капча в стиле Битрикс
  *              - captcha - кача в моем стиле
@@ -50,6 +50,11 @@ class xSimpleForm
     {
         if (is_array($fields)) {
             $this->fields = new xData($fields);
+            if(!empty($this->fields))
+            foreach($this->fields as $n=>$v){
+                if(!$v->name)
+                    $v->name=$n;
+            }
         } else {
             $this->fields = $fields;
         }
@@ -184,7 +189,7 @@ class xSimpleForm
     }
 
     /**
-     * очиcтить содержиомое области сохранения
+     * очиcтить содержимое области сохранения
      */
     function clear()
     {
@@ -222,13 +227,36 @@ class xSimpleForm
         return $name;
     }
 
+    static function gotByName($values,$name=''){
+        $result=null;
+        if(isset($name) && false===strpos($name,'[') && isset($values[$name])){
+            $result=$values[$name];
+        } else if(isset($name) && false!==strpos($name,'[')) {
+            $parts=preg_split('/\]\[|\[|\]/',$name);
+            $cur=&$values;
+            for($i=0;$i<count($parts)-1;$i++){
+                if(isset($cur[$parts[$i]])) {
+                    $cur=&$cur[$parts[$i]];
+                    if(is_string($cur))
+                        $result=stripslashes($cur);
+                    else
+                        $result=$cur;
+                }
+                else {
+                    $result=null;
+                    break;
+                }
+            }
+        }
+        return $result;
+    }
     /**
      * проверка, что в поле таки что-то введено и введено корректно
      */
     function handle($nostore=false)
     {
         global $APPLICATION; // интергация с битрикс, такая уж интеграция.
-
+        $files=array();
         $this->load();
         $headers=ENGINE::headers();
         $urldecode=false;
@@ -253,67 +281,117 @@ class xSimpleForm
         foreach ($this->fields as $name => $field) {
             if (!is_int($name)) {
 
-                if($field->type == 'files'){
+                if($field->type == 'signature'){
+                    if($field->value != trim($request[$name]))
+                        return false;
+                } elseif($field->type == 'files'){
                     if(isset($_FILES) && isset($_FILES[$name])&& isset($_FILES[$name]['name'])){
+                        $killold=$field->killold;
                         foreach($_FILES[$name]['name'] as $k=>$v){
+                            if(''==trim($v)) continue;
                             if(0==$_FILES[$name]['error'][$k]){
+                                if(false!==preg_match('/%[D-F]\d%/',$v))
+                                    $v=urldecode($v);
+                                //ENGINE::debug($k,$v);
+                                if (($code = ENGINE::option('page.code', 'UTF-8')) != 'UTF-8') {
+                                    if (detectUTF8($v)) {
+                                        $v
+                                            = iconv('UTF-8', $code . '//ignore', $v);
+                                    }
+                                }
                                 $xname=$this->createUniqueFileName(translit($v),$_FILES[$name]['tmp_name'][$k]);
+                                if($killold){
+                                    if(is_array($field->value))
+                                        foreach($field->value as $vv){
+                                            unlink($vv['tmp_name']);
+                                        };
+                                    $field->value=array();
+                                    $killold=false;
+                                }
                                 move_uploaded_file($_FILES[$name]['tmp_name'][$k],$xname);
+                                if(''==$field->value)$field->value=array();
+                                //ENGINE::debug($k,$field,$_FILES[$name]);
                                 $field->value[$v]=array(
                                     'tmp_name'=>$xname,
-                                    'size'=>$_FILES[$name]['size'][$k]
+                                    'size'=>ENGINE::_($_FILES[$name]['size'][$k])
                                 );
                             }
                         }
                     }
-                } else if (!empty($request[$name]) && ''!=trim(($request[$name]))) {
-                    $field->value = trim($request[$name]);
-                    if (($code = ENGINE::option('page.code', 'UTF-8')) != 'UTF-8') {
-                        if (detectUTF8($field->value)) {
-                            $field->value
-                                = iconv('UTF-8', $code . '//ignore', $field->value);
+                } else {
+                    $value=self::gotByName($request,$name);
+                    if (!is_null($value)) {
+                        if($field->type!='submit'){
+                            $field->value = trim($value);
+                            if(false!==preg_match('/%[D-F]\d%/',$field->value))
+                                $field->value=urldecode($field->value);
+                            if (($code = ENGINE::option('page.code', 'UTF-8')) != 'UTF-8') {
+                                if (detectUTF8($field->value)) {
+                                    $field->value
+                                        = iconv('UTF-8', $code . '//ignore', $field->value);
+                                }
+                            }
+                        }
+
+                        if ($field->filter) {
+                            if (!filter_var($field->value, $field->filter)) {
+                                $this->_error(ENGINE::_($field->error_msg, 'Неверные данные'), $field,false);
+                            }
+                        }
+                        if ($field->filter_reg) {
+                            if (!preg_match($field->filter_reg, $field->value))
+                                $this->_error(ENGINE::_($field->error_msg, 'Неверные данные'), $field,false);
+                        }
+                        if ($field->fcall) {
+                            if (!call_user_func($field->fcall, $field, $this))
+                                $this->_error(ENGINE::_($field->error_msg, 'Неверные данные'), $field,false);
+                        }
+
+                        if ($field->type == 'captchaBitrix') {
+                            if (!$GLOBALS['APPLICATION']->CaptchaCheckCode($value, $request["captcha_code"])) {
+                                $this->_error(ENGINE::_($field->error_msg, 'Неверно введены цифры'), $field,false);
+                            }
+                        } else if ($field->type == 'captcha') {
+                            if ($_SESSION["captcha"] != $value) {
+                                $this->_error(ENGINE::_($field->error_msg, 'Неверно введены цифры'), $field,false);
+                            }
+                        } else if ($field->type == 'captcha.new') {
+                            $c = $field->captcha;
+                            if (!$c->is_correct($field->value)) {
+                                $this->_error(ENGINE::_($field->error_msg, 'Неверно введены цифры') . '!', $field,false);
+                            }
                         }
                     }
 
-                    if ($field->filter) {
-                        if (!filter_var($field->value, $field->filter)) {
-                            $this->_error(ENGINE::_($field->error_msg, 'Неверные данные'), $field,false);
-                        }
-                    }
-                    if ($field->filter_reg) {
-                        if (!preg_match($field->filter_reg, $field->value))
-                            $this->_error(ENGINE::_($field->error_msg, 'Неверные данные'), $field,false);
-                    }
-                    if ($field->fcall) {
+                    else if ($field->fcall) {
                         if (!call_user_func($field->fcall, $field, $this))
                             $this->_error(ENGINE::_($field->error_msg, 'Неверные данные'), $field,false);
                     }
-
-                    if ($field->type == 'captchaBitrix') {
-                        if (!$GLOBALS['APPLICATION']->CaptchaCheckCode($request["captcha_word"], $request["captcha_code"])) {
-                            $this->_error(ENGINE::_($field->error_msg, 'Неверно введены цифры'), $field,false);
+                    else if ($field->type == 'file') {
+                        $files[$name]=1;
+                    } else {
+                        //ENGINE::debug($field);
+                        if ($field->require || $field->type == 'captcha.new') {
+                            $this->_error(ENGINE::_($field->error_msg, 'Неправильно заполнено поле '), $field,false);
                         }
-                    } else if ($field->type == 'captcha') {
-                        if ($_SESSION["captcha"] != $request[$name]) {
-                            $this->_error(ENGINE::_($field->error_msg, 'Неверно введены цифры'), $field,false);
-                        }
-                    } else if ($field->type == 'captcha.new') {
-                        $c = $field->captcha;
-                        if (!$c->is_correct($field->value)) {
-                            $this->_error(ENGINE::_($field->error_msg, 'Неверно введены цифры') . '!', $field,false);
-                        }
+                        if($field->type!='submit')
+                            $field->value = '';
                     }
-                } else {
-                    //ENGINE::debug($field);
-                    if ($field->require || $field->type == 'captcha.new') {
-                        $this->_error(ENGINE::_($field->error_msg, 'Неправильно заполнено поле '), $field,false);
-                    }
-                    $field->value = '';
                 }
-
             }
         }
+        if(!$this->has_error && !empty($files)){ // загрузка файлов
 
+            foreach($files as $key=>$val){
+                $x=$_FILES[$key];
+                if(!isset($x['name']) || empty($x['name'][0])) continue;
+                $files[$key]='/upload/picture/'.$x['name'][0];
+                move_uploaded_file($x['tmp_name'][0],
+                    realpath($_SERVER["DOCUMENT_ROOT"].'/../lapsi.msk.ru'.$files[$key]));
+                $this->fields->{$key}->value=$files[$key];
+            }
+        }
+        //ENGINE::debug($_FILES,$files,$this);
         if(!$nostore)$this->store();
         return !$this->has_error;
     }
