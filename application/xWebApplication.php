@@ -127,7 +127,7 @@ class xWebApplication  extends engine_plugin
     }
 
     function router(){
-        ENGINE::exec(array('ENGINE_router', 'route'), array(array(
+        ENGINE::exec(array('engine_router', 'route'), array(array(
             array('#^/?(\w+)/(\w+)($|\?.*)#', array(1 => 'class', 2 => 'method', 3 => 'query'))
         , array('#^/?(\d+)($|\?.*)#', array('class'=>'Page', 'method'=>'show', 1 =>'id',2 => 'query'))
         , array('#^/?(\w+)($|\?.*)#', array('class'=>'Main', 1 => 'method', 2 => 'query'))

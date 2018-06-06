@@ -6,14 +6,13 @@
  * Time: 10:52
  * To change this template use File | Settings | File Templates.
  */
+/* <%=POINT::get('ENGINE_namespace') %> */
 
-class ENGINE_memcache
+class ENGINE_memcache implements engine_cache
 {
-    /*<% POINT::start('ENGINE_header'); %>*/
-    /** @var Memcache null */
+    /** @var \Memcache null */
     private static $memcached = null;
 
-    /*<% POINT::start('ENGINE_body'); %>*/
     /**
      * упрощенный доступ к memcached
      * @static
@@ -29,7 +28,7 @@ class ENGINE_memcache
             return false;
         if (is_null($time)) $time = 28800;
         if (empty(self::$memcached)) {
-            self::$memcached = new Memcache;
+            self::$memcached = new \Memcache;
             self::$memcached->connect('localhost', 11211);
             if (empty(self::$memcached)) return false;
         }
@@ -50,14 +49,11 @@ class ENGINE_memcache
         return false;
     }
 
-    /*<% POINT::finish(); %>*/
     static function done()
     {
-        /*<% POINT::start('ENGINE_shutdown'); %>*/
         if (self::$memcached) {
             self::$memcached->close();
             self::$memcached = null;
         }
-        /*<% POINT::finish(); %>*/
     }
 }

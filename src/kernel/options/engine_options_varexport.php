@@ -8,8 +8,10 @@
 
 %>
  */
+/* <%=POINT::get('ENGINE_namespace') %> */
 
-class engine_options_varexport  {
+class engine_options_varexport implements engine_options
+{
 
     var $option_filename,
         $changed=false,
@@ -45,7 +47,7 @@ class engine_options_varexport  {
             return null;
     }
 
-    function set($name,$value){
+    function set($name,$value=null){
         if (!is_null($value)) {
             if(!is_array($value) || !array_key_exists($name,$this->option)){
                 if(!isset($this->option[$name]) || $this->option[$name]!=$value) {

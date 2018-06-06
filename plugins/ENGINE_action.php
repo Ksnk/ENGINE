@@ -19,7 +19,6 @@ class ENGINE_action
     {
         ENGINE::set_option('ajax', true);
         header('Content-type: application/json; charset=UTF-8');
-        $data = array();
         if ('POST' == $_SERVER['REQUEST_METHOD']&&
             (array_key_exists('handler', $_POST) || !ENGINE::option('skip_post',false))
         ) {

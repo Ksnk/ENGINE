@@ -55,7 +55,6 @@ class dbInsertValues
      *
      * @param array $values данные
      *
-     * @return null
      */
     public function insert($values)
     {

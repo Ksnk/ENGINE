@@ -6,10 +6,10 @@
  * Time: 10:52
  * To change this template use File | Settings | File Templates.
  */
+/* <%=POINT::get('ENGINE_namespace') %> */
 
-class ENGINE_xcache
+class ENGINE_xcache implements engine_cache
 {
-    /*<% POINT::start('ENGINE_body'); %>*/
     /**
      *  доступ к xcached
      * @static
@@ -18,8 +18,9 @@ class ENGINE_xcache
      * @param int $time в секундах 28800 - 8 часов
      * @return bool|null
      */
-    static function cache($key, $value = null, $time = 28800)
+    static function cache($key, $value = null, $time = null, $tags=null)
     {
+        if(is_null($time)) $time=28800;
         if (!function_exists('xcache_isset')) return false;
         if (strlen($key) > 40) $key = md5($key);
         if (is_null($value)) {

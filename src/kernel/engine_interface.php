@@ -51,7 +51,16 @@ class ENGINE_interface
 
     static public function __callStatic($method, $args)
     {
-        return ENGINE::exec(self::$interface[$method], $args);
+        if(isset(self::$interface[$method])) {
+            return ENGINE::exec(self::$interface[$method], $args);
+        } else {
+            $class=ENGINE::option('interface.'.$method, false);
+            if(false!==$class && is_callable(array($class,$method))) {
+                self::register_interface($method, array($class,$method));
+                return ENGINE::exec(self::$interface[$method], $args);
+            }
+            return null;
+        }
     }
 
     /* <% POINT::finish() %>*/

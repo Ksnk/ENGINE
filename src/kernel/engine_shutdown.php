@@ -35,6 +35,6 @@ class ENGINE_shutdown
 }
 
 /* <% POINT::start('ENGINE_bottom') %>*/
-register_shutdown_function('<%=$namespace%>\ENGINE::_shutdown');
+register_shutdown_function(__NAMESPACE__.'\ENGINE::_shutdown');
 ENGINE::$start_time = microtime(true);
 /* <% POINT::finish() %>*/

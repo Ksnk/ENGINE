@@ -1,6 +1,6 @@
 <?php
 
-class ENGINE_router
+class engine_router
 {
     /* <% POINT::start('ENGINE_header') %>*/
     static $url_par = null;
@@ -23,7 +23,7 @@ class ENGINE_router
              */
             $rules = ENGINE::option(
                 'router.rules',
-                array('', array('class' => 'Main', 'method' => 'do_Default'))
+                array(array('', array('class' => 'Main', 'method' => 'do_Default')))
             );
         }
 
@@ -42,7 +42,7 @@ class ENGINE_router
             array('class' => 'Main', 'method' => 'do_404')
         );
 
-        foreach ($rules as $rule) {
+        foreach ($rules as $rule) if(!empty($rule)){
             if (empty($rule[0]) || preg_match($rule[0], $query_string, $m)) {
                 foreach ($rule[1] as $k => $v) {
                     if (is_int($k)) {

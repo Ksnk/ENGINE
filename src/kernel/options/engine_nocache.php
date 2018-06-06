@@ -6,10 +6,10 @@
  * Time: 10:52
  * To change this template use File | Settings | File Templates.
  */
+/* <%=POINT::get('ENGINE_namespace') %> */
 
-class ENGINE_nocache
+class ENGINE_nocache implements engine_cache
 {
-    /*<% POINT::start('ENGINE_body'); %>*/
     /**
      *  доступ к xcached
      * @static
@@ -18,9 +18,8 @@ class ENGINE_nocache
      * @param int $time в секундах 28800 - 8 часов
      * @return bool|null
      */
-    static function cache($key, $value = null, $time = 28800)
+    static function cache($key, $value = null, $time = null, $tags=null)
     {
         return false;
     }
-    /*<% POINT::finish(); %>*/
 }

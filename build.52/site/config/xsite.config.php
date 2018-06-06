@@ -46,7 +46,7 @@ return array(
      */
     'engine.interfaces' => array(
         'user_find' => 'User::user_find',
-        'link' => array('ENGINE_router', 'link'),
+        'link' => array('engine_router', 'link'),
         'log' => 'ENGINE_logger::log',
         'template' => array('Main', 'template'),
         'db' => array('Database', 'getInstance'),

@@ -5,11 +5,11 @@
  *  ENGINE::debug, ::error, ::option, ::cache
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: xxx, Last build: 1805271922
+ * ver: xxx, Last build: 1806041916
  * status : draft build.
  * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
- * License MIT - Serge Koriakin - Jule 2012
+ * License MIT - Serge Koriakin - 2012-2018
  * ----------------------------------------------------------------------------------
 
 
@@ -18,6 +18,8 @@
 
 
  */
+/*  --- point::ENGINE_namespace --- */
+namespace Ksnk\core;
 
 /**
  * класс, собирающий длинный insertValues

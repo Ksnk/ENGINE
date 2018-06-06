@@ -12,6 +12,15 @@
 
 /* <%=POINT::get('ENGINE_top') %> */
 
+interface engine_cache {
+    static function cache($key, $value = null, $time = null, $tags = null);
+}
+
+interface engine_options {
+    function get($name);
+    function set($name, $value = null);
+}
+
 /**
  * @method static bool has_rights
  * @method static run

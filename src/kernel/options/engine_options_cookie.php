@@ -9,7 +9,9 @@
 /**
  * класс для хранения параметров в сессии
  */
-class engine_options_cookie
+/* <%=POINT::get('ENGINE_namespace') %> */
+
+class engine_options_cookie implements engine_options
 {
 
     var $options =array();

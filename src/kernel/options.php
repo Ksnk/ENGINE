@@ -35,7 +35,7 @@ class engine_options
      * @static
      * @param string|array $name
      * @param null $value
-     * @param string|object $transport
+     * @param string|\object $transport
      * @return bool|mixed
      */
     static public function set_option($name = '', $value = null, $transport = '')

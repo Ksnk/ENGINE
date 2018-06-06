@@ -14,7 +14,7 @@ class ENGINE_db_handler
 {
 
     /* <% POINT::start('ENGINE_header') %>*/
-    /** @var xDatabaseLapsi */
+    /** @var <%=$ns%>xDatabaseLapsi */
     static private $db = null;
 
     /* <% POINT::start('ENGINE_body') %>*/
@@ -24,7 +24,7 @@ class ENGINE_db_handler
      *
      * @param string $option строка параметров
      *
-     * @return xDatabaseLapsi
+     * @return <%=$ns%>xDatabaseLapsi
      */
     static public function &db($option = '')
     {

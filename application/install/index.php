@@ -33,7 +33,7 @@ class xInstall extends xWebApplication
         if (isset($_GET['do']))
             ENGINE::set_option(array('class' => 'Main', 'method' => 'do_' . $_GET['do']));
         else
-            ENGINE::exec(array('ENGINE_router', 'route'), array(array(
+            ENGINE::exec(array('engine_router', 'route'), array(array(
                 array('#^/?(\w+)/(\w+)($|\?.*)#', array(1 => 'class', 2 => 'method', 3 => 'query'))
             , array('#^/?(\d+)($|\?.*)#', array('class' => 'Page', 'method' => 'show', 1 => 'id', 2 => 'query'))
             , array('#^/?(\w+)($|\?.*)#', array('class' => 'Main', 1 => 'method', 2 => 'query'))
@@ -197,7 +197,7 @@ class xInstall extends xWebApplication
                  * список потенциальных внешних интерфейсов
                  */
                 'engine.interfaces' => array(
-                    'link' => array('ENGINE_router', 'link'),
+                    'link' => array('engine_router', 'link'),
                     'log' => array('ENGINE_logger', 'log'),
                     'db' => array('Database', 'getInstance'),
                     'action' => array('ENGINE_action', 'action'),

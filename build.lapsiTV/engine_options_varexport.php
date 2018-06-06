@@ -3,15 +3,18 @@
  * плагин для работы с параметрами в виде var_export файлов
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: xxx, Last build: 1805271922
+ * ver: xxx, Last build: 1806041916
  * status : draft build.
  * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
- * License MIT - Serge Koriakin - Jule 2012
+ * License MIT - Serge Koriakin - 2012-2018
  * ----------------------------------------------------------------------------------
  */
+/*  --- point::ENGINE_namespace --- */
+namespace Ksnk\core;
 
-class engine_options_varexport  {
+class engine_options_varexport implements engine_options
+{
 
     var $option_filename,
         $changed=false,
@@ -47,7 +50,7 @@ class engine_options_varexport  {
             return null;
     }
 
-    function set($name,$value){
+    function set($name,$value=null){
         if (!is_null($value)) {
             if(!is_array($value) || !array_key_exists($name,$this->option)){
                 if(!isset($this->option[$name]) || $this->option[$name]!=$value) {

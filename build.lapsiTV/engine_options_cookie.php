@@ -9,7 +9,10 @@
 /**
  * класс для хранения параметров в сессии
  */
-class engine_options_cookie
+/*  --- point::ENGINE_namespace --- */
+namespace Ksnk\core;
+
+class engine_options_cookie implements engine_options
 {
 
     var $options =array();

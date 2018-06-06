@@ -23,8 +23,9 @@ class ENGINE_router
     function route($rules)
     {
         $query_string = preg_replace('#^.*' . preg_quote(ENGINE::option('page.rootsite')) . '#i', '', $_SERVER['REQUEST_URI']);
-        foreach ($rules as $rule) {
+        foreach ($rules as $rule) if(!empty($rule)){
             if (preg_match($rule[0], $query_string, $m)) {
+               // if(!isset($rule[1])) ENGINE::debug($rule);
                 foreach ($rule[1] as $k => $v) {
                     if (is_int($k)) {
                         if (!empty($m[$k])) {

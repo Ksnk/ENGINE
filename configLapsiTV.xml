@@ -9,11 +9,12 @@
     <var name="namespace" default="Ksnk\core"/>
 
     <var name="version">X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com)</var>
-    <var name="license">License MIT - Serge Koriakin - Jule 2012</var>
+    <var name="license">License MIT - Serge Koriakin - 2012-2018</var>
     <import name="../preprocessor/git.hat.xml"/>
     <!-- сборка ядра CMS (system)-->
     <files>
     <echo><![CDATA[<%
+        $ns = '\\'.$namespace.'\\';
             POINT::inline('ENGINE_namespace',
 'namespace '.$namespace.';') ;
 %>]]>
@@ -22,25 +23,25 @@
             <file>plugins/macros/jinja_template.php</file>
         </files>
 
-        <files dir="src/kernel">  <!-- конфигурация ядра -->
-            <file>engine_memcache.php</file>
+        <files dir="src/kernel">
+            <!-- конфигурация ядра -->
+            <!--<file>engine_memcache.php</file>-->
             <file>events.php</file>
             <file>options.php</file>
-
             <!--        <file>optionsLapsi.php</file>-->
-            <file>autoload.php</file>
+            <!--<file>autoload.php</file>-->
             <file>engine_session.php</file>
             <file>engine_init.php</file>
             <file>engine_xdata.php</file>
             <file>engine_debug.php</file>
             <file>engine_flags.php</file>
+            <file>engine_interface.php</file>
             <file>engine_db_handler.php</file>
-            <file dir="plugins">ENGINE_router.php</file>
+            <file>engine_router.php</file>
             <file>engine_shutdown.php</file>
-            <file>engine_DBLogger.php</file>
+         <!--   <file>engine_DBLogger.php</file>-->
         </files>
 
-        <file dir="plugins">ENGINE_router.php</file>
         <file dir="plugins">ENGINE_action.php</file>
 
         <files dir="src/kernel" dstdir="$system">

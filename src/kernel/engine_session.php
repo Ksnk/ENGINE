@@ -75,31 +75,5 @@ class ENGINE_session
     /* <% POINT::finish() %>*/
 }
 
-/* <% POINT::start('ENGINE_bottom') %>*/
-/**
- * класс для хранения параметров в сессии
- */
-class engine_options_session
-{
-
-    function get($name)
-    {
-        if (ENGINE::$session_started)
-            return $_SESSION[$name];
-        else
-            return null;
-    }
-
-    function set($name, $value = null)
-    {
-        ENGINE::start_session();
-        if (empty($value))
-            unset($_SESSION[$name]);
-        else
-            $_SESSION[$name] = $value;
-    }
-
-}
-
 /* <% POINT::finish() %>*/
 
