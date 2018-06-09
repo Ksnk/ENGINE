@@ -109,7 +109,7 @@ class engine_options
             $x = explode('|', $transport . '|');
             $y = explode('~', $x[0] . '~');
             self::$transports[$transport] = 'engine_options_' . $y[0];
-            foreach(array('','engine_option_',__NAMESPACE__.'\engine_option_') as $pref) {
+            foreach(array('','engine_options_',__NAMESPACE__.'\engine_options_') as $pref) {
                 if (is_callable(array($pref . $y[0], 'init'))) {
                     self::$transports[$transport] =
                         call_user_func(array($pref . $y[0], 'init'), $y[1], $x[1]);
