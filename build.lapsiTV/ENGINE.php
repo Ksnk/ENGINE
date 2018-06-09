@@ -3,7 +3,7 @@
  * статический класс - преставитель CMS в космосе.
  * ----------------------------------------------------------------------------------
  * $Id: X-Site cms (2.0, LapsiTV build), written by Ksnk (sergekoriakin@gmail.com),
- * ver: xxx, Last build: 1806041916
+ * ver: xxx, Last build: 1806091520
  * status : draft build.
  * GIT: origin	https://github.com/Ksnk/ENGINE.git (push)$
  * ----------------------------------------------------------------------------------
@@ -597,11 +597,14 @@ class ENGINE
             // отделяем имя от параметра
             $x = explode('|', $transport . '|');
             $y = explode('~', $x[0] . '~');
-            if (is_callable(array('engine_options_' . $y[0], 'init')))
-                self::$transports[$transport] =
-                    call_user_func(array('engine_options_' . $y[0], 'init'), $y[1], $x[1]);
-            else
-                self::$transports[$transport] = 'engine_options_' . $y[0];
+            self::$transports[$transport] = 'engine_options_' . $y[0];
+            foreach(array('','engine_option_',__NAMESPACE__.'\engine_option_') as $pref) {
+                if (is_callable(array($pref . $y[0], 'init'))) {
+                    self::$transports[$transport] =
+                        call_user_func(array($pref . $y[0], 'init'), $y[1], $x[1]);
+                    break;
+                }
+            }
         }
     }
 
