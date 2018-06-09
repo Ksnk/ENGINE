@@ -12,17 +12,19 @@ require "../../vendor/autoload.php";
 
 class tE extends \Ksnk\core\ENGINE {};
 
-class engine_cache_testcache implements \Ksnk\core\engine_cache {
+class engine_cache_testcache  {
+
+    static $instance_conter=0;
 
     function __construct(){
-        echo 'Hello'.PHP_EOL;
+        self::$instance_conter++;
     }
 
-    static function cache($key, $value = null, $time = null, $tags = null){
+    function cache($key, $value = null, $time = null, $tags = null){
         static $store=[];
         if(is_null($value))
             if(isset($store[$key]))
-                return $store[$key];
+                return '>>>'.$store[$key];
             else
                 return null;
         else
@@ -49,21 +51,39 @@ class test_Interface extends \PHPUnit\Framework\TestCase
         $x= new \Ksnk\Tests\testLapsiTv\engine_cache_testcache();
         $x::cache('aaa1','bbb1');
         $this->assertEquals(
-            'bbb1',
+            '>>>bbb1',
             $x::cache('aaa1')
         );
     }
 
     function test2stage()
     {
+        $ic=engine_cache_testcache::$instance_conter;
         tE::register_interface('cache');
         tE::set_option('interface.cache','testcache');
         tE::register_interface('cache',[__NAMESPACE__.'\engine_cache_testcache','cache']);
 
+        // проверяем, что результат из нашего метода
         tE::cache('aaa','bbb');
         $this->assertEquals(
-            'bbb',
+            '>>>bbb',
             tE::cache('aaa')
+        );
+        // проверяем, что объект заново инициализирован
+        $this->assertEquals(
+            $ic+1,
+            engine_cache_testcache::$instance_conter
+        );
+        // проверяем, что результат из нашего метода
+        tE::cache('ссс','ddd');
+        $this->assertEquals(
+            '>>>ddd',
+            tE::cache('ссс')
+        );
+        // проверяем, что объект больше не инициализируется
+        $this->assertEquals(
+            $ic+1,
+            engine_cache_testcache::$instance_conter
         );
     }
 }
