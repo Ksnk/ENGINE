@@ -13,7 +13,7 @@
  * Class xData -data-holder,
  * базовый класс для хранителя данных для шаблонов
  */
-class xData implements \Iterator
+class xData implements <% if(empty($namespace)){%>Iterator<%} else {%>\Iterator<% } %>
 {
 
     /**

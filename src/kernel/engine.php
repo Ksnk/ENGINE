@@ -209,12 +209,12 @@ class ENGINE
      * вызвать класс-метод.
      * Если класс из массива - вызывать объект из фабрики.
      *
-     * @param callable $func
+     * @param callable|array $func
      * @param null|array $args
      * @param string $error_rule
      * @return mixed
      */
-    static function exec(&$func, $args = array(), $error_rule = '')
+    static function exec($func, $args = array(), $error_rule = '')
     {
         if (is_array($func) && is_string($func[0])) {
             $func[0] = self::getObj($class = $func[0]);

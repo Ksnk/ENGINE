@@ -123,6 +123,7 @@ class ENGINE_action
 
     static function action()
     {
+        try {
         ob_start();
         $error = ENGINE::option('session.page.error');
         if (!empty($error)) {
@@ -149,8 +150,8 @@ class ENGINE_action
             unset($_SESSION['SAVE_POST'],$_SESSION['SAVE_FILES']);
         }
 
-        if ('POST' == $_SERVER['REQUEST_METHOD'] &&
-            (array_key_exists('handler', $_POST) || !ENGINE::option('skip_post',false))
+        if ('POST' == self::_($_SERVER['REQUEST_METHOD']) &&
+                (array_key_exists('handler', $_POST) || ENGINE::option('skip_post',false))
         ) {
             if (array_key_exists('handler', $_POST)) {
                 preg_match('/^([^:]*)::([^:]+)(?::([^:]+))?(?::([^:]+))?(?::([^:]+))?$/'
@@ -184,8 +185,12 @@ class ENGINE_action
             $x = '<html><head><title>Oops</title></head><body>' . $x . '</body></html>';
         }
         echo $x;
+        } catch (Exception $e) {
+            ENGINE::error($x = ENGINE::_t('Exception pending `{{msg}}`',
+                array('{{msg}}' => $e->getMessage())));
+            $x = '<html><head><title>Oops</title></head><body>' . $x . '</body></html>';
+        }
 
-//        unset($_SESSION['errormsg']);
     }
     /* <% POINT::finish() %>*/
 }

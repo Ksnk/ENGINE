@@ -10,6 +10,7 @@ class engine_options
     static private $transport = array(); // пары: имя - механизм сохранения
     static public $default_transport = '';
     static private $transports = array(); // строка -> объект
+   // static private $class_alias = false;
 
     /* <% POINT::start('ENGINE_body') %>*/
     /**
@@ -42,6 +43,8 @@ class engine_options
     {
         if (is_array($name))
             $transport = $value;
+        if($name=='engine.aliaces')
+            self::$class_alias=false;
 
         if (!empty($transport) && is_string($transport) && !isset(self::$transports[$transport])) {
             self::read_options($transport);
@@ -109,10 +112,13 @@ class engine_options
             $x = explode('|', $transport . '|');
             $y = explode('~', $x[0] . '~');
             self::$transports[$transport] = 'engine_options_' . $y[0];
-            foreach(array('','engine_options_',__NAMESPACE__.'\engine_options_') as $pref) {
+            foreach(array('','engine_options_','\\'.__NAMESPACE__.'\\engine_options_') as $pref) {
                 if (is_callable(array($pref . $y[0], 'init'))) {
                     self::$transports[$transport] =
                         call_user_func(array($pref . $y[0], 'init'), $y[1], $x[1]);
+                    break;
+                } else if(class_exists($pref . $y[0])){
+                    self::$transports[$transport] = $pref .$y[0];
                     break;
                 }
             }

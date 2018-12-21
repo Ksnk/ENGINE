@@ -5,6 +5,7 @@
  * Date: 27.09.12
  * Time: 10:39
  * To change this template use File | Settings | File Templates.
+ * @method static mixed option($name)
  */
 class ENGINE_session
 {
@@ -15,7 +16,7 @@ class ENGINE_session
     static function start_session($log=true)
     {
         if (!self::$session_started) {
-            $session_name = ENGINE::option('engine.sessionname');
+            $session_name = self::option('engine.sessionname');
             if (!empty($session_name)) {
                 session_name($session_name);
             }
