@@ -248,7 +248,7 @@ class ENGINE
         return '';
     }
 
-    static function _(&$val, $def = '')
+    static function _($val, $def = '')
     {
         return empty($val) ? $def : $val;
     }

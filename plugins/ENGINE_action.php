@@ -66,8 +66,10 @@ class ENGINE_action
             $result = array_merge($result, $data);
         }
         $error = ENGINE::option('page.error');
-        if (!empty($error))
-            $result['error'] = utf8_encode($error);
+        if (!empty($error)) {
+            if(!isset($result['error']))$result['error']='';
+            $result['error'] .= utf8_encode($error);
+        }
         $x = ob_get_contents();
         $x .= trim(ENGINE::option('page.debug'));
         if (!empty($x)) {

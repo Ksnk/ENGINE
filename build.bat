@@ -1,5 +1,9 @@
 @echo off
-set PHPBIN=c:\Winginx\php56\php.exe
+if exist c:\Winginx\php56\php.exe (
+    set PHPBIN=c:\Winginx\php56\php.exe
+) else (
+    set PHPBIN=d:\Winginx\php56\php.exe
+)
 set PROCESSOR=d:\projects\preprocessor\build\preprocessor.php
 
 ::  **********************************************************************
